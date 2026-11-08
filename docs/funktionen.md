@@ -12,7 +12,7 @@ Wer übt, soll sofort loslegen können. Alle Hürden müssen minimal sein.
 
 - Kein Konto, keine Anmeldung
 - Komplett offline lauffähig
-- Ohne Installation nutzbar, auch als portable Version
+- Ohne Installation nutzbar: Die App läuft im Browser und lässt sich optional als App installieren.
 - Schneller Start ohne Ladebildschirm oder Onboarding
 - Die wichtigste Funktion ist mit einem Klick erreichbar
 - Sinnvolle Standardwerte; Einstellungen sind optional
@@ -118,9 +118,8 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 
 ## Zielplattformen
 
-- **Jetzt:** Desktop unter Linux und Windows
-- **Später:** macOS, eventuell durch Beiträge aus der Community
-- **Nicht geplant:** Mobile (Android/iOS)
+- **Desktop:** Linux, Windows und macOS, jeweils mit einem Chromium-Browser (z. B. Chrome, Edge, Brave). Die Begründung steht in [technologie.md](technologie.md).
+- **Nicht geplant:** Mobile (Android/iOS). Dort fehlt der Zugriff auf Ordner, ohne den der Dateibrowser nicht funktioniert.
 
 ## Roadmap
 
@@ -145,7 +144,9 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 
 Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffnet Stücke direkt. Es gibt keinen Import und keine Bibliothek.
 
-- **Startpunkt:** der zuletzt geöffnete Ordner. Beim ersten Start ist das der Musik-Ordner des Nutzers, ersatzweise das Home-Verzeichnis. Man kann frei im gesamten Dateisystem navigieren.
+- **Ordner freigeben:** Der Browser erlaubt nur Zugriff auf Ordner, die der Nutzer ausdrücklich freigibt. Beim ersten Start wählt man deshalb einen Ordner, z. B. den Musik-Ordner. Weitere Ordner lassen sich jederzeit hinzufügen, z. B. einen Ordner auf einer zweiten Platte. Innerhalb der freigegebenen Ordner navigiert man frei durch alle Unterordner.
+- **Startpunkt:** der zuletzt geöffnete Ordner
+- **Freigabe erneuern:** Gilt eine Freigabe nach einem Neustart nicht mehr, zeigt die App den Ordner weiter an und erneuert den Zugriff mit einem Klick oder Tipp.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
 
 ### Stücke und Gruppierung
@@ -180,8 +181,8 @@ Regeln der Erkennung:
 
 Pro Stück gibt es eine Sidecar-Datei. Sie liegt neben den Dateien des Stücks. So bleiben die Daten beim Stück, auch wenn man den Ordner kopiert oder auf einen anderen Rechner mitnimmt. Eine zentrale Datenbank gibt es nicht.
 
-- **Name:** der erkannte Titel des Stücks, z. B. `Autumn Leaves.jp`
-- **Dateiendung:** `.jp`, der Inhalt ist JSON
+- **Name:** der erkannte Titel des Stücks, z. B. `Autumn Leaves.jps`
+- **Dateiendung:** `.jps`, der Inhalt ist JSON
 - **Inhalt:**
   - Einstellungen pro Audiodatei des Stücks: A-B-Loop, Tempo, Lautstärke
   - falls von Hand korrigiert: die Liste der Dateien, die zum Stück gehören
@@ -190,22 +191,20 @@ Pro Stück gibt es eine Sidecar-Datei. Sie liegt neben den Dateien des Stücks. 
 
 ### App-Einstellungen
 
-Die App speichert zwei Arten von Daten in getrennten Dateien:
+Die App speichert zwei Arten von Daten getrennt:
 
 - **Einstellungen:** alles, was der Nutzer einstellt, z. B. Timerdauer, letzte und benannte Metronom-Einstellungen, Kammerton
-- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. Fenstergröße und -position, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen) und der gewählte Speicherort
+- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die freigegebenen Ordner, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen), das Eingabegerät des Stimmgeräts und der gewählte Speicherort
 
 #### Speicherort
 
-Beim Start prüft die App, ob neben ihr eine Markierung für den portablen Betrieb liegt (z. B. `portable` oder `settings.json`).
-
-- **Portabel:** Beide Dateien liegen neben der App. Einen eigenen Speicherort kann man dann nicht wählen.
-- **Standard:** Beide Dateien liegen am Standardort des Betriebssystems (`~/.config/...` bzw. `%APPDATA%`).
-- **Eigener Speicherort:** Für die Einstellungen kann man einen eigenen Ordner wählen, z. B. einen Cloud-Ordner, damit mehrere Rechner dieselben Einstellungen nutzen. Das gerätespezifische Gedächtnis bleibt am Standardort und merkt sich, wo die Einstellungen liegen.
+- **Standard:** Beide liegen im Speicher, den der Browser der App bereitstellt. Der Nutzer muss nichts einrichten.
+- **Eigener Speicherort:** Für die Einstellungen kann man einen eigenen Ordner wählen, z. B. einen Cloud-Ordner, damit mehrere Rechner dieselben Einstellungen nutzen. Sie liegen dort als Datei. Das gerätespezifische Gedächtnis bleibt im Browser und merkt sich, wo die Einstellungen liegen.
 - **Wechsel:** Beim Wechsel des Speicherorts fragt die App, ob die bisherigen Einstellungen mitgenommen werden oder ob am neuen Ort neu begonnen wird. Liegen dort schon Einstellungen, werden diese verwendet.
-- **Nicht erreichbar:** Ist der gewählte Ordner nicht erreichbar (z. B. USB-Stick nicht eingesteckt), startet die App trotzdem mit Standardwerten, zeigt einen Hinweis und überschreibt nichts.
+- **Nicht erreichbar:** Ist der gewählte Ordner nicht erreichbar (z. B. USB-Stick nicht eingesteckt oder Freigabe abgelaufen), startet die App trotzdem mit Standardwerten, zeigt einen Hinweis und überschreibt nichts.
+- **Browserdaten gelöscht:** Löscht der Nutzer die Browserdaten der App, sind das gerätespezifische Gedächtnis und die Ordnerfreigaben weg. Sidecar-Dateien und Einstellungen am eigenen Speicherort bleiben erhalten.
 
-So funktioniert die App portabel, an schreibgeschützten Orten und auf mehreren Rechnern.
+So funktioniert die App ohne Einrichtung und auf mehreren Rechnern mit denselben Einstellungen.
 
 #### Export und Import
 
@@ -297,6 +296,7 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt das Metronom das Tempo in B
 - **Kammerton:** frei wählbar in Hz, Standard 440 Hz. Er gilt global und wird in den [App-Einstellungen](#app-einstellungen) gespeichert.
 - **Eingabegerät:** wählbar, z. B. eingebautes Mikrofon oder Audio-Interface. Die Auswahl gehört zum gerätespezifischen Gedächtnis, weil jeder Rechner andere Geräte hat.
 - **Kein Referenzton:** Das Stimmgerät spielt keine Töne ab, es hört nur zu.
+- **Lautstärke:** Das Stimmgerät zeigt zusätzlich die Lautstärke des gespielten Tons. So lässt sich Dynamik üben, z. B. ein gleichmäßiges Piano oder ein kontrolliertes Crescendo (siehe [Lautstärkeanzeige](#lautstärkeanzeige)).
 
 ### Transponierende Instrumente
 
@@ -312,6 +312,15 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt das Metronom das Tempo in B
 - **Nadel:** Sie zeigt die Abweichung vom erkannten Ton. In der Mitte ist der Ton sauber.
 - **Ton und Abweichung:** Tonname und Abweichung in Cent werden als Text angezeigt.
 - Weitere Anzeigearten, z. B. Balken oder Strobe, können später dazukommen.
+
+### Lautstärkeanzeige
+
+Die Anzeige hilft beim Üben von Dynamik. Sie zeigt, wie laut man gerade spielt.
+
+- **Skala:** relativer Pegel in dB. Ein absoluter Wert wäre nicht sinnvoll, weil er von Mikrofon, Abstand und Raum abhängt.
+- **Aktueller Pegel und Verlauf:** Neben dem aktuellen Pegel zeigt ein Verlauf der letzten Sekunden, wie sich die Lautstärke entwickelt. Daran erkennt man Crescendi, Decrescendi und gleichmäßig gehaltene Töne.
+- **Eingeklappte Darstellung:** ein einfacher Balken für den aktuellen Pegel
+- **Eigene Komponente oder Teil des Stimmgeräts:** Das entscheidet sich beim Entwurf der Oberfläche. Lassen sich Tonhöhe, Pegel und Verlauf nicht leicht erfassbar gemeinsam darstellen, wird die Lautstärkeanzeige eine eigene Komponente. Sie bekommt dann wie alle Komponenten die Zustände ausgeklappt, eingeklappt und geschlossen, ein Symbol in der Leiste und eigene Tastenkürzel. Das Eingabegerät teilt sie sich mit dem Stimmgerät.
 
 ### Eingeklappte Darstellung
 
