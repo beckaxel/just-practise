@@ -94,10 +94,56 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 | Pegelmessung | eigene Berechnung (RMS, Spitzenwert) | – |
 | Ton- und Akkordlogik | eigene Komponente; als Grundlage zu prüfen: [DryWetMIDI](https://github.com/melanchall/drywetmidi) (Noten, Akkorde, Skalen) | MIT |
 | MVVM | [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | MIT |
+| Dependency Injection | [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime) | MIT |
 | Notenanzeige | PDFium über [PDFiumCore](https://github.com/Dtronix/PDFiumCore) | BSD-3 / Apache 2.0 |
 | Zeichnen | Pointer-Events mit Druckstärke aus Avalonia; Glättung der Striche nach dem Verfahren von perfect-freehand (MIT), nach C# portiert | – |
 | Installer und Updates | [Velopack](https://velopack.io/) | MIT |
 | Tests | xUnit | Apache 2.0 |
+
+## Projektaufbau
+
+```
+just-practise/
+├── JustPractise.slnx            Solution im neuen Format
+├── global.json                  legt die SDK-Version fest
+├── Directory.Build.props        gemeinsame Einstellungen aller Projekte
+├── Directory.Packages.props     zentrale Paketversionen
+├── .editorconfig                Codestil
+├── src/
+│   ├── JustPractise.Core/       Fachlogik ohne Abhängigkeiten
+│   ├── JustPractise.Audio/      Audio-Schicht
+│   ├── JustPractise.Storage/    Dateisystem und Persistenz
+│   └── JustPractise.App/        Avalonia-Oberfläche
+├── native/
+│   └── stretch/                 C-Wrapper um signalsmith-stretch (CMake)
+├── tests/
+│   ├── JustPractise.Core.Tests/
+│   ├── JustPractise.Audio.Tests/
+│   └── JustPractise.Storage.Tests/
+├── prototypes/                  kleine Testprogramme für einzelne Prüfpunkte
+└── docs/
+```
+
+### Projekte
+
+| Projekt | Inhalt | Darf verwenden |
+|---|---|---|
+| **Core** | Gruppierung zu Stücken, Modelle für Sidecar-Dateien und Einstellungen, Ton- und Akkordnamen, Logik von Timer und Metronom (z. B. Taktart, Betonung), Tastenbelegung | nichts |
+| **Audio** | Schnittstelle zur Audio-Engine und deren Umsetzung, Player (Loop, Tempo, Lautstärke), Klickerzeugung des Metronoms, Tonhöhenerkennung, Pegelmessung, Spitzenwerte der Wellenform, Anbindung des nativen Codes | Core |
+| **Storage** | Durchlaufen der Ordner, atomares Lesen und Schreiben der Sidecar-Dateien, Einstellungen und gerätespezifisches Gedächtnis, Caches, Dateiüberwachung | Core |
+| **App** | Oberfläche nach MVVM, Übersetzungen, Zusammenstecken der Teile per Dependency Injection | alle |
+
+- **Namensraum:** `JustPractise`
+- **Austauschbare Audio-Engine:** Die Engine steckt hinter einer eigenen Schnittstelle. Der Rest der App kennt weder SoundFlow noch OwnAudioSharp.
+- **Signalverarbeitung ohne Engine:** Tonhöhenerkennung, Pegelmessung und Klickerzeugung arbeiten nur auf Puffern. Getestet wird mit erzeugten Signalen (z. B. Sinus mit 440 Hz).
+- **App nach Funktionen gegliedert:** `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen.
+- **Gemeinsame Einstellungen** in `Directory.Build.props`: Nullable aktiv, Warnungen als Fehler, Analyzer aktiv. Paketversionen stehen zentral in `Directory.Packages.props`.
+
+### Nativer Code
+
+- Der Quellcode liegt unter `native/` und wird mit CMake gebaut.
+- Die CI baut die Bibliotheken für alle Plattformen und hängt sie an ein GitHub-Release. Ein Skript lädt sie beim Build herunter, Mitwirkende brauchen keine C/C++-Toolchain. Wird das unhandlich, folgt später ein NuGet-Paket.
+- Wer am nativen Code arbeitet, baut ihn lokal selbst. Der lokale Build hat Vorrang vor dem heruntergeladenen.
 
 ## Datenhaltung
 
@@ -129,12 +175,17 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 - **Mehrsprachigkeit von Anfang an:** Kein Text steht fest im Code, alle Texte kommen aus Übersetzungsdateien im JSON-Format. Sie sind für Mitwirkende ohne Programmierkenntnisse bearbeitbar.
 - **Ton- und Akkordnamen** erzeugt eine eigene, gut testbare Komponente, unabhängig von der Sprache der Oberfläche. Intern rechnet die App nur mit Tonhöhen und Akkordtypen, die Namen entstehen erst bei der Anzeige.
 - **Struktur gegen Wildwuchs:** Fachlogik (Gruppierung, Ton- und Akkordnamen, Einstellungsformat) liegt in reinen Bibliotheken ohne UI und wird mit xUnit getestet. Audio ist eine eigene, abgekapselte Schicht. Die Oberfläche folgt MVVM: Views enthalten nur Darstellung und Bedienung.
-- **Regeln für den Audio-Thread:** Im Audio-Callback wird kein Speicher angelegt und nicht gesperrt (keine `lock`s, kein I/O). Puffer werden vorab angelegt. Zwischen UI und Audio vermitteln lock-freie Warteschlangen. So stört die Speicherbereinigung von .NET die Wiedergabe möglichst nicht. Reicht das nicht, wandert das Mischen in nativen Code und C# steuert nur noch.
+- **Kleine, abgeschlossene Klassen:** Klassen sind standardmäßig `sealed`. Gemeinsames Verhalten entsteht durch Komposition aus kleinen Klassen, nicht durch Basisklassen. Vererbung ist die begründete Ausnahme. Die Vererbung, die das Framework vorgibt, bleibt flach (Views von `UserControl`, ViewModels von `ObservableObject`).
+- **Interfaces nur an echten Grenzen,** z. B. Audio-Engine, Dateisystem, Speichern der Einstellungen. Nicht jede Klasse bekommt ein Interface.
+- **Records für Daten,** z. B. Inhalt der Sidecar-Dateien, Einstellungen, Metronom-Einstellungen. Sie sind unveränderlich.
+- **Dependency Injection:** Klassen bekommen ihre Abhängigkeiten über den Konstruktor. Der Container wird nur beim Start der App angefasst, dort steht, welche Klasse wofür verwendet wird. Keine Klasse holt sich selbst etwas aus dem Container, `IServiceProvider` wird nie injiziert. ViewModels werden ebenfalls über den Container erzeugt. Reine Fachlogik in Core wird einfach mit `new` erzeugt.
+- **Zeit über `TimeProvider`:** Timer und Metronom fragen die Zeit über `TimeProvider` ab, damit Tests die Zeit gezielt vorlaufen lassen können.
+- **Regeln für den Audio-Thread:** Im Audio-Callback wird kein Speicher angelegt und nicht gesperrt (keine `lock`s, kein I/O). Puffer werden vorab angelegt. Die Objekte im Audio-Callback werden einmal zusammengesteckt, im laufenden Betrieb erzeugt der Container nichts. Zwischen UI und Audio vermitteln lock-freie Warteschlangen. So stört die Speicherbereinigung von .NET die Wiedergabe möglichst nicht. Reicht das nicht, wandert das Mischen in nativen Code und C# steuert nur noch.
 - **Nativer Code** hat eine schlanke C-Schnittstelle und wird per P/Invoke angesprochen. Die CI baut ihn für alle Plattformen.
 
 ## Prüfpunkte für den Prototyp
 
-Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft.
+Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wird gleich in der endgültigen [Projektstruktur](#projektaufbau) gebaut, vor allem die Audio-Schicht bleibt erhalten. Prüfpunkte außerhalb davon (z. B. AAC, Touch) werden als kleine Testprogramme unter `prototypes/` geprüft.
 
 1. **Aussetzer durch Speicherbereinigung:** Laufen Wiedergabe, Time-Stretching und Metronom gleichzeitig ohne Aussetzer, auch wenn die UI unter Last steht und Speicher anlegt? Welche Puffergrößen sind nötig, unter PipeWire/PulseAudio und Windows?
 2. **Audio-Engine:** SoundFlow oder OwnAudioSharp? Kriterien: Pflegezustand, API, Latenz, Ein- und Ausgabegeräte wählbar
@@ -148,7 +199,6 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft.
 
 ## Offene Punkte
 
-- Aufbau des Projekts (Solution, Projekte, Module)
 - Format der Sidecar-Dateien und der Einstellungen im Detail
 - Bibliothek bzw. Mechanismus für Übersetzungen (JSON statt `.resx`)
 - Auslieferung: Pakete pro Plattform (z. B. AppImage oder Flatpak, Installer für Windows, DMG), Updater, portable Variante
