@@ -12,7 +12,7 @@ Wer übt, soll sofort loslegen können. Alle Hürden müssen minimal sein.
 
 - Kein Konto, keine Anmeldung
 - Komplett offline lauffähig
-- Ohne Installation nutzbar: Die App läuft im Browser und lässt sich optional als App installieren.
+- Einfach zu installieren, ohne weitere Voraussetzungen. Eine portable Variante ohne Installation wird angestrebt.
 - Schneller Start ohne Ladebildschirm oder Onboarding
 - Die wichtigste Funktion ist mit einem Klick erreichbar
 - Sinnvolle Standardwerte; Einstellungen sind optional
@@ -118,8 +118,8 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 
 ## Zielplattformen
 
-- **Desktop:** Linux, Windows und macOS, jeweils mit einem Chromium-Browser (z. B. Chrome, Edge, Brave). Die Begründung steht in [technologie.md](technologie.md).
-- **Nicht geplant:** Mobile (Android/iOS). Dort fehlt der Zugriff auf Ordner, ohne den der Dateibrowser nicht funktioniert.
+- **Desktop:** Linux, Windows und macOS als native App. Die Begründung steht in [technologie.md](technologie.md).
+- **Nicht geplant:** Mobile (Android/iOS). Der Dateibrowser setzt freien Zugriff auf Ordner voraus, den es dort nicht gibt.
 
 ## Roadmap
 
@@ -144,9 +144,9 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 
 Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffnet Stücke direkt. Es gibt keinen Import und keine Bibliothek.
 
-- **Ordner freigeben:** Der Browser erlaubt nur Zugriff auf Ordner, die der Nutzer ausdrücklich freigibt. Beim ersten Start wählt man deshalb einen Ordner, z. B. den Musik-Ordner. Weitere Ordner lassen sich jederzeit hinzufügen, z. B. einen Ordner auf einer zweiten Platte. Innerhalb der freigegebenen Ordner navigiert man frei durch alle Unterordner.
+- **Musikordner:** Beim ersten Start wählt man einen Ordner, z. B. den Musik-Ordner. Weitere Ordner lassen sich jederzeit hinzufügen, z. B. einen Ordner auf einer zweiten Platte. Innerhalb der Musikordner navigiert man frei durch alle Unterordner.
 - **Startpunkt:** der zuletzt geöffnete Ordner
-- **Freigabe erneuern:** Gilt eine Freigabe nach einem Neustart nicht mehr, zeigt die App den Ordner weiter an und erneuert den Zugriff mit einem Klick oder Tipp.
+- **Ordner nicht erreichbar:** Ist ein Musikordner nicht erreichbar (z. B. externe Platte nicht angeschlossen), zeigt die App ihn weiter an, markiert ihn und greift wieder darauf zu, sobald er da ist.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
 
 ### Stücke und Gruppierung
@@ -156,7 +156,7 @@ Ein **Stück** fasst alle Dateien zusammen, die dazugehören. Beispiele:
 - mehrere Audiodateien, z. B. Demo, Playalong oder Aufnahmen in verschiedenen Tempi
 - künftig Noten als PDF oder Bild
 
-Im Browser erscheinen die Dateien eines Stücks immer gruppiert als ein Eintrag.
+Im Dateibrowser erscheinen die Dateien eines Stücks immer gruppiert als ein Eintrag.
 
 Feste Benennungsregeln gibt es bewusst nicht. Eine Erkennungslogik ordnet die Dateien den Stücken zu. Ausgangsidee: Dateien, deren Name gleich beginnt, gehören zusammen. Die Logik muss aber verschiedene Titel sicher unterscheiden können, damit nichts zusammengefasst wird, was nicht zusammengehört.
 
@@ -194,15 +194,14 @@ Pro Stück gibt es eine Sidecar-Datei. Sie liegt neben den Dateien des Stücks. 
 Die App speichert zwei Arten von Daten getrennt:
 
 - **Einstellungen:** alles, was der Nutzer einstellt, z. B. Timerdauer, letzte und benannte Metronom-Einstellungen, Kammerton
-- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die freigegebenen Ordner, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen), das Eingabegerät des Stimmgeräts und der gewählte Speicherort
+- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die Musikordner, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen), das Eingabegerät des Stimmgeräts und der gewählte Speicherort
 
 #### Speicherort
 
-- **Standard:** Beide liegen im Speicher, den der Browser der App bereitstellt. Der Nutzer muss nichts einrichten.
-- **Eigener Speicherort:** Für die Einstellungen kann man einen eigenen Ordner wählen, z. B. einen Cloud-Ordner, damit mehrere Rechner dieselben Einstellungen nutzen. Sie liegen dort als Datei. Das gerätespezifische Gedächtnis bleibt im Browser und merkt sich, wo die Einstellungen liegen.
+- **Standard:** Beide liegen als Dateien im Ordner für App-Daten des Betriebssystems. Der Nutzer muss nichts einrichten.
+- **Eigener Speicherort:** Für die Einstellungen kann man einen eigenen Ordner wählen, z. B. einen Cloud-Ordner, damit mehrere Rechner dieselben Einstellungen nutzen. Sie liegen dort als Datei. Das gerätespezifische Gedächtnis bleibt im Ordner für App-Daten und merkt sich, wo die Einstellungen liegen.
 - **Wechsel:** Beim Wechsel des Speicherorts fragt die App, ob die bisherigen Einstellungen mitgenommen werden oder ob am neuen Ort neu begonnen wird. Liegen dort schon Einstellungen, werden diese verwendet.
-- **Nicht erreichbar:** Ist der gewählte Ordner nicht erreichbar (z. B. USB-Stick nicht eingesteckt oder Freigabe abgelaufen), startet die App trotzdem mit Standardwerten, zeigt einen Hinweis und überschreibt nichts.
-- **Browserdaten gelöscht:** Löscht der Nutzer die Browserdaten der App, sind das gerätespezifische Gedächtnis und die Ordnerfreigaben weg. Sidecar-Dateien und Einstellungen am eigenen Speicherort bleiben erhalten.
+- **Nicht erreichbar:** Ist der gewählte Ordner nicht erreichbar (z. B. USB-Stick nicht eingesteckt oder Cloud-Laufwerk nicht eingebunden), startet die App trotzdem mit Standardwerten, zeigt einen Hinweis und überschreibt nichts.
 
 So funktioniert die App ohne Einrichtung und auf mehreren Rechnern mit denselben Einstellungen.
 

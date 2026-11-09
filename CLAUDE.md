@@ -9,6 +9,6 @@ The project is in the concept phase and has no source code yet. Besides `README.
 - `docs/funktionen.md`: the feature concept (audio player, practice timer, metronome, tuner, keyboard shortcuts, language and music notation, app settings)
 - `docs/technologie.md`: the technology decision, its rationale, libraries, data storage and prototype checks
 
-The technology is decided: a PWA in TypeScript (`strict`) with Svelte and Vite, running in Chromium browsers on desktop (File System Access API, Web Audio). The decision is subject to the prototype checks in `docs/technologie.md`. The `.gitignore` is still the .NET template and must be replaced once the project is set up. Anything new is discussed with the user before it is set up.
+The technology is decided: a native desktop app in C# (.NET LTS) with Avalonia for Linux, Windows and macOS. Audio runs through a .NET audio engine (SoundFlow or OwnAudioSharp, chosen by the prototype); individual parts such as time-stretching may be written in C/C++ and called via P/Invoke. The decision is subject to the prototype checks in `docs/technologie.md`. An earlier PWA decision (TypeScript, Svelte, Vite) was dropped. The `.gitignore` is the .NET template, which fits, but should be reviewed once the project is set up. Anything new is discussed with the user before it is set up.
 
-There are no build, lint, or test commands to document until a project is added. Once one exists (e.g. a `package.json`), update this file with the actual commands and a short architecture overview.
+There are no build, lint, or test commands to document until a project is added. Once one exists (e.g. a `.sln` or `.csproj`), update this file with the actual commands and a short architecture overview.
