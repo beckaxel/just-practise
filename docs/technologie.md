@@ -100,7 +100,7 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 | Notenanzeige | PDFium über [PDFiumCore](https://github.com/Dtronix/PDFiumCore) | BSD-3 / Apache 2.0 |
 | Zeichnen | Pointer-Events mit Druckstärke aus Avalonia; Glättung der Striche nach dem Verfahren von perfect-freehand (MIT), nach C# portiert | – |
 | Installer und Updates | [Velopack](https://velopack.io/) | MIT |
-| Tests | xUnit | Apache 2.0 |
+| Tests | xUnit v3 auf der Microsoft Testing Platform | Apache 2.0 |
 
 ## Projektaufbau
 
@@ -138,7 +138,7 @@ just-practise/
 - **Namensraum:** `JustPractise`
 - **Austauschbare Audio-Engine:** Die Engine steckt hinter einer eigenen Schnittstelle. Der Rest der App kennt weder SoundFlow noch OwnAudioSharp.
 - **Signalverarbeitung ohne Engine:** Tonhöhenerkennung, Pegelmessung und Klickerzeugung arbeiten nur auf Puffern. Getestet wird mit erzeugten Signalen (z. B. Sinus mit 440 Hz).
-- **App nach Funktionen gegliedert:** `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen.
+- **App nach Funktionen gegliedert:** `Shell/` (Hauptfenster), `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen.
 - **Gemeinsame Einstellungen** in `Directory.Build.props`: Nullable aktiv, Warnungen als Fehler, Analyzer aktiv. Paketversionen stehen zentral in `Directory.Packages.props`.
 
 ### Nativer Code
