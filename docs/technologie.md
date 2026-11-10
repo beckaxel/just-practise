@@ -38,7 +38,7 @@ Die Entscheidung steht unter dem Vorbehalt der [Prüfpunkte für den Prototyp](#
 
 - **Kein Mobil:** Mobile Geräte sind kein Ziel. Avalonia könnte Android und iOS grundsätzlich bedienen, der Dateibrowser setzt aber freien Ordnerzugriff voraus.
 - **Installation bzw. Paket pro Plattform:** Anders als eine Webseite muss die App heruntergeladen werden. Updates brauchen einen eingebauten Updater (siehe [Auslieferung](#auslieferung)).
-- **Signierung:** Unsignierte Apps lösen unter macOS und Windows Warnungen aus. Die Signierung unter macOS kostet Geld (Apple Developer Program).
+- **Signierung:** Unsignierte Apps lösen unter macOS und Windows Warnungen aus. Die Signierung unter macOS kostet Geld (Apple Developer Program) und entfällt deshalb. Siehe [Signierung](#signierung).
 
 ## Anforderungen an die Technologie
 
@@ -53,6 +53,7 @@ Die Entscheidung steht unter dem Vorbehalt der [Prüfpunkte für den Prototyp](#
 
 ### Aus dem Open-Source-Ansatz
 
+- **Keine Kosten:** Das Projekt nutzt nur kostenlose Werkzeuge und Dienste. Nichts darf laufende Kosten verursachen, es gibt keine Werbung und keine Spenden. Fällt ein kostenloser Dienst weg, muss das Projekt ohne ihn auskommen, notfalls mit Einschränkungen (z. B. unsignierte Pakete).
 - Kostenlose Werkzeuge: Beitragen geht ohne kostenpflichtige Lizenzen oder IDEs (.NET SDK, VS Code, Rider für nicht-kommerzielle Nutzung, Visual Studio Community)
 - Entwickeln ist unter Linux, Windows und macOS gleichermaßen möglich
 - Einfacher Einstieg: klonen, `dotnet run`. Nativer Code wird vorgebaut bereitgestellt (z. B. über die CI), damit Mitwirkende ohne C/C++-Toolchain auskommen.
@@ -271,6 +272,21 @@ Pakete und Updates laufen über [Velopack](https://velopack.io/). Die App wird `
 - **Ohne Netz:** Die App meldet, dass keine Verbindung besteht. Sonst passiert nichts.
 - Ein automatisches Prüfen (abschaltbar) kann später dazukommen, falls Nutzer es wünschen.
 
+## Signierung
+
+Signiert wird nur, was kostenlos möglich ist (siehe [Keine Kosten](#aus-dem-open-source-ansatz)).
+
+- **Windows:** Die ersten Versionen erscheinen unsigniert. SmartScreen warnt dann, man startet die App über „Weitere Informationen“ und „Trotzdem ausführen“. Sobald das Projekt die Bedingungen erfüllt, wird die kostenlose Signierung für Open-Source-Projekte bei der [SignPath Foundation](https://signpath.org/) beantragt. Als Herausgeber steht dann „SignPath Foundation“ im Zertifikat.
+- **macOS:** nur ad-hoc signiert, wie es Apple Silicon mindestens verlangt. Velopack erledigt das. Gatekeeper blockiert die App beim ersten Start, man gibt sie unter „Systemeinstellungen > Datenschutz & Sicherheit > Dennoch öffnen“ frei. Die Download-Seite erklärt das kurz.
+- **Linux:** keine Signatur nötig. Jedes Release enthält SHA-256-Prüfsummen.
+- **Keine Notarisierung unter macOS:** Sie setzt das kostenpflichtige Apple Developer Program voraus und entfällt dauerhaft.
+
+### Umsetzung
+
+- Signiert wird nur im Release-Workflow der CI. Schlüssel und Zugangsdaten liegen als Secrets in GitHub.
+- Lokale Builds und Builds von Mitwirkenden sind unsigniert und brauchen keinen Zugang zu Schlüsseln.
+- **macOS und Mikrofon:** Das App-Bundle bekommt im `Info.plist` einen Text, wofür das Mikrofon genutzt wird (`NSMicrophoneUsageDescription`). Ob macOS die Mikrofonfreigabe einer nur ad-hoc signierten App nach Updates erneut abfragt, ist offen. Mangels Mac prüft das das Projekt nicht selbst, Rückmeldungen aus der Community sind willkommen.
+
 ## Übersetzungen
 
 Weder Avalonia noch .NET bringen Übersetzungen im JSON-Format mit. Die App nutzt deshalb eine eigene schlanke Lösung. Platzhalter und Mehrzahl übernimmt [MessageFormat.NET](https://github.com/jeffijoe/messageformat.net) (MIT).
@@ -333,7 +349,7 @@ Beispiel:
 
 ## Prüfpunkte für den Prototyp
 
-Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wird gleich in der endgültigen [Projektstruktur](#projektaufbau) gebaut, vor allem die Audio-Schicht bleibt erhalten. Prüfpunkte außerhalb davon (z. B. AAC, Touch) werden als kleine Testprogramme unter `prototypes/` geprüft.
+Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter macOS prüft das Projekt mangels Gerät nicht selbst, das bleibt der Community überlassen. Er wird gleich in der endgültigen [Projektstruktur](#projektaufbau) gebaut, vor allem die Audio-Schicht bleibt erhalten. Prüfpunkte außerhalb davon (z. B. AAC, Touch) werden als kleine Testprogramme unter `prototypes/` geprüft.
 
 1. **Aussetzer durch Speicherbereinigung:** Laufen Wiedergabe, Time-Stretching und Metronom gleichzeitig ohne Aussetzer, auch wenn die UI unter Last steht und Speicher anlegt? Welche Puffergrößen sind nötig, unter PipeWire/PulseAudio und Windows?
 2. **Audio-Engine:** SoundFlow oder OwnAudioSharp? Kriterien: Pflegezustand, API, Latenz, Ein- und Ausgabegeräte wählbar
@@ -348,4 +364,4 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wi
 
 ## Offene Punkte
 
-- Signierung unter Windows und macOS
+Derzeit keine. Der nächste Schritt ist der Prototyp.

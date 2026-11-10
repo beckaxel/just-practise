@@ -6,6 +6,8 @@
 
 **just practise** unterstützt Menschen, die ein Musikinstrument spielen, beim Üben. Die App ist ein Open-Source-Projekt: Jeder darf sie verwenden, und jeder kann mitwirken.
 
+**Ohne Geld:** Die App ist kostenlos und verursacht keine Kosten. Es gibt keine Werbung, keine Spenden und keine kostenpflichtigen Dienste. Niemand muss jemals Geld für das Projekt verwalten.
+
 ## Leitprinzip: schnell und einfach
 
 Wer übt, soll sofort loslegen können. Alle Hürden müssen minimal sein.
