@@ -93,6 +93,7 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 | Tonhöhenerkennung | eigene Umsetzung des McLeod-Verfahrens (MPM) oder von YIN in C# | – |
 | Pegelmessung | eigene Berechnung (RMS, Spitzenwert) | – |
 | Ton- und Akkordlogik | eigene Komponente; als Grundlage zu prüfen: [DryWetMIDI](https://github.com/melanchall/drywetmidi) (Noten, Akkorde, Skalen) | MIT |
+| Übersetzungen (Platzhalter, Mehrzahl) | [MessageFormat.NET](https://github.com/jeffijoe/messageformat.net), Laden der Sprachdateien selbst umgesetzt | MIT |
 | MVVM | [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | MIT |
 | Dependency Injection | [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime) | MIT |
 | Notenanzeige | PDFium über [PDFiumCore](https://github.com/Dtronix/PDFiumCore) | BSD-3 / Apache 2.0 |
@@ -239,10 +240,56 @@ Beispiel für `settings.json` (gekürzt):
 - **Export und Import** betreffen nur die Einstellungen. Die Exportdatei ist eine Kopie von `settings.json` mit der Endung `.jpsettings`, ein eigenes Format gibt es nicht. Ein Import ersetzt die Einstellungen komplett und läuft durch dieselbe Migration wie das Lesen.
 - **Änderungen von außen:** Liegt die Einstellungsdatei in einem Cloud-Ordner, können zwei Rechner gleichzeitig schreiben. Die App schreibt immer die ganze Datei, der letzte Schreibvorgang gewinnt. Ändert sich die Datei von außen, lädt die App sie neu. Sie erkennt das über `FileSystemWatcher` und den Änderungszeitpunkt.
 
+## Übersetzungen
+
+Weder Avalonia noch .NET bringen Übersetzungen im JSON-Format mit. Die App nutzt deshalb eine eigene schlanke Lösung. Platzhalter und Mehrzahl übernimmt [MessageFormat.NET](https://github.com/jeffijoe/messageformat.net) (MIT).
+
+### Sprachdateien
+
+- Eine Datei pro Sprache, benannt nach dem Sprachcode: `en.json`, `de.json`. Sie liegen in `JustPractise.App/Localization/` und sind in die App eingebettet.
+- **Englisch ist die Referenz:** Neue Texte kommen immer zuerst in `en.json`. Die anderen Sprachen übersetzen von dort.
+- **Gliederung nach Komponenten,** passend zu den Ordnern der App. Die Schlüssel beschreiben die Bedeutung, nicht den englischen Text, z. B. `player.play`.
+- **Name der Sprache:** `language.name` enthält den Namen der Sprache in ihr selbst, z. B. „Deutsch“ oder „Français“. So zeigt ihn die Sprachauswahl an.
+- **Platzhalter und Mehrzahl** im ICU-MessageFormat. Platzhalter haben Namen, damit Übersetzer die Wortstellung frei wählen können. Die Mehrzahl deckt auch Sprachen mit mehreren Mehrzahlformen ab.
+
+Beispiel:
+
+```json
+{
+  "language": { "name": "Deutsch" },
+  "player": {
+    "play": "Abspielen",
+    "tempo": "Tempo {percent} %"
+  },
+  "timer": {
+    "remaining": "{minutes, plural, one {noch # Minute} other {noch # Minuten}}"
+  }
+}
+```
+
+### Eigene Sprachdateien ohne Neubau
+
+- Zusätzlich lädt die App Sprachdateien aus dem Ordner `translations` im Anwendungsdatenordner (z. B. `~/.config/just-practise/translations/fr.json`).
+- Eine Datei dort hat Vorrang vor der eingebetteten Datei derselben Sprache. So kann man eine neue Sprache oder eine verbesserte Übersetzung sofort in der App ausprobieren, ohne die App zu bauen.
+- Fertige Übersetzungen kommen über einen Beitrag ins Repository und werden dann eingebettet.
+
+### Verhalten
+
+- **Rückfall:** Fehlt ein Schlüssel in einer Sprache, zeigt die App den englischen Text, fehlt er auch dort, den Schlüssel selbst. Eine unvollständige Übersetzung ist damit nutzbar.
+- **Umschalten ohne Neustart:** XAML bindet Texte über eine Markup-Erweiterung, z. B. `{l:Tr player.play}`, an einen Übersetzungsdienst. Wechselt die Sprache, aktualisieren sich alle Texte.
+- **Zahlen- und Datumsformat:** Die Sprache der Oberfläche legt die `CultureInfo` fest, z. B. `92,5` im Deutschen.
+- **Ton- und Akkordnamen** stehen nicht in den Sprachdateien. Sie entstehen in der eigenen Komponente in Core (siehe [Weitere Festlegungen](#weitere-festlegungen)).
+
+### Absicherung
+
+- Ein Unit-Test prüft alle eingebetteten Sprachdateien: gültiges JSON, gültige ICU-Syntax, keine Schlüssel, die es in `en.json` nicht gibt, und dieselben Platzhalter wie in `en.json`.
+- Später möglich: Ein Source Generator erzeugt aus `en.json` Konstanten für die Schlüssel. Tippfehler in Schlüsseln werden dann zu Compilerfehlern.
+- Später möglich: Übersetzen über [Weblate](https://weblate.org/), kostenlos für Open-Source-Projekte. Es versteht JSON mit ICU-Syntax, das Format passt also bereits.
+
 ## Weitere Festlegungen
 
 - **Tastenkürzel** wirken global im Fenster, unabhängig vom Fokus, außer in Textfeldern. Die Belegung ist frei änderbar und wird aus den Einstellungen geladen, statt fest im Code zu stehen.
-- **Mehrsprachigkeit von Anfang an:** Kein Text steht fest im Code, alle Texte kommen aus Übersetzungsdateien im JSON-Format. Sie sind für Mitwirkende ohne Programmierkenntnisse bearbeitbar.
+- **Mehrsprachigkeit von Anfang an:** Kein Text steht fest im Code, alle Texte kommen aus Übersetzungsdateien im JSON-Format. Sie sind für Mitwirkende ohne Programmierkenntnisse bearbeitbar. Details unter [Übersetzungen](#übersetzungen).
 - **Ton- und Akkordnamen** erzeugt eine eigene, gut testbare Komponente, unabhängig von der Sprache der Oberfläche. Intern rechnet die App nur mit Tonhöhen und Akkordtypen, die Namen entstehen erst bei der Anzeige.
 - **Struktur gegen Wildwuchs:** Fachlogik (Gruppierung, Ton- und Akkordnamen, Einstellungsformat) liegt in reinen Bibliotheken ohne UI und wird mit xUnit getestet. Audio ist eine eigene, abgekapselte Schicht. Die Oberfläche folgt MVVM: Views enthalten nur Darstellung und Bedienung.
 - **Kleine, abgeschlossene Klassen:** Klassen sind standardmäßig `sealed`. Gemeinsames Verhalten entsteht durch Komposition aus kleinen Klassen, nicht durch Basisklassen. Vererbung ist die begründete Ausnahme. Die Vererbung, die das Framework vorgibt, bleibt flach (Views von `UserControl`, ViewModels von `ObservableObject`).
@@ -269,6 +316,5 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wi
 
 ## Offene Punkte
 
-- Bibliothek bzw. Mechanismus für Übersetzungen (JSON statt `.resx`)
 - Auslieferung: Pakete pro Plattform (z. B. AppImage oder Flatpak, Installer für Windows, DMG), Updater, portable Variante
 - Signierung unter Windows und macOS

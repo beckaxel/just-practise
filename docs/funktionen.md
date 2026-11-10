@@ -82,7 +82,7 @@ Sprache der Oberfläche, Tonbezeichnungen und Akkordsymbole sind drei getrennte 
 ### Sprache der Oberfläche
 
 - **Zum Start:** Deutsch und Englisch
-- **Erweiterbar:** Weitere Sprachen kommen über Übersetzungsdateien hinzu, z. B. als Beitrag aus der Community.
+- **Erweiterbar:** Weitere Sprachen kommen über Übersetzungsdateien hinzu, z. B. als Beitrag aus der Community. Eine eigene Übersetzungsdatei kann man in einen Ordner der App legen und sofort ausprobieren.
 - **Erster Start:** Die App übernimmt die Sprache des Betriebssystems. Gibt es diese nicht, nimmt sie Englisch.
 - **Umstellen:** jederzeit in den Einstellungen
 
