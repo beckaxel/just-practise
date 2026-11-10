@@ -207,7 +207,7 @@ So funktioniert die App ohne Einrichtung und auf mehreren Rechnern mit denselben
 
 #### Export und Import
 
-- **Export:** schreibt alle Einstellungen in eine einzelne Datei. Es wird immer alles exportiert, das gerätespezifische Gedächtnis aber nicht.
+- **Export:** schreibt alle Einstellungen in eine einzelne Datei mit der Endung `.jpsettings`. Es wird immer alles exportiert, das gerätespezifische Gedächtnis aber nicht.
 - **Import:** ersetzt alle aktuellen Einstellungen durch die importierte Datei. Vorher fragt die App nach. Das gerätespezifische Gedächtnis bleibt unverändert.
 - Die Sidecar-Dateien der Stücke sind nicht betroffen. Sie liegen ohnehin bei den Stücken.
 

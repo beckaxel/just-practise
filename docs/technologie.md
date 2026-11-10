@@ -154,20 +154,90 @@ just-practise/
 - Änderungen im Dateisystem erkennt die App über `FileSystemWatcher`. Bei Netzlaufwerken und Cloud-Ordnern ist das unzuverlässig, dort ergänzt ein Abfragen des Änderungszeitpunkts.
 - Unter Linux begrenzt inotify die Zahl der überwachten Ordner (`max_user_watches`). Bei großen Musiksammlungen werden nur geöffnete Ordner überwacht.
 
+### Regeln für alle Dateien
+
+Sie gelten für Sidecar-Dateien, Einstellungen und das gerätespezifische Gedächtnis.
+
+- **JSON** über `System.Text.Json`, als UTF-8, eingerückt und damit für Menschen lesbar
+- **Feldnamen** englisch in camelCase, unabhängig von der Sprache der Oberfläche
+- **Versionsnummer:** Jede Datei beginnt mit `"format": 1`. Ändert sich das Format, migriert die App ältere Dateien beim Lesen schrittweise auf die aktuelle Version.
+- **Nur Abweichungen speichern:** Fehlt ein Feld, gilt der Standardwert. Ändert sich ein Standard in einer neuen Version, wirkt er auch für bestehende Dateien.
+- **Einheit im Feldnamen,** wo es eine gibt, z. B. `startMs`, `volumeDb`, `referenceHz`
+- **Unbekannte Felder bleiben erhalten:** Liest eine ältere App-Version eine Datei, die eine neuere geschrieben hat, behält sie beim Speichern die Felder, die sie nicht kennt (`[JsonExtensionData]`). Das ist wichtig, wenn Ordner oder Einstellungen über die Cloud auf Rechnern mit verschiedenen Versionen liegen.
+- **Datei aus der Zukunft:** Ist `format` höher, als die App kennt, liest sie die Datei, soweit sie kann, überschreibt sie aber nicht.
+- **Beschädigte Datei:** Die App nutzt Standardwerte, zeigt einen Hinweis und überschreibt die Datei nicht.
+- **Atomares Schreiben:** in eine temporäre Datei im selben Ordner schreiben und sie danach per `File.Move(..., overwrite: true)` bzw. `File.Replace` an die Stelle der alten setzen. Auf demselben Laufwerk ist das ein atomares Umbenennen.
+
 ### Sidecar-Dateien
 
-- Pro Stück gibt es eine Sidecar-Datei, benannt nach dem erkannten Titel (z. B. `Autumn Leaves.jps`). Der Inhalt ist JSON (`System.Text.Json`).
-- **Atomares Schreiben:** in eine temporäre Datei im selben Ordner schreiben und sie danach per `File.Move(..., overwrite: true)` bzw. `File.Replace` an die Stelle der alten setzen. Auf demselben Laufwerk ist das ein atomares Umbenennen.
-- **Umbenennen:** über `File.Move`
+- Pro Stück gibt es eine Sidecar-Datei, benannt nach dem erkannten Titel (z. B. `Autumn Leaves.jps`).
 - Eine Erkennungslogik gruppiert Dateien zu Stücken. Sie ist ein reines C#-Modul ohne UI, mit Unit-Tests über viele Beispieldateinamen.
+
+Beispiel:
+
+```json
+{
+  "format": 1,
+  "files": {
+    "Autumn Leaves - Demo.mp3": {
+      "loop": { "startMs": 12350, "endMs": 47800, "enabled": true },
+      "tempo": 0.8,
+      "volumeDb": -3.0
+    },
+    "Autumn Leaves - Playalong 80.mp3": {
+      "volumeDb": 2.5
+    }
+  },
+  "members": [
+    "Autumn Leaves - Demo.mp3",
+    "Autumn Leaves - Playalong 80.mp3",
+    "Autumn Leaves.pdf"
+  ]
+}
+```
+
+- **`files`:** Einstellungen pro Audiodatei, über den Dateinamen ohne Pfad zugeordnet. Alle Dateien eines Stücks liegen im selben Ordner.
+- **Loop:** Start und Ende in ganzen Millisekunden. Das ist genau genug für von Hand gesetzte Marker und hängt nicht von der Samplerate ab. Beim Abspielen rechnet die App auf Samples um. `enabled` hält fest, ob der Loop an ist.
+- **Tempo:** als Faktor, `0.8` entspricht 80 %
+- **Lautstärke:** Verstärkung in dB, 0 heißt unverändert
+- **`members`:** nur vorhanden, wenn die Gruppierung von Hand korrigiert wurde. Die Liste hat Vorrang vor der automatischen Erkennung. Eine Datei, die hier steht, ordnet die Erkennung keinem anderen Stück mehr zu.
+- **Umbenennen in der App:** über `File.Move`. Die App passt dabei die Einträge in `files` und `members` an.
+- **Verwaiste Einträge:** Wird eine Datei außerhalb der App umbenannt oder gelöscht, bleibt ihr Eintrag erhalten. Taucht die Datei wieder auf, sind ihre Einstellungen noch da. Die App löscht verwaiste Einträge nicht.
+- **Notizen zu Noten:** Handschriftliche Notizen können groß werden. Ob sie in die `.jps` oder in eine eigene Datei pro Notenblatt kommen, wird bei der Notenanzeige entschieden.
 
 ### Einstellungen und gerätespezifisches Gedächtnis
 
-- **Gerätespezifisches Gedächtnis:** liegt als JSON-Datei im Anwendungsdatenordner des Systems (Linux `~/.config/just-practise`, Windows `%APPDATA%\just-practise`, macOS `~/Library/Application Support/just-practise`). Es bleibt immer lokal und enthält die Musikordner, den Speicherort der Einstellungen, den zuletzt geöffneten Ordner, das Eingabegerät und die Zustände der Komponenten.
+- **Gerätespezifisches Gedächtnis:** liegt als `device.json` im Anwendungsdatenordner des Systems (Linux `~/.config/just-practise`, Windows `%APPDATA%\just-practise`, macOS `~/Library/Application Support/just-practise`). Es bleibt immer lokal und enthält die Musikordner, den Speicherort der Einstellungen, den zuletzt geöffneten Ordner, das Eingabegerät und die Zustände der Komponenten.
 - **Caches** (z. B. Wellenformen) liegen getrennt im Cache-Ordner des Systems (Linux `~/.cache/just-practise`, Windows `%LOCALAPPDATA%\just-practise`, macOS `~/Library/Caches/just-practise`). Sie dürfen jederzeit gelöscht werden.
-- **Einstellungen:** ohne eigenen Speicherort ebenfalls als JSON-Datei im Anwendungsdatenordner. Mit eigenem Speicherort in einem vom Nutzer gewählten Ordner, z. B. in einem Cloud-Ordner.
-- Export und Import betreffen nur die Einstellungen. Ein Import ersetzt sie komplett. Das Format braucht deshalb eine Versionsnummer, damit ältere Exporte später noch gelesen werden können.
-- **Änderungen von außen:** Liegt die Einstellungsdatei in einem Cloud-Ordner, können zwei Rechner gleichzeitig schreiben. Die App schreibt atomar und erkennt Änderungen über `FileSystemWatcher` und den Änderungszeitpunkt.
+- **Einstellungen:** als `settings.json`, ohne eigenen Speicherort ebenfalls im Anwendungsdatenordner. Mit eigenem Speicherort in einem vom Nutzer gewählten Ordner, z. B. in einem Cloud-Ordner.
+
+Beispiel für `settings.json` (gekürzt):
+
+```json
+{
+  "format": 1,
+  "language": { "ui": "de", "noteNames": "german", "accidentals": "sharp" },
+  "timer": { "minutes": 25 },
+  "metronome": {
+    "current": { "bpm": 92, "meter": "7/8", "subdivision": "none", "sound": "woodblock" },
+    "presets": [
+      { "name": "Etüde 7/8, 92 BPM", "settings": { "bpm": 92, "meter": "7/8" } }
+    ]
+  },
+  "tuner": {
+    "referenceHz": 440,
+    "instruments": [ { "name": "Tenorsax", "transposeSemitones": -14 } ],
+    "selectedInstrument": "Tenorsax"
+  },
+  "shortcuts": { "metronome.toggle": "N" }
+}
+```
+
+- **Gliederung:** ein Abschnitt pro Bereich (Sprache, Komponenten, Tastenkürzel)
+- **Tastenkürzel:** Gespeichert werden nur die vom Nutzer geänderten Kürzel. Neue Standardkürzel aus Updates kommen so automatisch an.
+- **Instrumente** werden über ihren Namen angesprochen. Der Name muss eindeutig sein.
+- **Export und Import** betreffen nur die Einstellungen. Die Exportdatei ist eine Kopie von `settings.json` mit der Endung `.jpsettings`, ein eigenes Format gibt es nicht. Ein Import ersetzt die Einstellungen komplett und läuft durch dieselbe Migration wie das Lesen.
+- **Änderungen von außen:** Liegt die Einstellungsdatei in einem Cloud-Ordner, können zwei Rechner gleichzeitig schreiben. Die App schreibt immer die ganze Datei, der letzte Schreibvorgang gewinnt. Ändert sich die Datei von außen, lädt die App sie neu. Sie erkennt das über `FileSystemWatcher` und den Änderungszeitpunkt.
 
 ## Weitere Festlegungen
 
@@ -199,7 +269,6 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wi
 
 ## Offene Punkte
 
-- Format der Sidecar-Dateien und der Einstellungen im Detail
 - Bibliothek bzw. Mechanismus für Übersetzungen (JSON statt `.resx`)
 - Auslieferung: Pakete pro Plattform (z. B. AppImage oder Flatpak, Installer für Windows, DMG), Updater, portable Variante
 - Signierung unter Windows und macOS
