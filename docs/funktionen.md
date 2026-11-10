@@ -11,8 +11,8 @@
 Wer übt, soll sofort loslegen können. Alle Hürden müssen minimal sein.
 
 - Kein Konto, keine Anmeldung
-- Komplett offline lauffähig
-- Einfach zu installieren, ohne weitere Voraussetzungen. Eine portable Variante ohne Installation wird angestrebt.
+- Komplett offline lauffähig. Die App nimmt von sich aus keinen Kontakt nach außen auf. Nach Updates sucht sie nur auf Knopfdruck.
+- Einfach zu installieren, ohne weitere Voraussetzungen. Es gibt auch eine portable Variante ohne Installation.
 - Schneller Start ohne Ladebildschirm oder Onboarding
 - Die wichtigste Funktion ist mit einem Klick erreichbar
 - Sinnvolle Standardwerte; Einstellungen sind optional

@@ -37,7 +37,7 @@ Die Entscheidung steht unter dem Vorbehalt der [Prüfpunkte für den Prototyp](#
 ### Bewusste Einschränkungen
 
 - **Kein Mobil:** Mobile Geräte sind kein Ziel. Avalonia könnte Android und iOS grundsätzlich bedienen, der Dateibrowser setzt aber freien Ordnerzugriff voraus.
-- **Installation bzw. Paket pro Plattform:** Anders als eine Webseite muss die App heruntergeladen werden. Updates brauchen einen eingebauten Updater.
+- **Installation bzw. Paket pro Plattform:** Anders als eine Webseite muss die App heruntergeladen werden. Updates brauchen einen eingebauten Updater (siehe [Auslieferung](#auslieferung)).
 - **Signierung:** Unsignierte Apps lösen unter macOS und Windows Warnungen aus. Die Signierung unter macOS kostet Geld (Apple Developer Program).
 
 ## Anforderungen an die Technologie
@@ -45,9 +45,9 @@ Die Entscheidung steht unter dem Vorbehalt der [Prüfpunkte für den Prototyp](#
 ### Aus dem Funktionskonzept
 
 - **Plattformen:** Desktop unter Linux, Windows und macOS
-- **Einfache Installation:** ein Installer bzw. Paket pro Plattform; eine portable Variante (z. B. AppImage, ZIP) wird angestrebt
+- **Einfache Installation:** ein Installer bzw. Paket pro Plattform und eine portable Variante (AppImage, ZIP)
 - **Keine weitere Laufzeitumgebung:** .NET wird mitgeliefert.
-- **Offline:** Die App läuft komplett offline. Es gibt keine Abhängigkeit von Online-Diensten.
+- **Offline:** Die App läuft komplett offline. Es gibt keine Abhängigkeit von Online-Diensten. Von sich aus nimmt sie keinen Kontakt nach außen auf, auch nicht für Updates.
 - **Schneller Start**
 - **Touch-Bedienung:** über die Pointer-Events von Avalonia, einheitlich für Maus, Touch und Stift
 
@@ -240,6 +240,37 @@ Beispiel für `settings.json` (gekürzt):
 - **Export und Import** betreffen nur die Einstellungen. Die Exportdatei ist eine Kopie von `settings.json` mit der Endung `.jpsettings`, ein eigenes Format gibt es nicht. Ein Import ersetzt die Einstellungen komplett und läuft durch dieselbe Migration wie das Lesen.
 - **Änderungen von außen:** Liegt die Einstellungsdatei in einem Cloud-Ordner, können zwei Rechner gleichzeitig schreiben. Die App schreibt immer die ganze Datei, der letzte Schreibvorgang gewinnt. Ändert sich die Datei von außen, lädt die App sie neu. Sie erkennt das über `FileSystemWatcher` und den Änderungszeitpunkt.
 
+## Auslieferung
+
+Pakete und Updates laufen über [Velopack](https://velopack.io/). Die App wird `self-contained` gebaut, .NET muss nicht installiert sein.
+
+### Pakete
+
+| Plattform | Installation | Portable Variante |
+|---|---|---|
+| Windows | `Setup.exe`, installiert pro Benutzer ohne Administratorrechte | ZIP |
+| macOS | `.pkg` mit dem App-Bundle | ZIP mit der `.app` |
+| Linux | AppImage, ein Paket für alle Distributionen | Das AppImage ist selbst portabel. |
+
+- **Architekturen:** x64 und arm64 auf allen drei Plattformen. arm64 deckt Apple Silicon, Windows auf ARM und z. B. einen Raspberry Pi ab. Der native Code (Time-Stretching, FFmpeg) wird ebenfalls für beide Architekturen bereitgestellt.
+- **Portable Variante:** läuft ohne Installation. Die Daten liegen wie bei der installierten Variante im Anwendungsdatenordner des Systems, nicht neben der App.
+- **Flatpak:** vorerst nicht. Die Sandbox widerspricht dem freien Dateizugriff (nötig wäre `--filesystem=home` oder `host`), und Flatpak übernimmt die Updates selbst. Kann später kommen, falls Bedarf besteht.
+
+### Bauen und Veröffentlichen
+
+- Ein Versions-Tag (z. B. `v0.3.0`) startet den Build in GitHub Actions, auf Runnern für Linux, Windows und macOS.
+- `vpk pack` erzeugt pro Plattform und Architektur die Pakete. Die CI hängt sie an das GitHub-Release.
+- Die arm64-Builds kosten nichts extra: Für öffentliche Repositories stellt GitHub arm64-Runner kostenlos bereit, und .NET baut für andere Architekturen ohne Mehraufwand.
+
+### Updates
+
+- **Nur auf Knopfdruck:** Die App sucht nie von sich aus nach Updates. Der Nutzer stößt die Prüfung in den Einstellungen an.
+- **Quelle:** die GitHub-Releases des Projekts
+- **Ablauf:** Gibt es ein Update, zeigt die App die neue Version an. Der Nutzer entscheidet, ob es heruntergeladen wird. Installiert wird beim Neustart der App, nie mitten im Üben.
+- **Delta-Updates:** Velopack lädt nur die Änderungen gegenüber der installierten Version.
+- **Ohne Netz:** Die App meldet, dass keine Verbindung besteht. Sonst passiert nichts.
+- Ein automatisches Prüfen (abschaltbar) kann später dazukommen, falls Nutzer es wünschen.
+
 ## Übersetzungen
 
 Weder Avalonia noch .NET bringen Übersetzungen im JSON-Format mit. Die App nutzt deshalb eine eigene schlanke Lösung. Platzhalter und Mehrzahl übernimmt [MessageFormat.NET](https://github.com/jeffijoe/messageformat.net) (MIT).
@@ -313,8 +344,8 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Er wi
 7. **Speicher bei langen Stücken:** ganz decodieren (10 Minuten Stereo ≈ 200 MB) oder in Teilen streamen?
 8. **Dateiüberwachung:** `FileSystemWatcher` bei großen Musikordnern und in Cloud-Ordnern
 9. **Startzeit und Paketgröße:** mit und ohne Native AOT bzw. ReadyToRun
+10. **arm64:** Bringen Audio-Engine und FFmpeg native Bibliotheken für arm64 unter allen drei Plattformen mit? Läuft das AppImage unter Debian ohne zusätzliche Pakete (FUSE)?
 
 ## Offene Punkte
 
-- Auslieferung: Pakete pro Plattform (z. B. AppImage oder Flatpak, Installer für Windows, DMG), Updater, portable Variante
 - Signierung unter Windows und macOS
