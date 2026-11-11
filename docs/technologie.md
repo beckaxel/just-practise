@@ -8,7 +8,7 @@
 
 - **Sprache:** C# auf .NET (aktuelle LTS-Version, derzeit .NET 10), Nullable Reference Types aktiv
 - **UI-Framework:** [Avalonia](https://avaloniaui.net/) (ab Version 12.1)
-- **Audio:** eine plattformübergreifende .NET-Audio-Engine, [SoundFlow](https://github.com/LSXPrime/SoundFlow) oder [OwnAudioSharp](https://github.com/ModernMube/OwnAudioSharp); die Wahl trifft der Prototyp
+- **Audio:** die plattformübergreifende .NET-Audio-Engine [SoundFlow](https://github.com/LSXPrime/SoundFlow) (gewählt in Prüfpunkt 2, [OwnAudioSharp](https://github.com/ModernMube/OwnAudioSharp) bleibt Ersatz)
 - **Nativer Code:** Einzelne rechenintensive Bausteine (z. B. Time-Stretching) dürfen in C oder C++ umgesetzt und per P/Invoke eingebunden werden.
 - **Plattformen:** Linux, Windows und macOS
 
@@ -84,7 +84,7 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 
 | Baustein | Lösung | Lizenz |
 |---|---|---|
-| Audio-Engine (Ausgabe, Eingabe, Mischen) | [SoundFlow](https://github.com/LSXPrime/SoundFlow) (Backend: miniaudio) oder [OwnAudioSharp](https://github.com/ModernMube/OwnAudioSharp) | MIT |
+| Audio-Engine (Ausgabe, Eingabe, Mischen) | [SoundFlow](https://github.com/LSXPrime/SoundFlow) (Backend: miniaudio) | MIT |
 | Decodieren MP3, WAV, FLAC, OGG | über die Audio-Engine (miniaudio) | MIT-0 / Public Domain |
 | Decodieren M4A/AAC | FFmpeg, dynamisch geladen | LGPL |
 | Time-Stretching | [signalsmith-stretch](https://github.com/Signalsmith-Audio/signalsmith-stretch) (C++, nur Header) über einen eigenen C-Wrapper und P/Invoke | MIT |
@@ -136,7 +136,7 @@ just-practise/
 | **App** | Oberfläche nach MVVM, Übersetzungen, Zusammenstecken der Teile per Dependency Injection | alle |
 
 - **Namensraum:** `JustPractise`
-- **Austauschbare Audio-Engine:** Die Engine steckt hinter einer eigenen Schnittstelle. Der Rest der App kennt weder SoundFlow noch OwnAudioSharp.
+- **Austauschbare Audio-Engine:** Die Engine steckt hinter einer eigenen Schnittstelle. Der Rest der App kennt SoundFlow nicht, die Engine bleibt austauschbar.
 - **Signalverarbeitung ohne Engine:** Tonhöhenerkennung, Pegelmessung und Klickerzeugung arbeiten nur auf Puffern. Getestet wird mit erzeugten Signalen (z. B. Sinus mit 440 Hz).
 - **App nach Funktionen gegliedert:** `Shell/` (Hauptfenster), `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen.
 - **Gemeinsame Einstellungen** in `Directory.Build.props`: Nullable aktiv, Warnungen als Fehler, Analyzer aktiv. Paketversionen stehen zentral in `Directory.Packages.props`.
@@ -353,6 +353,14 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
 
 1. **Aussetzer durch Speicherbereinigung:** Laufen Wiedergabe, Time-Stretching und Metronom gleichzeitig ohne Aussetzer, auch wenn die UI unter Last steht und Speicher anlegt? Welche Puffergrößen sind nötig, unter PipeWire/PulseAudio und Windows?
 2. **Audio-Engine:** SoundFlow oder OwnAudioSharp? Kriterien: Pflegezustand, API, Latenz, Ein- und Ausgabegeräte wählbar
+
+   **Ergebnis (Debian, November 2026): SoundFlow 1.4.2.** Geprüft mit `prototypes/SoundFlowCheck`. OwnAudioSharp wurde nicht im Detail geprüft: Es zieht Avalonia in einer anderen Version, OnnxRuntime sowie VST- und MIDI-Unterstützung mit und bringt eine 16 MB große Bibliothek mit Rust-Backend. Es bleibt Ersatz, falls SoundFlow scheitert.
+   - **API:** klar. Eine eigene Klangerzeugung (Metronom-Klick) ist eine einzige Klasse, die sample-genau im Audio-Callback läuft. Streaming, Springen, Loop-Punkte und WSOLA-Time-Stretching sind eingebaut. Eine 7-minütige MP3 ist in rund 50 ms geöffnet, weil gestreamt wird. Die Umrechnung von 44,1 auf 48 kHz stimmt.
+   - **Latenz:** Rundlauf (Klick ausgeben, über Lautsprecher und Mikrofon wieder einlesen) im Median 20 ms bei 10 ms Puffer unter PipeWire. Bei 5, 10 und 20 ms Puffer kommen die Callbacks gleichmäßig, ohne Aussetzer und ohne hörbare Knackser, auch mit Wiedergabe, Metronom bis 400 bpm und Mikrofon gleichzeitig.
+   - **Geräte:** Ein- und Ausgabegeräte lassen sich auflisten und wählen. Ein Wechsel des Ausgabegeräts oder der Puffergröße während der Wiedergabe funktioniert, ohne den Ablauf neu aufzubauen.
+   - **Pflegezustand, Schwachpunkt:** Der Maintainer pausiert von Januar 2026 bis Februar 2027. Die Aufzählung `MiniAudioBackend` ist gegenüber miniaudio um eins verschoben (gemeldet wird „Oss“, aktiv ist PulseAudio). Mit der Standardwahl des Backends ist das harmlos. Das Risiko ist tragbar, weil SoundFlow unter MIT steht und sich notfalls forken lässt, die Geräteansteuerung im gut gepflegten miniaudio steckt und die Engine hinter einer eigenen Schnittstelle liegt.
+   - **Offen:** dieselbe Prüfung unter Windows (WASAPI).
+
 3. **Time-Stretching:** Qualität und CPU-Last von signalsmith-stretch über P/Invoke im Vergleich zu WSOLA bei 50 % und 150 %. Lässt sich die native Bibliothek in der CI für alle Plattformen bauen?
 4. **AAC:** Decodieren über dynamisch geladenes FFmpeg unter Linux, Windows und macOS, LGPL-konform. Unter Linux die System-Bibliotheken nutzen oder mitliefern? Wie groß wird das Paket?
 5. **Mikrofon:** Wahl des Eingabegeräts, Latenz und stabile Tonhöhenerkennung
