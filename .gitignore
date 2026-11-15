@@ -70,3 +70,6 @@ native/**/build/
 # Betriebssystem
 .DS_Store
 Thumbs.db
+
+# Ausgabe von prototypes/StretchCheck
+stretch-out/
