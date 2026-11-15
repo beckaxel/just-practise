@@ -147,6 +147,13 @@ just-practise/
 - Die CI baut die Bibliotheken für alle Plattformen und hängt sie an ein GitHub-Release. Ein Skript lädt sie beim Build herunter, Mitwirkende brauchen keine C/C++-Toolchain. Wird das unhandlich, folgt später ein NuGet-Paket.
 - Wer am nativen Code arbeitet, baut ihn lokal selbst. Der lokale Build hat Vorrang vor dem heruntergeladenen.
 
+### Einstieg für Entwickler
+
+- Der Einstieg soll unter Linux, Windows und macOS gleich einfach sein. Die Anleitung steht auf Englisch in `README.md` (Schnellstart) und `CONTRIBUTING.md` (Voraussetzungen pro System, Befehle, nativer Code), damit sie möglichst viele Mitwirkende erreicht. Die Konzeptdokumente bleiben auf Deutsch.
+- Skripte für Entwickler liegen unter `tools/` und sind einzelne C#-Dateien, die mit `dotnet run` laufen. Einzige Voraussetzung ist das .NET SDK, das ohnehin nötig ist. Es gibt also ein Skript für alle Systeme statt Bash und PowerShell nebeneinander.
+- `tools/setup.cs` prüft Git, CMake und einen C++-Compiler und nennt für fehlende Werkzeuge den Befehl des jeweiligen Systems (winget, apt, dnf, pacman, zypper, Homebrew bzw. `xcode-select`). Es installiert nie selbst etwas und ruft kein `sudo` auf. Danach baut es fehlende native Bibliotheken und die Solution.
+- Sobald die CI fertige native Bibliotheken veröffentlicht, lädt `tools/setup.cs` sie herunter. Bis dahin braucht nur `prototypes/StretchCheck` eine native Bibliothek, die App baut auch ohne C++-Werkzeuge.
+
 ## Datenhaltung
 
 ### Dateizugriff

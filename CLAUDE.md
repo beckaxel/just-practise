@@ -13,9 +13,10 @@ The app is a native desktop app in C# (.NET 10 LTS) with Avalonia for Linux, Win
 
 ## Commands
 
-Requires the .NET 10 SDK (pinned in `global.json`) and, for native code later, CMake.
+Requires the .NET 10 SDK (pinned in `global.json`) and, for native code, CMake and a C++ compiler. Developer onboarding is in `README.md` and `CONTRIBUTING.md` (English).
 
 ```bash
+dotnet run tools/setup.cs                       # check tools, build missing native libs, build solution (-- --check, -- --native)
 dotnet build                                    # build everything (warnings are errors)
 dotnet test                                     # run all tests (xUnit v3 on Microsoft Testing Platform)
 dotnet test --project tests/JustPractise.Core.Tests   # one test project
@@ -33,7 +34,9 @@ Empty test projects pass `--ignore-exit-code 8` (no tests found); remove that pr
 - `src/JustPractise.Storage`: file system and persistence (folder traversal, atomic sidecar/settings I/O, caches, file watching). References Core only.
 - `src/JustPractise.App`: Avalonia UI with MVVM (CommunityToolkit.Mvvm), organized by feature folders (`Shell/`, later `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`). `CompositionRoot.cs` is the only place that touches the DI container.
 - `tests/`: one xUnit v3 project per library
-- `native/`: C/C++ code built with CMake (not yet present); `prototypes/`: small standalone test programs for individual prototype checks (not yet present)
+- `native/`: C/C++ code built with CMake; each folder with a `CMakeLists.txt` builds a shared library `jp<folder>` into `native/bin/<rid>/` (ignored by git)
+- `prototypes/`: small standalone test programs for individual prototype checks, not part of the solution
+- `tools/`: developer scripts as single C# files run with `dotnet run` (file-based apps; `Directory.Build.props` and analyzers apply to them too)
 
 Shared build settings live in `Directory.Build.props` (nullable, warnings as errors, recommended analyzers, code style enforced in build), package versions centrally in `Directory.Packages.props`, code style in `.editorconfig`.
 
