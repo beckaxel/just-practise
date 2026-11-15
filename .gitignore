@@ -73,3 +73,6 @@ Thumbs.db
 
 # Ausgabe von prototypes/StretchCheck
 stretch-out/
+
+# Ausgabe von prototypes/GcCheck
+gccheck-out/
