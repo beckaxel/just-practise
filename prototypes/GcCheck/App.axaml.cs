@@ -11,13 +11,15 @@ internal sealed partial class App : Application
 
     public static Options? Options { get; set; }
 
+    public static PipeWireMonitor? PipeWire { get; set; }
+
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && Session is not null && Options is not null)
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && Session is not null && Options is not null && PipeWire is not null)
         {
-            desktop.MainWindow = new MainWindow(Session, Options);
+            desktop.MainWindow = new MainWindow(Session, Options, PipeWire);
         }
 
         base.OnFrameworkInitializationCompleted();

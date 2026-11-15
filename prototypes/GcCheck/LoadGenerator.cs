@@ -32,8 +32,8 @@ internal sealed class LoadGenerator
     /// <summary>Baut ein Geflecht aus <paramref name="count"/> verknüpften Objekten auf, das dauerhaft lebt.</summary>
     public void SetRetainedObjects(int count)
     {
+        // Kein GC.Collect: Das würde selbst einen blockierenden vollen GC auslösen und die Messung verfälschen.
         _retained = [];
-        GC.Collect();
         var nodes = new Node[count];
         for (var i = 0; i < count; i++)
         {

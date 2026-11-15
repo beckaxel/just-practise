@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Runtime;
 using System.Text;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 
@@ -22,6 +23,10 @@ internal sealed partial class MainWindow : Window
     private readonly Options? _options;
     private readonly Stopwatch _phaseClock = new();
     private readonly List<PhaseResult> _results = [];
+    private readonly List<string> _marks = [];
+    private readonly PipeWireMonitor? _pipeWire;
+    private Dictionary<string, long> _pipeWireAtPhaseStart = [];
+    private int _heard;
     private int _phaseIndex = -1;
     private double _nextFullGc;
     private readonly LoadGenerator _load = new();
@@ -40,10 +45,11 @@ internal sealed partial class MainWindow : Window
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
     }
 
-    public MainWindow(AudioSession session, Options options)
+    public MainWindow(AudioSession session, Options options, PipeWireMonitor pipeWire)
         : this()
     {
         _session = session;
+        _pipeWire = pipeWire;
         _options = options;
         Header.Text = $"{Path.GetFileName(options.File)}\n{session.DeviceName}, Puffer {options.BufferMilliseconds} ms\n" +
             $"{GcMonitor.Mode}, Vorrechnen {(options.WarmUp ? "an" : "aus")}" +
@@ -56,6 +62,10 @@ internal sealed partial class MainWindow : Window
         LatencyBox.SelectedItem = GCSettings.LatencyMode;
 
         PlayButton.Click += OnPlayClick;
+        HeardButton.Click += (_, _) => MarkHeard();
+
+        // Tunnel-Handler: Die Leertaste markiert immer und löst nie den gerade fokussierten Knopf aus.
+        AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
         ClickBox.IsCheckedChanged += (_, _) => session.Click.Running = ClickBox.IsChecked == true;
         TempoSlider.ValueChanged += (_, _) => session.Player.Tempo = (float)(TempoSlider.Value / 100);
         BpmSlider.ValueChanged += (_, _) => session.Click.Bpm = (int)BpmSlider.Value;
@@ -99,6 +109,25 @@ internal sealed partial class MainWindow : Window
         _load.Tick(elapsed);
         Load.Advance(elapsed);
         RequestAnimationFrame(OnFrame);
+    }
+
+    private void OnPreviewKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+        {
+            MarkHeard();
+            e.Handled = true;
+        }
+    }
+
+    private void MarkHeard()
+    {
+        _heard++;
+        var phase = _phaseIndex >= 0 ? Scenario.Phases[_phaseIndex].Name : "–";
+        var mark = string.Create(CultureInfo.CurrentCulture,
+            $"Phase {_phaseIndex + 1} „{phase}“, {_phaseClock.Elapsed.TotalSeconds:0.0} s nach Phasenbeginn");
+        _marks.Add(mark);
+        AddLog($"AUSSETZER GEHÖRT: {mark}");
     }
 
     private void OnPlayClick(object? sender, RoutedEventArgs e)
@@ -225,7 +254,7 @@ internal sealed partial class MainWindow : Window
         var title = $"{GcMonitor.Mode}, Puffer {_options.BufferMilliseconds} ms, " +
             $"Vorrechnen {(_options.WarmUp ? "an" : "aus")}{(_options.StretchOptions != 0 ? ", cheaper" : "")}, " +
             $"Ausgabe {_session!.DeviceName}";
-        Scenario.AppendReport(_options.Report, title, _results);
+        Scenario.AppendReport(_options.Report, title, _results, _marks);
         Close();
     }
 
@@ -251,6 +280,8 @@ internal sealed partial class MainWindow : Window
         }
 
         _nextFullGc = phase.FullGcEverySeconds;
+        _heard = 0;
+        _pipeWireAtPhaseStart = _pipeWire?.Snapshot() ?? [];
         _phaseClock.Restart();
     }
 
@@ -258,6 +289,7 @@ internal sealed partial class MainWindow : Window
     {
         var player = _session!.Player.Stats;
         var callbacks = _session.Callbacks;
+        var (pipeWireErrors, pipeWireNodes) = _pipeWire?.Since(_pipeWireAtPhaseStart) ?? (0, "");
         return new PhaseResult(
             name,
             callbacks.Count,
@@ -272,7 +304,10 @@ internal sealed partial class MainWindow : Window
             _gc.MaxEphemeralPause,
             _gc.MaxBackgroundPause,
             _gc.MaxFullBlockingPause,
-            GcMonitor.HeapMegabytes);
+            GcMonitor.HeapMegabytes,
+            _heard,
+            _pipeWire?.IsAvailable == true ? pipeWireErrors : null,
+            pipeWireNodes);
     }
 
     private void UpdateStats()

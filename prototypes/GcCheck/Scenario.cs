@@ -29,7 +29,10 @@ internal sealed record PhaseResult(
     double MaxEphemeralPause,
     double MaxBackgroundPause,
     double MaxFullPause,
-    double HeapMegabytes);
+    double HeapMegabytes,
+    int Heard,
+    long? PipeWireErrors,
+    string PipeWireNodes);
 
 internal static class Scenario
 {
@@ -37,25 +40,25 @@ internal static class Scenario
     [
         new("Start und Ruhe", 0, false, 0, GCLatencyMode.Interactive, 0),
         new("300 MB/s", 300, false, 0, GCLatencyMode.Interactive, 0),
-        new("+ 8 Mio. Objekte, große Objekte", 300, true, 8, GCLatencyMode.Interactive, 0),
-        new("+ voller GC alle 4 s", 300, true, 8, GCLatencyMode.Interactive, 4),
-        new("SustainedLowLatency", 300, true, 8, GCLatencyMode.SustainedLowLatency, 0),
-        new("SustainedLowLatency + voller GC", 300, true, 8, GCLatencyMode.SustainedLowLatency, 4),
+        new("300 MB/s + voller GC alle 4 s", 300, false, 0, GCLatencyMode.Interactive, 4),
+        new("1 Mio. Objekte + voller GC alle 4 s", 300, false, 1, GCLatencyMode.Interactive, 4),
+        new("8 Mio. Objekte, große Objekte", 300, true, 8, GCLatencyMode.Interactive, 0),
+        new("8 Mio. Objekte + voller GC alle 4 s", 300, true, 8, GCLatencyMode.Interactive, 4),
     ];
 
     /// <summary>Hängt die Ergebnisse eines Laufs als Markdown-Tabelle an den Bericht an.</summary>
-    public static void AppendReport(string path, string title, IReadOnlyList<PhaseResult> results)
+    public static void AppendReport(string path, string title, IReadOnlyList<PhaseResult> results, IReadOnlyList<string> marks)
     {
         var culture = CultureInfo.InvariantCulture;
         var text = new StringBuilder();
         text.AppendLine(culture, $"## {title}");
         text.AppendLine();
-        text.AppendLine("| Phase | Callbacks | zu spät | größte Lücke ms | über Budget | max Block ms | GC 0/1/2 | max Pause ephemer/Hintergr./voll ms | Heap MB |");
-        text.AppendLine("|---|---|---|---|---|---|---|---|---|");
+        text.AppendLine("| Phase | gehört | xruns PipeWire | Callbacks | zu spät | größte Lücke ms | über Budget | max Block ms | GC 0/1/2 | max Pause ephemer/Hintergr./voll ms | Heap MB |");
+        text.AppendLine("|---|---|---|---|---|---|---|---|---|---|---|");
         foreach (var r in results)
         {
             text.AppendLine(culture,
-                $"| {r.Name} | {r.Callbacks} | {r.Late} | {r.MaxGap:0.0} | {r.OverBudget} | {r.MaxBlock:0.00} | " +
+                $"| {r.Name} | {r.Heard} | {(r.PipeWireErrors is { } errors ? errors.ToString(culture) : "–")} | {r.Callbacks} | {r.Late} | {r.MaxGap:0.0} | {r.OverBudget} | {r.MaxBlock:0.00} | " +
                 $"{r.Gen0}/{r.Gen1}/{r.Gen2} | {r.MaxEphemeralPause:0.0}/{r.MaxBackgroundPause:0.0}/{r.MaxFullPause:0.0} | {r.HeapMegabytes:0} |");
         }
 
@@ -63,6 +66,21 @@ internal static class Scenario
         {
             text.AppendLine();
             text.AppendLine(culture, $"Längster Block in der ersten Sekunde nach dem Start: {results[0].StartupMaxBlock:0.00} ms");
+        }
+
+        foreach (var r in results.Where(r => r.PipeWireNodes.Length > 0))
+        {
+            text.AppendLine(culture, $"- xruns in „{r.Name}“: {r.PipeWireNodes}");
+        }
+
+        if (marks.Count > 0)
+        {
+            text.AppendLine();
+            text.AppendLine("Gehörte Aussetzer (Leertaste):");
+            foreach (var mark in marks)
+            {
+                text.AppendLine(culture, $"- {mark}");
+            }
         }
 
         text.AppendLine();

@@ -19,10 +19,10 @@ internal static class Program
 {
     private static readonly (string Name, uint Buffer, bool WarmUp, string? Variable)[] MatrixRuns =
     [
+        // Server-GC und „ohne Hintergrund-GC“ sind nach dem ersten Lauf unter Debian ausgeschieden
+        // (Pausen von 190 bis 330 ms auch ohne erzwungenen GC). Von Hand weiter mit DOTNET_gcServer=1 bzw. DOTNET_gcConcurrent=0.
         ("Standard", 10, true, null),
         ("ohne Vorrechnen", 10, false, null),
-        ("ohne Hintergrund-GC", 10, true, "DOTNET_gcConcurrent=0"),
-        ("Server-GC", 10, true, "DOTNET_gcServer=1"),
         ("Puffer 5 ms", 5, true, null),
         ("Puffer 20 ms", 20, true, null),
     ];
@@ -45,11 +45,13 @@ internal static class Program
         Console.WriteLine($"{GcMonitor.Mode}, Puffer {options.BufferMilliseconds} ms, " +
             $"Vorrechnen {(options.WarmUp ? "an" : "aus")}{(options.StretchOptions != 0 ? ", cheaper" : "")}");
 
+        using var pipeWire = new PipeWireMonitor();
         using var session = new AudioSession(options);
         Console.WriteLine($"{Path.GetFileName(options.File)}: {session.Clip.Seconds:0.0} s, Ausgabe {session.DeviceName}");
 
         App.Session = session;
         App.Options = options;
+        App.PipeWire = pipeWire;
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()

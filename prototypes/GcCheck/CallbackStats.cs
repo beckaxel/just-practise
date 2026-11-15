@@ -53,9 +53,9 @@ internal sealed class CallbackStats(int channels, int sampleRate)
     /// <summary>Größter Abstand seit dem letzten Aufruf (für das Protokoll).</summary>
     public double TakeIntervalMaxMilliseconds() => ToMilliseconds(Interlocked.Exchange(ref _intervalMaxTicks, 0));
 
+    /// <summary>Setzt die Zähler zurück. Der letzte Zeitpunkt bleibt, damit eine Lücke über den Wechsel hinweg zählt.</summary>
     public void Reset()
     {
-        _last = 0;
         _count = 0;
         _late = 0;
         _maxTicks = 0;
