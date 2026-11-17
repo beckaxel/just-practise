@@ -130,6 +130,8 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 3. Metronom
 4. Stimmgerät
 
+Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Release Candidate](roadmap.md).
+
 ## Schritt 1: Audioplayer
 
 ### Funktionsumfang

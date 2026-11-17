@@ -8,6 +8,7 @@ The concept phase is complete; the prototype is being built on the `prototyp` br
 
 - `docs/funktionen.md`: the feature concept (audio player, practice timer, metronome, tuner, keyboard shortcuts, language and music notation, app settings)
 - `docs/technologie.md`: technology decision, libraries, project structure, code conventions, file formats, translations, packaging, signing and the prototype checks
+- `docs/roadmap.md`: scope and milestones of the first release (release candidate) and what comes later
 
 The app is a native desktop app in C# (.NET 10 LTS) with Avalonia for Linux, Windows and macOS. Audio runs through the .NET audio engine SoundFlow (chosen by prototype check 2; OwnAudioSharp is the fallback); individual parts such as time-stretching may be written in C/C++ and called via P/Invoke. The project must never cause costs (no paid services, no ads, no donations). Anything new is discussed with the user before it is set up.
 
