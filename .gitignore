@@ -76,3 +76,6 @@ stretch-out/
 
 # Ausgabe von prototypes/GcCheck
 gccheck-out/
+
+# Ausgabe von prototypes/DecodeCheck
+decodecheck-out/
