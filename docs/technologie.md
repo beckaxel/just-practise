@@ -160,6 +160,8 @@ just-practise/
 
 - Der Nutzer wählt einen oder mehrere Ordner über den Ordnerdialog von Avalonia (`StorageProvider`). Die App merkt sich die Pfade im gerätespezifischen Gedächtnis.
 - Gelesen und geschrieben wird direkt mit `System.IO`. Es gibt keine Berechtigungsabfragen.
+- **Nie vom UI-Thread:** Die Klassen in Storage blockieren, weil Dateien in Cloud-Ordnern erst geladen werden müssen (siehe Prüfpunkt 2). Die App ruft sie im Hintergrund auf.
+- **Erst lesen, dann schreiben:** Eine Datendatei wird nur geschrieben, wenn sie beim letzten Lesen fehlte oder lesbar war. Eine Datei, die sich nicht lesen lässt (z. B. Cloud-Laufwerk nicht eingebunden), gilt wie eine beschädigte und wird nicht überschrieben.
 - Änderungen im Dateisystem erkennt die App über `FileSystemWatcher`. Bei Netzlaufwerken und Cloud-Ordnern ist das unzuverlässig, dort ergänzt ein Abfragen des Änderungszeitpunkts.
 - Unter Linux begrenzt inotify die Zahl der überwachten Ordner (`max_user_watches`). Bei großen Musiksammlungen werden nur geöffnete Ordner überwacht.
 
