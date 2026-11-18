@@ -27,7 +27,7 @@ dotnet run tools/setup.cs
 The script is a plain C# file and works the same on every system. It
 
 1. checks Git, CMake and a C++ compiler and shows the install command for your system if something is missing,
-2. builds the native libraries under `native/` if they are missing,
+2. builds the native libraries under `native/` if they are missing or their sources are newer (e.g. after a `git pull`),
 3. builds the solution.
 
 It never installs anything itself. Options:
@@ -46,6 +46,12 @@ dotnet test --project tests/JustPractise.Core.Tests
 dotnet run --project src/JustPractise.App      # start the app
 ```
 
+To listen to the audio layer (playback, tempo, metronome) without the app, play a file in the terminal; it opens the default output device:
+
+```bash
+dotnet run tools/play.cs -- <file> [--tempo 0.8] [--bpm 100] [--meter 3/4]
+```
+
 To run single tests, pass a filter after `--`, for example `dotnet test --project tests/JustPractise.Core.Tests -- --filter-method "*Grouping*"`.
 
 Any editor works. Free options with good C# and Avalonia support are VS Code with the C# Dev Kit, Visual Studio Community (Windows) and JetBrains Rider (free for non-commercial use).
@@ -54,7 +60,7 @@ Any editor works. Free options with good C# and Avalonia support are VS Code wit
 
 Some audio parts (time-stretching) are written in C++ and called via P/Invoke. Each folder under `native/` with a `CMakeLists.txt` builds one shared library `jp<folder>` into `native/bin/<rid>/`, for example `native/bin/linux-x64/libjpstretch.so`. Dependencies are fetched by CMake and pinned to a commit.
 
-At the moment only `prototypes/StretchCheck` uses a native library, so the app builds without a C++ toolchain. Later CI will publish prebuilt libraries and the setup script will download them; a local build will still take precedence.
+The audio layer uses `jpstretch` for the player. Everything still builds without it; the player reports at runtime that the library is missing, and the tests that need it are skipped. Later CI will publish prebuilt libraries and the setup script will download them; a local build will still take precedence.
 
 To build native code you need, in addition:
 

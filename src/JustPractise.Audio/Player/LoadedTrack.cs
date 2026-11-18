@@ -37,6 +37,9 @@ public sealed class LoadedTrack : IDisposable
 
     public StretchVoice Stretch { get; }
 
+    /// <summary>Das Decodieren im Hintergrund. Freigegeben wird erst, wenn es fertig oder abgebrochen ist.</summary>
+    public Task Decoding { get; init; } = Task.CompletedTask;
+
     internal float[] Input { get; }
 
     internal float[] Output { get; }

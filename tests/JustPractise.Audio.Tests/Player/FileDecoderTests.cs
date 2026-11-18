@@ -1,4 +1,3 @@
-using System.Text;
 using JustPractise.Audio.Player;
 using SoundFlow.Backends.MiniAudio;
 
@@ -18,44 +17,18 @@ public sealed class FileDecoderTests : IDisposable
         Directory.Delete(_directory, recursive: true);
     }
 
-    /// <summary>Schreibt eine 16-Bit-WAV-Datei. Frame n, Kanal c hat den Wert (n % 1000 + 100 c) / 32768.</summary>
-    private string Wav(string name, int channels, int sampleRate, int frames)
-    {
-        var path = Path.Combine(_directory, name);
-        using var writer = new BinaryWriter(File.Create(path));
-        var dataBytes = frames * channels * 2;
-        writer.Write(Encoding.ASCII.GetBytes("RIFF"));
-        writer.Write(36 + dataBytes);
-        writer.Write(Encoding.ASCII.GetBytes("WAVEfmt "));
-        writer.Write(16);
-        writer.Write((short)1);
-        writer.Write((short)channels);
-        writer.Write(sampleRate);
-        writer.Write(sampleRate * channels * 2);
-        writer.Write((short)(channels * 2));
-        writer.Write((short)16);
-        writer.Write(Encoding.ASCII.GetBytes("data"));
-        writer.Write(dataBytes);
-        for (var frame = 0; frame < frames; frame++)
-        {
-            for (var channel = 0; channel < channels; channel++)
-            {
-                writer.Write((short)((frame % 1000) + (100 * channel)));
-            }
-        }
-
-        return path;
-    }
+    private string Wav(string name, int channels, int sampleRate, int frames) =>
+        TestWav.Write(Path.Combine(_directory, name), channels, sampleRate, frames);
 
     // miniaudio teilt 16-Bit-Samples durch 32767 statt 32768, das macht bis zu 1e-6 aus.
     private const float Tolerance = 1e-5f;
 
-    private static float Expected(long frame, int channel) => ((frame % 1000) + (100 * channel)) / 32768f;
+    private static float Expected(long frame, int channel) => TestWav.Expected(frame, channel);
 
     private DecodedAudio Decode(string path, BlockPool? pool = null)
     {
         DecodedAudio? audio = null;
-        new FileDecoder(_engine, pool ?? new BlockPool(blockSamples: 8192)).Decode(path, opened => audio = opened, TestContext.Current.CancellationToken);
+        new FileDecoder(_engine).Decode(path, pool ?? new BlockPool(blockSamples: 8192), opened => audio = opened, TestContext.Current.CancellationToken);
         return audio!;
     }
 
@@ -101,8 +74,9 @@ public sealed class FileDecoderTests : IDisposable
         long framesWhenOpened = -1;
         var completeWhenOpened = true;
 
-        new FileDecoder(_engine, new BlockPool()).Decode(
+        new FileDecoder(_engine).Decode(
             path,
+            new BlockPool(),
             audio =>
             {
                 framesWhenOpened = audio.Frames;
@@ -121,8 +95,9 @@ public sealed class FileDecoderTests : IDisposable
         using var cancellation = new CancellationTokenSource();
         DecodedAudio? audio = null;
 
-        Assert.Throws<OperationCanceledException>(() => new FileDecoder(_engine, new BlockPool(blockSamples: 8192)).Decode(
+        Assert.Throws<OperationCanceledException>(() => new FileDecoder(_engine).Decode(
             path,
+            new BlockPool(blockSamples: 8192),
             opened =>
             {
                 audio = opened;

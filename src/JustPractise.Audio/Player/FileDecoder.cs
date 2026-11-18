@@ -1,3 +1,4 @@
+using JustPractise.Audio.Engine;
 using SoundFlow.Abstracts;
 using SoundFlow.Metadata.Models;
 using SoundFlow.Providers;
@@ -11,7 +12,7 @@ namespace JustPractise.Audio.Player;
 /// Blockiert und gehört auf einen Hintergrund-Thread. Die Tags werden nicht gelesen: Sonst erkennt SoundFlow
 /// Dateien mit ID3v2.2 nicht als MP3 und decodiert mit falscher Rate.
 /// </remarks>
-public sealed class FileDecoder(AudioEngine engine, BlockPool pool)
+public sealed class FileDecoder(AudioEngine engine) : IAudioDecoder
 {
     private const int ChunkSamples = 16384;
 
@@ -21,7 +22,7 @@ public sealed class FileDecoder(AudioEngine engine, BlockPool pool)
     /// Bei Abbruch oder Fehler gehört das Objekt trotzdem dem Aufrufer, der es mit <see cref="DecodedAudio.Release"/> freigibt.
     /// </summary>
     /// <exception cref="InvalidDataException">Die Datei ist kein lesbares Audio.</exception>
-    public void Decode(string path, Action<DecodedAudio> opened, CancellationToken cancellationToken)
+    public void Decode(string path, BlockPool pool, Action<DecodedAudio> opened, CancellationToken cancellationToken)
     {
         using var stream = File.OpenRead(path);
         StreamDataProvider provider;
