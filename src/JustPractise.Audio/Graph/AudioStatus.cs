@@ -5,6 +5,12 @@ namespace JustPractise.Audio.Graph;
 /// <param name="IndexInBar">der Schlag im Takt, 0 ist die Eins</param>
 public readonly record struct BeatInfo(long Frame, int IndexInBar);
 
+/// <summary>Der Stand des Players, wie ihn die Oberfläche sieht.</summary>
+/// <param name="TrackId">die Kennung der Datei, zu der die Angaben gehören (die unteren 16 Bit), 0 ohne Datei</param>
+/// <param name="Position">die gerade hörbare Stelle in Frames der Datei</param>
+/// <param name="IsPlaying">spielt gerade; am Ende hält der Player von selbst an</param>
+public readonly record struct PlayerInfo(int TrackId, long Position, bool IsPlaying);
+
 /// <summary>
 /// Was der Audio-Thread nach jedem Block meldet. Die Oberfläche liest es regelmäßig ab.
 /// </summary>
@@ -18,7 +24,11 @@ public sealed class AudioStatus
     private const long IndexMask = (1 << IndexBits) - 1;
     private const long NoBeat = -1;
 
+    private const int TrackBits = 16;
+    private const long TrackMask = (1 << TrackBits) - 1;
+
     private long _renderedFrames;
+    private long _player;
     private long _lastBeat = NoBeat;
     private int _metronomeRunning;
 
@@ -36,6 +46,18 @@ public sealed class AudioStatus
             return packed == NoBeat ? null : new BeatInfo(packed >> IndexBits, (int)(packed & IndexMask));
         }
     }
+
+    public PlayerInfo Player
+    {
+        get
+        {
+            var packed = Volatile.Read(ref _player);
+            return new PlayerInfo((int)(packed & TrackMask), packed >> (TrackBits + 1), ((packed >> TrackBits) & 1) != 0);
+        }
+    }
+
+    internal void PublishPlayer(int trackId, long position, bool playing) =>
+        Volatile.Write(ref _player, (position << (TrackBits + 1)) | (playing ? 1L << TrackBits : 0) | (trackId & TrackMask));
 
     internal void PublishFrames(long frames) => Volatile.Write(ref _renderedFrames, frames);
 

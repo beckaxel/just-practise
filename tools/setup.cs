@@ -62,10 +62,16 @@ if (compiler is null)
 // Native libraries
 Console.WriteLine();
 var nativeProjects = NativeProject.FindAll(root, platform);
-var toBuild = nativeProjects.Where(project => forceNative || !project.IsBuilt).ToList();
+var toBuild = nativeProjects.Where(project => forceNative || !project.IsUpToDate).ToList();
 foreach (var project in nativeProjects)
 {
-    Report.Line(project.IsBuilt, $"native/{project.Name}", project.IsBuilt ? Path.GetRelativePath(root, project.OutputPath) : "not built");
+    var state = project switch
+    {
+        { IsBuilt: false } => "not built",
+        { IsUpToDate: false } => "outdated, sources are newer",
+        _ => Path.GetRelativePath(root, project.OutputPath),
+    };
+    Report.Line(project.IsUpToDate, $"native/{project.Name}", state);
 }
 
 if (missing.Count > 0)
@@ -251,6 +257,18 @@ internal sealed record CMake(Version? Version)
 internal sealed record NativeProject(string Name, string SourceDirectory, string OutputPath)
 {
     public bool IsBuilt => File.Exists(OutputPath);
+
+    /// <summary>Built, and no source file (CMakeLists.txt, src/, include/) is newer, e.g. after a git pull.</summary>
+    public bool IsUpToDate => IsBuilt && SourceFiles().All(file => File.GetLastWriteTimeUtc(file) <= File.GetLastWriteTimeUtc(OutputPath));
+
+    private static readonly string[] SourceFolders = ["src", "include"];
+
+    private IEnumerable<string> SourceFiles() =>
+        SourceFolders
+            .Select(folder => Path.Combine(SourceDirectory, folder))
+            .Where(Directory.Exists)
+            .SelectMany(folder => Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
+            .Append(Path.Combine(SourceDirectory, "CMakeLists.txt"));
 
     /// <summary>Every folder under native/ with a CMakeLists.txt builds a library named jp&lt;folder&gt;.</summary>
     public static List<NativeProject> FindAll(string root, Platform platform)

@@ -59,6 +59,12 @@ jp_stretch *jp_stretch_create(int channels, float sample_rate, int options) {
         Interleaved<float> buffer{silence.data(), channels};
         stretch->stretcher.seek(buffer, length, 1.0);
         stretch->stretcher.process(buffer, length, buffer, length);
+
+        // Ebenso den Puffer für outputSeek, beim höchsten Tempo, das die App nutzt.
+        const int outputSeekLength = stretch->stretcher.outputSeekLength(2.0);
+        std::vector<float> seekSilence(static_cast<size_t>(outputSeekLength) * channels);
+        Interleaved<float> seekBuffer{seekSilence.data(), channels};
+        stretch->stretcher.outputSeek(seekBuffer, outputSeekLength);
         stretch->stretcher.reset();
         return stretch;
     } catch (...) {
@@ -79,6 +85,15 @@ int jp_stretch_seek_length(const jp_stretch *stretch) { return stretch->stretche
 void jp_stretch_seek(jp_stretch *stretch, const float *input, int frames, double rate) {
     Interleaved<const float> in{input, stretch->channels};
     stretch->stretcher.seek(in, frames, rate);
+}
+
+int jp_stretch_output_seek_length(const jp_stretch *stretch, double rate) {
+    return stretch->stretcher.outputSeekLength(static_cast<float>(rate));
+}
+
+void jp_stretch_output_seek(jp_stretch *stretch, const float *input, int frames) {
+    Interleaved<const float> in{input, stretch->channels};
+    stretch->stretcher.outputSeek(in, frames);
 }
 
 void jp_stretch_process(jp_stretch *stretch, const float *input, int input_frames, float *output,

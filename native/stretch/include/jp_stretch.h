@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 /* Version der Schnittstelle. Steigt bei jeder inkompatiblen Änderung. */
-#define JP_STRETCH_API_VERSION 1
+#define JP_STRETCH_API_VERSION 2
 
 /* Optionen für jp_stretch_create */
 #define JP_STRETCH_CHEAPER 1 /* kleinere Blöcke, weniger Rechenlast, etwas schlechterer Klang */
@@ -46,6 +46,14 @@ JP_STRETCH_API int jp_stretch_seek_length(const jp_stretch *stretch);
 
 /* Springt an eine neue Stelle: input enthält die Frames unmittelbar vor der neuen Position. */
 JP_STRETCH_API void jp_stretch_seek(jp_stretch *stretch, const float *input, int frames, double rate);
+
+/* Anzahl Frames für jp_stretch_output_seek bei diesem Tempo. */
+JP_STRETCH_API int jp_stretch_output_seek_length(const jp_stretch *stretch, double rate);
+
+/* Springt an eine neue Stelle, sodass die nächste Ausgabe von jp_stretch_process genau dort beginnt.
+ * input enthält jp_stretch_output_seek_length Frames ab der neuen Position; die Eingabe für das folgende
+ * jp_stretch_process beginnt direkt dahinter. Das Tempo ergibt sich aus der Länge. */
+JP_STRETCH_API void jp_stretch_output_seek(jp_stretch *stretch, const float *input, int frames);
 
 /* Das Verhältnis input_frames / output_frames ist das Tempo (0.5 = halb so schnell). */
 JP_STRETCH_API void jp_stretch_process(jp_stretch *stretch, const float *input, int input_frames,

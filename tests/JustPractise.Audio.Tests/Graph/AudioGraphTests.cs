@@ -1,5 +1,6 @@
 using JustPractise.Audio.Graph;
 using JustPractise.Audio.Metronome;
+using JustPractise.Audio.Player;
 using JustPractise.Core.Metronome;
 
 namespace JustPractise.Audio.Tests.Graph;
@@ -18,7 +19,7 @@ public sealed class AudioGraphTests
     public AudioGraphTests()
     {
         var click = new ClickVoice(new BeatClock(SampleRate, 120, Meter.FourFour), _sound);
-        _graph = new AudioGraph(Channels, click, _commands, _status);
+        _graph = new AudioGraph(Channels, new PlayerVoice(), click, _commands, new CommandRing<RetiredTrack>(4), _status);
     }
 
     /// <summary>Rechnet Blöcke zu 10 ms und liefert den linken Kanal.</summary>
