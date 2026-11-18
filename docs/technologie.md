@@ -167,7 +167,8 @@ just-practise/
 
 Sie gelten für Sidecar-Dateien, Einstellungen und das gerätespezifische Gedächtnis.
 
-- **JSON** über `System.Text.Json`, als UTF-8, eingerückt und damit für Menschen lesbar
+- **JSON** über `System.Text.Json`, als UTF-8, eingerückt und damit für Menschen lesbar. Umlaute stehen lesbar in der Datei, nicht als `\u00FC`. Kommentare und Kommas am Ende werden beim Lesen toleriert. Ohne Quellgenerator: Er setzt fehlende `init`-Eigenschaften auf `null` statt auf ihren Standardwert und unterstützt `init` bei unbekannten Feldern nicht.
+- **Modelle und Format in Core:** Die Records und die Regeln dieses Abschnitts liegen in `JustPractise.Core` (`AppDataFiles`), Storage liest und schreibt nur die Dateien.
 - **Feldnamen** englisch in camelCase, unabhängig von der Sprache der Oberfläche
 - **Versionsnummer:** Jede Datei beginnt mit `"format": 1`. Ändert sich das Format, migriert die App ältere Dateien beim Lesen schrittweise auf die aktuelle Version.
 - **Nur Abweichungen speichern:** Fehlt ein Feld, gilt der Standardwert. Ändert sich ein Standard in einer neuen Version, wirkt er auch für bestehende Dateien.
@@ -242,7 +243,8 @@ Beispiel für `settings.json` (gekürzt):
 }
 ```
 
-- **Gliederung:** ein Abschnitt pro Bereich (Sprache, Komponenten, Tastenkürzel)
+- **Gliederung:** ein Abschnitt pro Bereich (Sprache, Komponenten, Tastenkürzel). Abschnitte, die ganz auf Standardwerten stehen, und leere Listen werden nicht geschrieben.
+- **Lautstärke des Metronoms:** steht als `metronome.volumeDb` neben `current`, nicht in einer Einstellung. Eine benannte Einstellung ändert die Lautstärke also nicht.
 - **Tastenkürzel:** Gespeichert werden nur die vom Nutzer geänderten Kürzel. Neue Standardkürzel aus Updates kommen so automatisch an.
 - **Instrumente** werden über ihren Namen angesprochen. Der Name muss eindeutig sein.
 - **Export und Import** betreffen nur die Einstellungen. Die Exportdatei ist eine Kopie von `settings.json` mit der Endung `.jpsettings`, ein eigenes Format gibt es nicht. Ein Import ersetzt die Einstellungen komplett und läuft durch dieselbe Migration wie das Lesen.
