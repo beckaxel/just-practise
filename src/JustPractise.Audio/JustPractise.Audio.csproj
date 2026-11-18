@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\JustPractise.Core\JustPractise.Core.csproj" />
   </ItemGroup>
 </Project>
