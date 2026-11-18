@@ -65,8 +65,8 @@ public sealed record MetronomeSettings : IDataSection
 public sealed record MetronomeSetup : IDataSection
 {
     public const int DefaultBpm = 120;
-    public const int MinBpm = 30;
-    public const int MaxBpm = 250;
+    public const int MinBpm = BeatClock.MinBpm;
+    public const int MaxBpm = BeatClock.MaxBpm;
 
     public static MetronomeSetup Default { get; } = new();
 

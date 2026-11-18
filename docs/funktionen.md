@@ -289,6 +289,8 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibe
 - **Klänge:** mitgelieferte Klangsets, z. B. Klick, Holzblock und Beep. Zusätzlich kann man eigene Audiodateien als Klänge laden.
 - **Lautstärke:** Betonte Schläge, normale Schläge und Unterteilungen haben je einen eigenen Lautstärkeregler. Alle drei sind unabhängig von der Lautstärke des Audioplayers.
 - **Unabhängig vom Player:** Das Metronom hat ein eigenes Tempo und einen eigenen Start/Stopp. Es läuft nicht synchron zum Stück. Eine Kopplung kann später kommen.
+- **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Wird die Taktart kürzer und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
+- **Bezug der BPM:** Ein Schlag ist eine Zählzeit der Taktart (bei 4/4 die Viertel). Wie das bei Achteltakten wie 6/8 aussieht, wird mit den freien Taktarten entschieden.
 
 ### Speichern
 
