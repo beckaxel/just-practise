@@ -174,10 +174,22 @@ Beispiel:
 | `Blues.mp3`                         | Blues             |
 | `Blues in F.mp3`                    | **Blues in F**, nicht „Blues“ |
 
-Regeln der Erkennung:
+Regeln der Erkennung (abgeleitet aus einer echten Sammlung von rund 2500 Dateien):
 
-- Ein gemeinsamer Namensanfang zählt nur, wenn er an einem Trennzeichen endet, z. B. ` - `, `_`, `(`, `[`.
-- Typische Zusätze werden erkannt und gehören nicht zum Titel, z. B. „Demo“, „Playalong“, Tempoangaben wie „80 bpm“, Seitennummern.
+- **Vergleich:** Groß- und Kleinschreibung zählen nicht, Apostrophe (`'`, `’`, `´`) werden ignoriert, Unicode wird vereinheitlicht. `Aint no Sunshine` und `Ain't No Sunshine` sind also gleich.
+- **Nummern am Anfang** werden für den Vergleich abgetrennt, z. B. `01 `, `001 - `, `01_`, `1-01 `, `45. `, `Track 01 `, `Titel 01 `.
+- **Zusätze am Ende** werden abgetrennt, solange sie bekannt sind. Ein Leerzeichen reicht als Trennung (`August Song Play-Along`), Zahlen dürfen angeklebt sein (`Blue Bossa100`, `60bpm`). Bekannt sind:
+  - Playalong und Begleitung, z. B. Play-Along, Playback, PB, Bck, bckgr, (Rhythm Section Only), (ohne Sax), no piano, only bs and drums
+  - Demo und Vollversion, z. B. Demo, Instr, (mit Sax), full version, complete, orig
+  - Tempo: eine Zahl von 30 bis 400, `80 bpm`, `Tempo 66`, fast, slow. Eine Zahl, die schon in der Nummer am Anfang steht, ist kein Tempo (`30 Titel 30`).
+  - Metronom und Klick
+  - Stimmung und Instrument als nacktes Kürzel: Bb, Eb, Es, C, Ces, Alto, Alt, Tenor, höchstens eines pro Name (in `Skalen Akk C Eb` ist das C die Tonleiter). Nach „in“ bleibt die Tonart Teil des Titels (`Blues in F`), ebenso Angaben wie `G-Dur`.
+  - Kleine Zahlen unter 30 bleiben Teil des Titels (`Impro 4`, `Trommlermarsch 01`). Bleibt nach dem Abtrennen nichts übrig (`Titel 01 click 48`), gilt der ganze Name.
+- **Verschiedene Nummern:** Dateien mit verschiedenen Nummern gehören nur zusammen, wenn sie sich durch Zusätze unterscheiden (`02 August Song` und `03 August Song Play-Along`). Gleiche Namen mit verschiedenen Nummern sind verschiedene Stücke (`003 - Bourrée` und `006 - Bourrée`, `001 PianoFitness` bis `111 PianoFitness`).
+- **Harte Trennzeichen** (` - `, `_`, `(`, `[`): Danach darf beliebiger Text folgen, aber nur, wenn es eine Datei gibt, die genau wie der Teil davor heißt. `Hot Cross Buns - 01 - Metronom` gehört so zu `Hot Cross Buns`, aus `Franz Titscher - Kinderlieder` und `Franz Titscher - Weihnachtslieder` wird aber kein Stück „Franz Titscher“.
+- **Titel:** Der Titel eines Stücks ist der Name seiner Grunddatei (der Datei ohne Zusätze) bis zum Ende des erkannten Titels, mit der Nummer am Anfang, z. B. `02 August Song`. So bleiben die Titel im Ordner eindeutig und passen zur Nummerierung im Heft.
+- Vorerst werden nur Audiodateien gruppiert. Noten und andere Dateien kommen mit der Notenanzeige dazu.
+- Die Listen der Zusätze werden bei Bedarf ergänzt.
 
 **Korrektur von Hand:** Der Nutzer kann eine falsche Gruppierung korrigieren. Die Sidecar-Datei hält dann fest, welche Dateien zum Stück gehören, und hat Vorrang vor der automatischen Erkennung. Ohne Sidecar wird automatisch gruppiert.
 
