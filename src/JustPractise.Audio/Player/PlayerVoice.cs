@@ -9,7 +9,9 @@ namespace JustPractise.Audio.Player;
 /// Läuft auf dem Audio-Thread: keine Allokation, keine Sperre. Starten und Springen nutzen <c>outputSeek</c>,
 /// damit die Ausgabe genau an der Zielstelle beginnt. Starten, Anhalten und Springen blenden kurz ein bzw. aus,
 /// Lautstärkeänderungen gleiten, damit nichts knackst.
-/// Die Position zählt in Frames der Datei und ist die Stelle, die gerade zu hören ist.
+/// Die Position zählt in Frames der Datei und ist die Stelle, die gerade zu hören ist. Hat die Datei eine andere
+/// Rate als das Gerät, rechnet der Stretcher um: Pro Ausgabe-Frame rückt die Position um Tempo mal
+/// <see cref="StretchVoice.RateRatio"/> vor.
 /// </remarks>
 public sealed class PlayerVoice
 {
@@ -142,7 +144,7 @@ public sealed class PlayerVoice
     private void OutputSeek(LoadedTrack track)
     {
         var start = (long)_position;
-        var frames = track.Stretch.OutputSeekLength(_tempo);
+        var frames = track.Stretch.OutputSeekLength(_tempo * track.Stretch.RateRatio);
         var input = track.Input.AsSpan(0, frames * track.Audio.Channels);
         ReadInput(track, start, input);
         track.Stretch.OutputSeek(input, frames);
@@ -155,11 +157,12 @@ public sealed class PlayerVoice
     private void Render(LoadedTrack track, Span<float> buffer, int channels, int offset, int count, int fadeOutFrames)
     {
         var fileChannels = track.Audio.Channels;
+        var rate = _tempo * track.Stretch.RateRatio;
         var done = 0;
         while (done < count)
         {
             var frames = Math.Min(LoadedTrack.MaxChunkFrames, count - done);
-            _inputFraction += frames * _tempo;
+            _inputFraction += frames * rate;
             var inputFrames = (int)_inputFraction;
             _inputFraction -= inputFrames;
 
@@ -168,7 +171,7 @@ public sealed class PlayerVoice
             ReadInput(track, _inputPosition, input);
             track.Stretch.Process(input, inputFrames, output, frames);
             _inputPosition += inputFrames;
-            _position += frames * _tempo;
+            _position += frames * rate;
 
             for (var i = 0; i < frames; i++)
             {

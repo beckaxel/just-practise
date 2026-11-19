@@ -102,9 +102,9 @@ public sealed class AudioPlayer(AudioSession session) : IPlayer
                 () =>
                 {
                     token.ThrowIfCancellationRequested();
-                    session.EnsureSampleRate(decoded.SampleRate);
                     var id = Interlocked.Increment(ref _nextId);
-                    return new LoadedTrack(id, decoded, new StretchVoice(decoded.Channels, decoded.SampleRate)) { Decoding = decoding };
+                    var stretch = new StretchVoice(decoded.Channels, decoded.SampleRate, session.SampleRate);
+                    return new LoadedTrack(id, decoded, stretch) { Decoding = decoding };
                 },
                 token);
             token.ThrowIfCancellationRequested();

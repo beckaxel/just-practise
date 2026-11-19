@@ -29,7 +29,7 @@ public sealed class AudioGraphPlayerTests
         tail.Fill(0.25f);
         audio.Commit(tail.Length);
         audio.Complete();
-        return new LoadedTrack(id, audio, new StretchVoice(1, SampleRate));
+        return new LoadedTrack(id, audio, new StretchVoice(1, SampleRate, SampleRate));
     }
 
     private void Render(int blocks)

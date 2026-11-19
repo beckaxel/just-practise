@@ -14,6 +14,12 @@ public interface IAudioOutput : IDisposable
     /// <summary>Die Periode, in der das Gerät den Callback aufruft (eingestellte Pufferlänge).</summary>
     TimeSpan Period { get; }
 
+    /// <summary>
+    /// Die Rate, mit der das Standardgerät im geteilten Modus mischt. Mit dieser Rate geöffnet, rechnet weder die
+    /// Audio-Engine noch das System um, und die Callbacks kommen gleichmäßig.
+    /// </summary>
+    int MixSampleRate { get; }
+
     /// <summary>Öffnet das Standard-Ausgabegerät und startet die Callbacks. Ein offenes Gerät wird vorher geschlossen.</summary>
     void Open(int sampleRate, int channels, AudioCallback callback);
 

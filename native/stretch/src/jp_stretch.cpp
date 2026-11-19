@@ -37,8 +37,8 @@ extern "C" {
 
 int jp_stretch_api_version(void) { return JP_STRETCH_API_VERSION; }
 
-jp_stretch *jp_stretch_create(int channels, float sample_rate, int options) {
-    if (channels <= 0 || sample_rate <= 0) {
+jp_stretch *jp_stretch_create(int channels, float input_rate, float output_rate, float max_rate, int options) {
+    if (channels <= 0 || input_rate <= 0 || output_rate <= 0 || max_rate <= 0) {
         return nullptr;
     }
 
@@ -47,10 +47,14 @@ jp_stretch *jp_stretch_create(int channels, float sample_rate, int options) {
         stretch->channels = channels;
         const bool split = (options & JP_STRETCH_SPLIT) != 0;
         if ((options & JP_STRETCH_CHEAPER) != 0) {
-            stretch->stretcher.presetCheaper(channels, sample_rate, split);
+            stretch->stretcher.presetCheaper(channels, input_rate, split);
         } else {
-            stretch->stretcher.presetDefault(channels, sample_rate, split);
+            stretch->stretcher.presetDefault(channels, input_rate, split);
         }
+
+        // Spielt die Ausgabe mit output_rate, klänge alles um output_rate / input_rate zu hoch; das gleicht
+        // die Transposition aus. Bei gleichen Raten ist sie 1 und ändert nichts.
+        stretch->stretcher.setTransposeFactor(input_rate / output_rate);
 
         // Interne Hilfspuffer einmal auf volle Größe bringen, damit seek und process
         // später im Audio-Callback keinen Speicher mehr anlegen.
@@ -60,8 +64,8 @@ jp_stretch *jp_stretch_create(int channels, float sample_rate, int options) {
         stretch->stretcher.seek(buffer, length, 1.0);
         stretch->stretcher.process(buffer, length, buffer, length);
 
-        // Ebenso den Puffer für outputSeek, beim höchsten Tempo, das die App nutzt.
-        const int outputSeekLength = stretch->stretcher.outputSeekLength(2.0);
+        // Ebenso den Puffer für outputSeek, beim größten Verhältnis, das vorkommt.
+        const int outputSeekLength = stretch->stretcher.outputSeekLength(max_rate);
         std::vector<float> seekSilence(static_cast<size_t>(outputSeekLength) * channels);
         Interleaved<float> seekBuffer{seekSilence.data(), channels};
         stretch->stretcher.outputSeek(seekBuffer, outputSeekLength);

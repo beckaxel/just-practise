@@ -11,15 +11,15 @@ namespace JustPractise.Audio;
 /// Hält Ausgabegerät, Audio-Callback, Befehls- und Rückgabe-Ring sowie den Blockpool zusammen.
 /// </summary>
 /// <remarks>
-/// Das Gerät läuft mit der Rate der geladenen Datei. Wechselt sie, wird es neu geöffnet und der Callback neu
-/// aufgebaut; Metronom und Player-Einstellungen werden dabei wieder eingespielt. Vor dem ersten Öffnen rechnet
-/// die Sitzung einige Blöcke ins Leere, damit JIT und erste Berechnungen nicht im echten Callback anfallen.
+/// Das Gerät läuft mit der Rate seines Mischers und bleibt offen, auch wenn Dateien mit anderer Rate geladen
+/// werden; der Stretcher des Players rechnet um. So rechnet weder miniaudio (nur linear) noch das System um, und
+/// die Callbacks kommen gleichmäßig. Vor dem Öffnen rechnet die Sitzung einige Blöcke ins Leere, damit JIT und
+/// erste Berechnungen nicht im echten Callback anfallen.
 /// Ersetzte Dateien werden regelmäßig freigegeben, aber erst, wenn ihr Decoder fertig ist.
 /// </remarks>
 public sealed class AudioSession : IDisposable
 {
     public const int Channels = 2;
-    public const int DefaultSampleRate = 48000;
 
     private const int WarmUpBlocks = 50;
     private const int WarmUpBlockFrames = 480;
@@ -46,10 +46,11 @@ public sealed class AudioSession : IDisposable
         _output = output;
         Decoder = decoder;
         Monitor = new CallbackMonitor(output.Period);
-        WarmUp();
+        var sampleRate = output.MixSampleRate;
+        WarmUp(sampleRate);
         lock (_lock)
         {
-            Rebuild(DefaultSampleRate);
+            Rebuild(sampleRate);
         }
 
         _cleanup = timeProvider.CreateTimer(_ => ReleaseRetired(), null, CleanupInterval, CleanupInterval);
@@ -72,18 +73,6 @@ public sealed class AudioSession : IDisposable
     internal int Bpm => _bpm;
 
     internal Meter Meter => _meter;
-
-    /// <summary>Öffnet das Gerät mit dieser Rate neu, falls es noch mit einer anderen läuft. Blockiert kurz.</summary>
-    public void EnsureSampleRate(int sampleRate)
-    {
-        lock (_lock)
-        {
-            if (sampleRate != SampleRate)
-            {
-                Rebuild(sampleRate);
-            }
-        }
-    }
 
     /// <summary>Gibt Dateien frei, die der Audio-Thread zurückgegeben hat. Läuft regelmäßig von selbst.</summary>
     public void ReleaseRetired()
@@ -196,7 +185,7 @@ public sealed class AudioSession : IDisposable
             TaskContinuationOptions.None,
             TaskScheduler.Default);
 
-    /// <summary>Baut den Callback für eine Rate neu auf. Nur unter <see cref="_lock"/>.</summary>
+    /// <summary>Öffnet das Gerät mit dieser Rate und baut den Callback auf. Nur unter <see cref="_lock"/>.</summary>
     private void Rebuild(int sampleRate)
     {
         _output.Close();
@@ -248,14 +237,14 @@ public sealed class AudioSession : IDisposable
     }
 
     /// <summary>Rechnet einige Blöcke mit Player und Metronom ins Leere, ohne Gerät.</summary>
-    private static void WarmUp()
+    private static void WarmUp(int sampleRate)
     {
         var commands = new CommandRing<AudioCommand>(16);
         var player = new PlayerVoice();
         var graph = new AudioGraph(
             Channels,
             player,
-            new ClickVoice(new BeatClock(DefaultSampleRate, 120, Meter.FourFour), ClickSound.Create(DefaultSampleRate)),
+            new ClickVoice(new BeatClock(sampleRate, 120, Meter.FourFour), ClickSound.Create(sampleRate)),
             commands,
             new CommandRing<RetiredTrack>(4),
             new AudioStatus());
@@ -263,12 +252,12 @@ public sealed class AudioSession : IDisposable
         LoadedTrack? track = null;
         if (StretchVoice.IsAvailable(out _))
         {
-            var audio = new DecodedAudio(new BlockPool(blockSamples: DefaultSampleRate * Channels), Channels, DefaultSampleRate);
-            var tail = audio.WritableTail(DefaultSampleRate * Channels);
+            var audio = new DecodedAudio(new BlockPool(blockSamples: sampleRate * Channels), Channels, sampleRate);
+            var tail = audio.WritableTail(sampleRate * Channels);
             tail.Clear();
             audio.Commit(tail.Length);
             audio.Complete();
-            track = new LoadedTrack(0, audio, new StretchVoice(Channels, DefaultSampleRate));
+            track = new LoadedTrack(0, audio, new StretchVoice(Channels, sampleRate, sampleRate));
             commands.TryEnqueue(AudioCommand.PlayerLoad(track));
             commands.TryEnqueue(AudioCommand.PlayerTempo(0.8));
             commands.TryEnqueue(AudioCommand.PlayerPlay());
@@ -280,7 +269,7 @@ public sealed class AudioSession : IDisposable
         {
             if (i == WarmUpBlocks / 2)
             {
-                commands.TryEnqueue(AudioCommand.PlayerSeek(DefaultSampleRate / 4));
+                commands.TryEnqueue(AudioCommand.PlayerSeek(sampleRate / 4));
             }
 
             graph.Render(buffer);

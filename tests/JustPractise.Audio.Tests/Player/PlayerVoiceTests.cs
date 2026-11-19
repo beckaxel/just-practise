@@ -24,10 +24,10 @@ public sealed class PlayerVoiceTests : IDisposable
         return (float)(0.2 * (Math.Sin(2 * Math.PI * 440 * t) + Math.Sin(2 * Math.PI * 650 * t) + Math.Sin(2 * Math.PI * 1130 * t)));
     }
 
-    private LoadedTrack Track(double seconds, Func<long, float> signal, int channels = 1, Func<int, float>? channelGain = null)
+    private LoadedTrack Track(double seconds, Func<long, float> signal, int channels = 1, Func<int, float>? channelGain = null, int fileRate = SampleRate)
     {
-        var frames = (long)(seconds * SampleRate);
-        var audio = new DecodedAudio(new BlockPool(), channels, SampleRate);
+        var frames = (long)(seconds * fileRate);
+        var audio = new DecodedAudio(new BlockPool(), channels, fileRate);
         while (audio.Frames < frames)
         {
             var start = audio.Frames;
@@ -41,7 +41,7 @@ public sealed class PlayerVoiceTests : IDisposable
         }
 
         audio.Complete();
-        var track = new LoadedTrack(_tracks.Count + 1, audio, new StretchVoice(channels, SampleRate));
+        var track = new LoadedTrack(_tracks.Count + 1, audio, new StretchVoice(channels, fileRate, SampleRate));
         _tracks.Add(track);
         return track;
     }
@@ -313,5 +313,48 @@ public sealed class PlayerVoiceTests : IDisposable
         }
 
         Assert.Equal(before, GC.GetAllocatedBytesForCurrentThread());
+    }
+
+    /// <summary>Die Frequenz eines reinen Sinustons, gezählt an den Nulldurchgängen.</summary>
+    private static double Frequency(ReadOnlySpan<float> samples)
+    {
+        var crossings = 0;
+        for (var i = 1; i < samples.Length; i++)
+        {
+            if (samples[i - 1] < 0 && samples[i] >= 0)
+            {
+                crossings++;
+            }
+        }
+
+        return crossings * (double)SampleRate / samples.Length;
+    }
+
+    [Theory]
+    [InlineData(44100)]
+    [InlineData(96000)]
+    [InlineData(22050)]
+    public void KeepsThePitchOfAFileWithAnotherRate(int fileRate)
+    {
+        var player = Loaded(Track(3, frame => (float)(0.5 * Math.Sin(2 * Math.PI * 1000 * frame / fileRate)), fileRate: fileRate));
+        player.Play();
+
+        var (left, _) = Render(player, 1);
+
+        Assert.InRange(Frequency(left.AsSpan(SampleRate / 4, SampleRate / 2)), 995, 1005);
+        Assert.Equal(fileRate, player.Position);
+    }
+
+    [Fact]
+    public void ChangesTheTempoOfAFileWithAnotherRate()
+    {
+        var player = Loaded(Track(3, frame => (float)(0.5 * Math.Sin(2 * Math.PI * 1000 * frame / 44100)), fileRate: 44100));
+        player.SetTempo(0.5);
+        player.Play();
+
+        var (left, _) = Render(player, 1);
+
+        Assert.InRange(Frequency(left.AsSpan(SampleRate / 4, SampleRate / 2)), 995, 1005);
+        Assert.Equal(44100 / 2, player.Position);
     }
 }

@@ -55,6 +55,16 @@ public sealed class AudioSessionTests : IDisposable
     }
 
     [Fact]
+    public void OpensTheDeviceAtTheRateOfItsMixer()
+    {
+        var output = new FakeOutput { MixSampleRate = 44100 };
+        using var session = new AudioSession(output, new FileDecoder(_engine), TimeProvider.System);
+
+        Assert.Equal([44100], output.OpenedRates);
+        Assert.Equal(44100, session.SampleRate);
+    }
+
+    [Fact]
     public async Task LoadsAFileStoppedAtTheBeginning()
     {
         var path = Wav("a.wav", 48000, 2);
@@ -84,29 +94,30 @@ public sealed class AudioSessionTests : IDisposable
     }
 
     [Fact]
-    public async Task ReopensTheDeviceAtTheRateOfTheFileAndKeepsTheMetronome()
+    public async Task KeepsTheDeviceOpenForAFileWithAnotherRate()
     {
         _metronome.SetTempo(90);
         _metronome.SetRunning(true);
         _output.Pull(1);
 
         await _player.LoadAsync(Wav("cd.wav", 44100, 1), Token);
-        _output.Pull(1, frames: 441);
+        _output.Pull(1);
 
-        Assert.Equal([48000, 44100], _output.OpenedRates);
+        Assert.Equal([48000], _output.OpenedRates);
+        Assert.Equal(48000, _session.SampleRate);
         Assert.True(_metronome.IsRunning);
         Assert.Equal(90, _metronome.Bpm);
         Assert.Equal(0, _metronome.LastBeat?.IndexInBar);
     }
 
     [Fact]
-    public async Task AppliesTempoAcrossAReopen()
+    public async Task PlaysAFileWithAnotherRateAtItsOwnSpeed()
     {
         _player.SetTempo(0.5);
         await _player.LoadAsync(Wav("cd.wav", 44100, 2), Token);
         _player.Play();
 
-        _output.Pull(100, frames: 441);
+        _output.Pull(100);
 
         Assert.Equal(TimeSpan.FromSeconds(0.5), _player.State.Position);
     }

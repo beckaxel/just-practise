@@ -16,6 +16,8 @@ internal sealed class FakeOutput : IAudioOutput
 
     public TimeSpan Period => TimeSpan.FromMilliseconds(10);
 
+    public int MixSampleRate { get; init; } = 48000;
+
     public void Open(int sampleRate, int channels, AudioCallback callback)
     {
         OpenedRates.Add(sampleRate);

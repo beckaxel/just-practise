@@ -6,7 +6,7 @@ namespace JustPractise.Audio.Player;
 /// <summary>P/Invoke auf <c>native/stretch</c> (<c>jp_stretch.h</c>). Puffer sind interleaved, Längen in Frames.</summary>
 internal static partial class StretchNativeMethods
 {
-    public const int ApiVersion = 2;
+    public const int ApiVersion = 3;
 
     private const string Library = "jpstretch";
 
@@ -14,7 +14,7 @@ internal static partial class StretchNativeMethods
     public static partial int GetApiVersion();
 
     [LibraryImport(Library, EntryPoint = "jp_stretch_create")]
-    public static partial StretchHandle Create(int channels, float sampleRate, int options);
+    public static partial StretchHandle Create(int channels, float inputRate, float outputRate, float maxRate, int options);
 
     [LibraryImport(Library, EntryPoint = "jp_stretch_destroy")]
     public static partial void Destroy(nint stretch);
