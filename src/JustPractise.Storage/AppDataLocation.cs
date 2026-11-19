@@ -22,6 +22,9 @@ public sealed class AppDataLocation(string directory)
 
     public string Directory { get; } = directory;
 
+    /// <summary>Eigene Sprachdateien, die ohne Neubau der App geladen werden.</summary>
+    public string TranslationsDirectory => Path.Combine(Directory, "translations");
+
     public DataFileStore<AppSettings> Settings() => new(Path.Combine(Directory, "settings.json"), AppDataFiles.Settings);
 
     public DataFileStore<DeviceMemory> Device() => new(Path.Combine(Directory, "device.json"), AppDataFiles.Device);

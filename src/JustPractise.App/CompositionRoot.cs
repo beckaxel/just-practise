@@ -1,4 +1,6 @@
+using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JustPractise.App;
@@ -14,6 +16,12 @@ internal static class CompositionRoot
         var services = new ServiceCollection();
 
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton(AppDataLocation.System);
+
+        services.AddSingleton(sp => TranslationCatalog.Load(sp.GetRequiredService<AppDataLocation>().TranslationsDirectory));
+        services.AddSingleton(sp => new Translator(
+            sp.GetRequiredService<TranslationCatalog>(),
+            sp.GetRequiredService<AppDataLocation>().Settings().Load().Value.Language.Ui));
 
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });

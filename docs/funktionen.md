@@ -47,6 +47,7 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | Taste | Aktion |
 |---|---|
 | `Leertaste` | Abspielen/Pause |
+| `Pos1` | zum Anfang |
 | `←` / `→` | 5 Sekunden zurück/vor |
 | `A` / `B` | Loop-Start/-Ende an der aktuellen Position setzen |
 | `L` | Loop an/aus |
@@ -152,6 +153,7 @@ Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffne
 - **Startpunkt:** der zuletzt geöffnete Ordner
 - **Ordner nicht erreichbar:** Ist ein Musikordner nicht erreichbar (z. B. externe Platte nicht angeschlossen), zeigt die App ihn weiter an, markiert ihn und greift wieder darauf zu, sobald er da ist.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
+- **Aufbau:** Der Browser zeigt immer einen Ordner, mit einer Pfadzeile zum Zurückspringen: oben die Unterordner, darunter die Stücke. Auf der obersten Ebene stehen die Musikordner. Ein Stück mit mehreren Audiodateien lässt sich im Browser aufklappen; ein Klick auf das Stück lädt seine erste Audiodatei, ein Klick auf eine Datei darunter genau diese.
 
 ### Stücke und Gruppierung
 

@@ -1,12 +1,49 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="using:JustPractise.App.Shell"
+        xmlns:l="using:JustPractise.App.Localization"
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
-        Title="{Binding Title}"
-        Width="1000" Height="700">
-  <TextBlock Text="{Binding Title}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center"
-             FontSize="24" />
+        Title="{l:Tr app.title}"
+        Width="1000" Height="700"
+        MinWidth="640" MinHeight="480">
+  <Window.Styles>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Padding" Value="16" />
+    </Style>
+  </Window.Styles>
+
+  <Grid ColumnDefinitions="320,Auto,*">
+    <!-- Dateibrowser: immer sichtbar -->
+    <Border Grid.Column="0" Classes="panel">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="section" Text="{l:Tr browser.title}" />
+        <Panel />
+      </DockPanel>
+    </Border>
+
+    <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" />
+
+    <!-- Player und Metronom untereinander -->
+    <Grid Grid.Column="2" RowDefinitions="Auto,Auto,Auto">
+      <Border Grid.Row="0" Classes="panel">
+        <StackPanel>
+          <TextBlock Classes="section" Text="{l:Tr player.title}" />
+          <TextBlock Text="{l:Tr player.empty}" Opacity="0.6" />
+        </StackPanel>
+      </Border>
+      <Separator Grid.Row="1" Margin="16,0" />
+      <Border Grid.Row="2" Classes="panel">
+        <StackPanel>
+          <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
 </Window>

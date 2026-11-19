@@ -1,0 +1,7 @@
+{
+  "language": { "name": "Deutsch" },
+  "app": { "title": "just practise" },
+  "browser": { "title": "Dateien" },
+  "player": { "title": "Player", "empty": "Wähle links ein Stück." },
+  "metronome": { "title": "Metronom", "bpm": "{bpm} BPM" }
+}
