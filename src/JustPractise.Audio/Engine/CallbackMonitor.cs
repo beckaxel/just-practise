@@ -3,32 +3,49 @@ using System.Diagnostics;
 namespace JustPractise.Audio.Engine;
 
 /// <summary>
-/// Zählt verspätete Audio-Callbacks (Prüfpunkt 1). Ein Abstand von deutlich mehr als einer Pufferlänge heißt,
-/// dass der Callback zu spät kam, etwa weil eine Speicherbereinigung den Thread angehalten hat.
+/// Zählt verspätete Audio-Callbacks (Prüfpunkt 1), etwa weil eine Speicherbereinigung den Audio-Thread angehalten hat.
 /// </summary>
 /// <remarks>
 /// <para>
-/// Als Pufferlänge gilt die größere von Geräteperiode und Länge des einzelnen Blocks. Rechnet das Gerät die Rate um
-/// (unter Windows z. B. 44,1 kHz auf die 48 kHz des Mischers), kommen die Blöcke in wechselnder, teils sehr kleiner
-/// Größe, aber weiter im Takt der Periode. Gemessen an einem kleinen Block wäre schon der normale Abstand „verspätet“.
+/// Gemessen wird der Vorlauf: wie viel Audio die Callbacks gegenüber der verstrichenen Zeit geliefert haben.
+/// Jeder Callback bringt einen Block, die Zeit bis zum nächsten zehrt davon. Ein Callback gilt als verspätet, wenn
+/// der Vorlauf bei seiner Ankunft unter −0,8 Perioden gefallen ist. Bei gleichmäßigen Callbacks ist das dieselbe
+/// Grenze wie das 1,8-Fache der Periode aus Prüfpunkt 1.
+/// </para>
+/// <para>
+/// Rechnet das Gerät die Rate um (unter Windows z. B. 44,1 kHz auf die 48 kHz des Mischers), kommen die Callbacks
+/// unregelmäßig: mal zwei kurz hintereinander, dann eine Periode lang keiner, im Mittel aber im Takt. Der Vorlauf darf
+/// deshalb bis auf zwei Perioden steigen und den folgenden langen Abstand auffangen. Er strebt langsam zu einer Periode
+/// zurück, damit kleine Gangunterschiede zwischen Geräte- und Systemuhr sich nicht aufsummieren.
 /// </para>
 /// <para>Läuft auf dem Audio-Thread: keine Allokation, keine Sperre.</para>
 /// </remarks>
 public sealed class CallbackMonitor(TimeSpan period)
 {
-    /// <summary>Ab dem 1,8-Fachen der erwarteten Zeit gilt ein Callback als verspätet (wie in Prüfpunkt 1).</summary>
-    private const double LateFactor = 1.8;
+    /// <summary>Unter −0,8 Perioden Vorlauf gilt ein Callback als verspätet (das 1,8-Fache aus Prüfpunkt 1).</summary>
+    private const double LateLead = -0.8;
+
+    /// <summary>Höchstens zwei Perioden Vorlauf werden angerechnet.</summary>
+    private const double MaxLead = 2.0;
+
+    /// <summary>Anteil, um den der Vorlauf je Callback zu einer Periode zurückstrebt (Zeitkonstante rund 100 Callbacks).</summary>
+    private const double Leak = 0.01;
 
     private readonly double _periodTicks = period.TotalSeconds * Stopwatch.Frequency;
     private long _last;
+    private double _lead;
     private long _late;
     private long _maxGapTicks;
+    private long _minLeadTicks;
     private int _minFrames = int.MaxValue;
     private int _maxFrames;
 
     public long LateCallbacks => Volatile.Read(ref _late);
 
-    public TimeSpan MaxGap => TimeSpan.FromSeconds((double)Volatile.Read(ref _maxGapTicks) / Stopwatch.Frequency);
+    public TimeSpan MaxGap => FromTicks(Volatile.Read(ref _maxGapTicks));
+
+    /// <summary>Geringster Vorlauf bei Ankunft eines Callbacks seit dem Öffnen des Geräts; negativ heißt hinter dem Plan.</summary>
+    public TimeSpan MinLead => FromTicks(Volatile.Read(ref _minLeadTicks));
 
     /// <summary>Kleinster Block in Frames seit dem Öffnen des Geräts, 0 vor dem ersten Callback.</summary>
     public int MinFrames => Volatile.Read(ref _maxFrames) == 0 ? 0 : Volatile.Read(ref _minFrames);
@@ -49,7 +66,13 @@ public sealed class CallbackMonitor(TimeSpan period)
             Volatile.Write(ref _maxFrames, frames);
         }
 
-        if (_last != 0)
+        var block = (double)frames / sampleRate * Stopwatch.Frequency;
+        var unit = Math.Max(_periodTicks, block);
+        if (_last == 0)
+        {
+            _lead = unit;
+        }
+        else
         {
             var gap = timestamp - _last;
             if (gap > _maxGapTicks)
@@ -57,10 +80,21 @@ public sealed class CallbackMonitor(TimeSpan period)
                 Volatile.Write(ref _maxGapTicks, gap);
             }
 
-            var expected = Math.Max(_periodTicks, (double)frames / sampleRate * Stopwatch.Frequency);
-            if (gap > expected * LateFactor)
+            var arrival = _lead - gap;
+            if (arrival < _minLeadTicks)
+            {
+                Volatile.Write(ref _minLeadTicks, (long)arrival);
+            }
+
+            if (arrival < LateLead * unit)
             {
                 Interlocked.Increment(ref _late);
+                _lead = unit; // Eine Lücke zählt einmal; danach beginnt der Plan neu.
+            }
+            else
+            {
+                _lead = Math.Min(arrival + block, MaxLead * unit);
+                _lead += (unit - _lead) * Leak;
             }
         }
 
@@ -69,12 +103,15 @@ public sealed class CallbackMonitor(TimeSpan period)
 
     /// <summary>
     /// Beginnt neu, z. B. nachdem das Gerät neu geöffnet wurde; die Lücke dazwischen zählt nicht.
-    /// Die Blockgrößen gelten danach für das neue Gerät. Nur aufrufen, während kein Callback läuft.
+    /// Blockgrößen und geringster Vorlauf gelten danach für das neue Gerät. Nur aufrufen, während kein Callback läuft.
     /// </summary>
     public void Restart()
     {
         _last = 0;
+        Volatile.Write(ref _minLeadTicks, 0);
         Volatile.Write(ref _minFrames, int.MaxValue);
         Volatile.Write(ref _maxFrames, 0);
     }
+
+    private static TimeSpan FromTicks(double ticks) => TimeSpan.FromSeconds(ticks / Stopwatch.Frequency);
 }

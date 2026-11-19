@@ -40,21 +40,67 @@ public sealed class CallbackMonitorTests
         Assert.Equal(0, monitor.LateCallbacks);
     }
 
-    [Fact]
-    public void MeasuresSmallResampledBlocksAgainstThePeriod()
+    /// <summary>
+    /// Wie unter Windows gemessen (44,1-kHz-Datei, 48-kHz-Mischer): gleich große Blöcke, im Mittel alle 10 ms, aber
+    /// regelmäßig zwei kurz hintereinander und danach ein Abstand von bis zu 22 ms.
+    /// </summary>
+    private static List<double> ResampledTimes(int periods)
     {
-        // Unter Windows bei 44,1 kHz Datei und 48-kHz-Mischer: kleine Blöcke im 10-ms-Takt, teils direkt hintereinander.
-        var monitor = new CallbackMonitor(Period);
-        (double Time, int Frames)[] callbacks = [(0, 441), (10, 32), (10.1, 409), (20, 441), (30, 16), (40, 425), (50, 441)];
-
-        foreach (var (time, frames) in callbacks)
+        var times = new List<double>();
+        for (var i = 0; i < periods; i++)
         {
-            monitor.Tick(1 + Ticks(time), frames, 44100);
+            var due = i * 10.0;
+            times.Add((i % 5) switch { 3 => due - 9, 4 => due + 2, _ => due });
+        }
+
+        times.Sort();
+        return times;
+    }
+
+    [Fact]
+    public void AcceptsTheUnevenPaceOfAResamplingDevice()
+    {
+        var monitor = new CallbackMonitor(Period);
+        var times = ResampledTimes(10_000);
+
+        foreach (var time in times)
+        {
+            monitor.Tick(1 + Ticks(time), 441, 44100);
         }
 
         Assert.Equal(0, monitor.LateCallbacks);
-        Assert.Equal(16, monitor.MinFrames);
+        Assert.Equal(21, monitor.MaxGap.TotalMilliseconds, 0.01);
+        Assert.Equal(441, monitor.MinFrames);
         Assert.Equal(441, monitor.MaxFrames);
+    }
+
+    [Fact]
+    public void CountsAStallWhileTheDeviceResamples()
+    {
+        var monitor = new CallbackMonitor(Period);
+        var times = ResampledTimes(1_000);
+
+        foreach (var time in times)
+        {
+            monitor.Tick(1 + Ticks(time + (time >= 5_000 ? 35 : 0)), 441, 44100);
+        }
+
+        Assert.Equal(1, monitor.LateCallbacks);
+        Assert.True(monitor.MinLead.TotalMilliseconds < -8);
+    }
+
+    [Fact]
+    public void ToleratesASlowDeviceClock()
+    {
+        // Das Gerät läuft 100 ppm langsamer als die Systemuhr; über eine Stunde wären das 360 ms.
+        var monitor = new CallbackMonitor(Period);
+        for (var i = 0; i < 360_000; i++)
+        {
+            monitor.Tick(1 + Ticks(i * 10.001), Frames, SampleRate);
+        }
+
+        Assert.Equal(0, monitor.LateCallbacks);
+        Assert.True(monitor.MinLead.TotalMilliseconds > -1);
     }
 
     [Fact]

@@ -111,12 +111,13 @@ while (running)
 
     var current = player.State;
     var beat = metronome.LastBeat is { } last ? (last.IndexInBar + 1).ToString(CultureInfo.InvariantCulture) : "-";
+    var monitor = session.Monitor;
     Console.Write(
-        $"\r{(current.IsPlaying ? "▶" : "⏸")} {current.Position:m\\:ss\\.f} / {current.Duration:m\\:ss}" +
-        $"  tempo {tempo * 100:0} %  volume {volumeDb:+0;-0;0} dB" +
-        $"  metronome {(metronome.IsRunning ? "on " : "off")} {metronome.Bpm} BPM {metronome.Meter} beat {beat}" +
-        $"  late callbacks {session.Monitor.LateCallbacks} (max gap {session.Monitor.MaxGap.TotalMilliseconds:0} ms," +
-        $" blocks {session.Monitor.MinFrames}-{session.Monitor.MaxFrames} frames)   ");
+        $"\r{(current.IsPlaying ? "▶" : "⏸")} {current.Position:m\\:ss\\.f}/{current.Duration:m\\:ss}" +
+        $" tempo {tempo * 100:0}% vol {volumeDb:+0;-0;0}dB" +
+        $" metro {(metronome.IsRunning ? "on " : "off")} {metronome.Bpm} {metronome.Meter} {beat}" +
+        $" | late {monitor.LateCallbacks} gap {monitor.MaxGap.TotalMilliseconds:0}ms lead {monitor.MinLead.TotalMilliseconds:0}ms" +
+        $" blk {monitor.MinFrames}-{monitor.MaxFrames}  ");
     await Task.Delay(50);
 }
 
