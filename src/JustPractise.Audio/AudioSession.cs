@@ -45,6 +45,7 @@ public sealed class AudioSession : IDisposable
     {
         _output = output;
         Decoder = decoder;
+        Monitor = new CallbackMonitor(output.Period);
         WarmUp();
         lock (_lock)
         {
@@ -60,7 +61,7 @@ public sealed class AudioSession : IDisposable
 
     public AudioStatus Status { get; } = new();
 
-    public CallbackMonitor Monitor { get; } = new();
+    public CallbackMonitor Monitor { get; }
 
     public int SampleRate { get; private set; }
 

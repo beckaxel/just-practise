@@ -115,7 +115,8 @@ while (running)
         $"\r{(current.IsPlaying ? "▶" : "⏸")} {current.Position:m\\:ss\\.f} / {current.Duration:m\\:ss}" +
         $"  tempo {tempo * 100:0} %  volume {volumeDb:+0;-0;0} dB" +
         $"  metronome {(metronome.IsRunning ? "on " : "off")} {metronome.Bpm} BPM {metronome.Meter} beat {beat}" +
-        $"  late callbacks {session.Monitor.LateCallbacks}   ");
+        $"  late callbacks {session.Monitor.LateCallbacks} (max gap {session.Monitor.MaxGap.TotalMilliseconds:0} ms," +
+        $" blocks {session.Monitor.MinFrames}-{session.Monitor.MaxFrames} frames)   ");
     await Task.Delay(50);
 }
 

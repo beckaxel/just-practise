@@ -14,6 +14,8 @@ internal sealed class FakeOutput : IAudioOutput
 
     public string? DeviceName => IsOpen ? "Fake" : null;
 
+    public TimeSpan Period => TimeSpan.FromMilliseconds(10);
+
     public void Open(int sampleRate, int channels, AudioCallback callback)
     {
         OpenedRates.Add(sampleRate);

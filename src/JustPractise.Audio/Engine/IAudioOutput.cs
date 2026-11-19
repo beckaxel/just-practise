@@ -11,6 +11,9 @@ public interface IAudioOutput : IDisposable
     /// <summary>Name des Geräts für die Anzeige, solange es offen ist.</summary>
     string? DeviceName { get; }
 
+    /// <summary>Die Periode, in der das Gerät den Callback aufruft (eingestellte Pufferlänge).</summary>
+    TimeSpan Period { get; }
+
     /// <summary>Öffnet das Standard-Ausgabegerät und startet die Callbacks. Ein offenes Gerät wird vorher geschlossen.</summary>
     void Open(int sampleRate, int channels, AudioCallback callback);
 

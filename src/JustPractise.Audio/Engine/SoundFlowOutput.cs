@@ -25,6 +25,8 @@ public sealed class SoundFlowOutput : IAudioOutput
 
     public string? DeviceName => _device?.Info?.Name;
 
+    public TimeSpan Period => TimeSpan.FromMilliseconds(BufferMilliseconds);
+
     public void Open(int sampleRate, int channels, AudioCallback callback)
     {
         lock (_lock)
