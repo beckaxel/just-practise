@@ -5,14 +5,24 @@ using JustPractise.Storage;
 
 namespace JustPractise.App.Tests.FileBrowser;
 
-public sealed class FileBrowserViewModelTests : IDisposable
+public sealed class FileBrowserViewModelTests : IAsyncDisposable
 {
     private readonly TemporaryDirectory _directory = new();
     private readonly FakeFolderPicker _picker = new();
+    private readonly List<DataFileKeeper<DeviceMemory>> _memories = [];
 
     public FileBrowserViewModelTests() => Directory.CreateDirectory(MusicPath);
 
-    public void Dispose() => _directory.Dispose();
+    /// <summary>Erst warten, bis das Gedächtnis im Hintergrund geschrieben ist, dann den Ordner löschen.</summary>
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var memory in _memories)
+        {
+            await memory.FlushAsync();
+        }
+
+        _directory.Dispose();
+    }
 
     private string MusicPath => _directory.File("Musik");
 
@@ -29,7 +39,9 @@ public sealed class FileBrowserViewModelTests : IDisposable
             store.TrySave(value);
         }
 
-        return new DataFileKeeper<DeviceMemory>(DeviceStore());
+        var memory = new DataFileKeeper<DeviceMemory>(DeviceStore());
+        _memories.Add(memory);
+        return memory;
     }
 
     private DataFileKeeper<DeviceMemory> MemoryWithMusic(string? lastFolder = null) =>

@@ -4,6 +4,7 @@
         xmlns:l="using:JustPractise.App.Localization"
         xmlns:fb="using:JustPractise.App.FileBrowser"
         xmlns:p="using:JustPractise.App.Player"
+        xmlns:m="using:JustPractise.App.Metronome"
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
         Title="{l:Tr app.title}"
@@ -44,6 +45,7 @@
       <Border Grid.Row="2" Classes="panel">
         <StackPanel>
           <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
+          <m:MetronomeView DataContext="{Binding Metronome}" />
         </StackPanel>
       </Border>
     </Grid>

@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:m="using:JustPractise.App.Metronome"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Metronome.MetronomeView"
+             x:DataType="m:MetronomeViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.label">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Opacity" Value="0.7" />
+    </Style>
+    <Style Selector="Button.value">
+      <Setter Property="MinWidth" Value="76" />
+      <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+    <Style Selector="Button.meter">
+      <Setter Property="MinWidth" Value="52" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Schlaganzeige: die Eins ist größer, der aktuelle Schlag leuchtet -->
+    <Style Selector="Ellipse.beat">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Height" Value="16" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Fill" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+    </Style>
+    <Style Selector="Ellipse.beat.accent">
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
+    </Style>
+    <Style Selector="Ellipse.beat.current">
+      <Setter Property="Fill" Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Spacing="12">
+    <!-- Tempo groß, daneben Start/Stopp -->
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+        <TextBlock Text="{Binding Bpm}" FontSize="32" FontWeight="SemiBold" />
+        <TextBlock Text="BPM" Opacity="0.6" Margin="0,0,0,6" VerticalAlignment="Bottom" />
+      </StackPanel>
+      <Button Grid.Column="1" Classes="accent" MinWidth="96" Height="44"
+              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+              Command="{Binding StartStopCommand}">
+        <Panel>
+          <TextBlock Text="{l:Tr metronome.start}" IsVisible="{Binding !IsRunning}" />
+          <TextBlock Text="{l:Tr metronome.stop}" IsVisible="{Binding IsRunning}" />
+        </Panel>
+      </Button>
+    </Grid>
+
+    <!-- Schlaganzeige -->
+    <ItemsControl ItemsSource="{Binding Beats}" Height="28">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <StackPanel Orientation="Horizontal" Spacing="12" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="m:BeatDot">
+          <Ellipse Classes="beat" Classes.accent="{Binding IsAccent}" Classes.current="{Binding IsCurrent}" />
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="8">
+      <!-- Tempo: Regler und direkte Eingabe. 30 bis 250 wie MetronomeViewModel.MinBpm/MaxBpm, das außerdem begrenzt. -->
+      <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="{l:Tr metronome.tempo}" />
+      <Slider Grid.Row="0" Grid.Column="1"
+              Minimum="30"
+              Maximum="250"
+              SmallChange="1" LargeChange="10" TickFrequency="1" IsSnapToTickEnabled="True"
+              Value="{Binding Bpm}" />
+      <NumericUpDown Grid.Row="0" Grid.Column="2" Width="120"
+                     Minimum="30"
+                     Maximum="250"
+                     Increment="1" FormatString="0" ClipValueToMinMax="True"
+                     Value="{Binding BpmInput}" />
+
+      <!-- Taktart -->
+      <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="{l:Tr metronome.meter}" />
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8">
+        <Button Classes="meter" Classes.accent="{Binding IsThreeFour}" Content="3/4" Command="{Binding UseThreeFourCommand}" />
+        <Button Classes="meter" Classes.accent="{Binding IsFourFour}" Content="4/4" Command="{Binding UseFourFourCommand}" />
+      </StackPanel>
+
+      <!-- Lautstärke; ein Klick auf den Wert setzt zurück -->
+      <TextBlock Grid.Row="2" Grid.Column="0" Classes="label" Text="{l:Tr metronome.volume}" />
+      <Slider Grid.Row="2" Grid.Column="1"
+              Minimum="{x:Static m:MetronomeViewModel.MinVolumeDb}"
+              Maximum="{x:Static m:MetronomeViewModel.MaxVolumeDb}"
+              SmallChange="0.5" LargeChange="3" TickFrequency="0.5" IsSnapToTickEnabled="True"
+              Value="{Binding VolumeDb}" />
+      <Button Grid.Row="2" Grid.Column="2" Classes="flat value"
+              Command="{Binding ResetVolumeCommand}" ToolTip.Tip="{l:Tr metronome.resetVolume}"
+              Content="{Binding VolumeDb, StringFormat='{}{0:+0.0;−0.0;0.0} dB'}" />
+    </Grid>
+  </StackPanel>
+</UserControl>

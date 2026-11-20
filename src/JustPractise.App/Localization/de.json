@@ -24,5 +24,13 @@
     "loading": "Wird geladen …",
     "error": "Diese Datei lässt sich nicht öffnen."
   },
-  "metronome": { "title": "Metronom", "bpm": "{bpm} BPM" }
+  "metronome": {
+    "title": "Metronom",
+    "start": "Start",
+    "stop": "Stopp",
+    "tempo": "Tempo",
+    "meter": "Taktart",
+    "volume": "Lautstärke",
+    "resetVolume": "Zurück auf 0 dB"
+  }
 }

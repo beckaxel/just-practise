@@ -296,7 +296,7 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibe
 
 ### Speichern
 
-- **Letzte Einstellung:** Tempo, Taktart, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da.
+- **Letzte Einstellung:** Tempo, Taktart, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da. Ob das Metronom lief, wird nicht gemerkt; nach dem Start der App steht es.
 - **Benannte Einstellungen:** Zusätzlich kann man Einstellungen unter einem Namen speichern, z. B. „Etüde 7/8, 92 BPM“, und später wieder aufrufen. Auch sie liegen in den App-Einstellungen, weil sie nicht an ein Stück gebunden sind.
 
 ### Schlaganzeige

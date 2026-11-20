@@ -6,7 +6,7 @@ using JustPractise.Storage;
 
 namespace JustPractise.App.Tests.Player;
 
-public sealed class PlayerViewModelTests : IDisposable
+public sealed class PlayerViewModelTests : IAsyncDisposable
 {
     private readonly TemporaryDirectory _directory = new();
     private readonly FakePlayer _player = new();
@@ -14,7 +14,12 @@ public sealed class PlayerViewModelTests : IDisposable
 
     public PlayerViewModelTests() => _viewModel = new PlayerViewModel(_player);
 
-    public void Dispose() => _directory.Dispose();
+    /// <summary>Erst warten, bis die Sidecar-Datei im Hintergrund geschrieben ist, dann den Ordner löschen.</summary>
+    public async ValueTask DisposeAsync()
+    {
+        await _viewModel.FlushAsync();
+        _directory.Dispose();
+    }
 
     private PieceFile File(string fileName = "Blues - Playalong.mp3", string piece = "Blues") => new(_directory.Path, piece, fileName);
 

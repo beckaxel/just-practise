@@ -36,9 +36,10 @@ public sealed partial class App : Application
             desktop.Exit += (_, _) =>
             {
                 ticker.Dispose();
-                // Noch nicht geschriebene Änderungen sichern: Gedächtnis (z. B. letzter Ordner) und Sidecar-Datei.
+                // Noch nicht geschriebene Änderungen sichern: Gedächtnis (z. B. letzter Ordner), Einstellungen und Sidecar-Datei.
                 Task.WhenAll(
                         _services.GetRequiredService<DataFileKeeper<DeviceMemory>>().FlushAsync(),
+                        _services.GetRequiredService<DataFileKeeper<AppSettings>>().FlushAsync(),
                         shell.Player.FlushAsync())
                     .Wait(TimeSpan.FromSeconds(2));
                 _services.Dispose();
