@@ -52,6 +52,12 @@ To listen to the audio layer (playback, tempo, metronome) without the app, play 
 dotnet run tools/play.cs -- <file> [--tempo 0.8] [--bpm 100] [--meter 3/4]
 ```
 
+To measure startup time and package size, publish the app with and without ReadyToRun and start each variant a few times; the app opens its window and the audio device, plays nothing and closes after the first frame. The report goes to `artifacts/startup/report.md`:
+
+```bash
+dotnet run tools/startup.cs
+```
+
 To run single tests, pass a filter after `--`, for example `dotnet test --project tests/JustPractise.Core.Tests -- --filter-method "*Grouping*"`.
 
 Any editor works. Free options with good C# and Avalonia support are VS Code with the C# Dev Kit, Visual Studio Community (Windows) and JetBrains Rider (free for non-commercial use).

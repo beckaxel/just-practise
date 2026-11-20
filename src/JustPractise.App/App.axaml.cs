@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.Audio;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,13 +24,19 @@ public sealed partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            StartupProbe.Mark("avalonia");
             _services = CompositionRoot.Build();
             var translator = _services.GetRequiredService<Translator>();
+            StartupProbe.Mark("translations");
+            _services.GetRequiredService<IAudioDevice>(); // öffnet das Gerät; hier nur vorgezogen, um es einzeln zu messen
+            StartupProbe.Mark("audio");
             UseCulture(translator.Culture);
             translator.PropertyChanged += OnLanguageChanged;
             TrExtension.Current = translator; // vor dem ersten Fenster, damit XAML die Texte findet
 
             desktop.MainWindow = _services.GetRequiredService<MainWindow>();
+            StartupProbe.Mark("window");
+            StartupProbe.Attach(desktop.MainWindow, desktop);
             _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
             var shell = _services.GetRequiredService<MainWindowViewModel>();
             var ticker = DispatcherTimer.Run(() => { shell.Tick(); return true; }, TimeSpan.FromMilliseconds(33));

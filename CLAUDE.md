@@ -23,6 +23,7 @@ dotnet test                                     # run all tests (xUnit v3 on Mic
 dotnet test --project tests/JustPractise.Core.Tests   # one test project
 dotnet run --project src/JustPractise.App       # start the app
 dotnet run tools/play.cs -- <file> --check      # decode a file without audio; without --check it plays (user only)
+dotnet run tools/startup.cs                     # startup time and package size with/without ReadyToRun (opens the audio device: user only)
 ```
 
 Filtering single tests uses Microsoft Testing Platform syntax after `--`, e.g. `dotnet test --project tests/JustPractise.Core.Tests -- --filter-method "*Grouping*"`.
