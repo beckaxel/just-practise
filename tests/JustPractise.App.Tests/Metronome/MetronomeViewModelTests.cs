@@ -105,6 +105,19 @@ public sealed class MetronomeViewModelTests : IAsyncDisposable
     }
 
     [Fact]
+    public void ChangesTheTempoInStepsWithinTheLimits()
+    {
+        var viewModel = new MetronomeViewModel(_metronome, Settings());
+
+        viewModel.ChangeTempo(10);
+        Assert.Equal(130, _metronome.Bpm);
+        viewModel.ChangeTempo(-1);
+        Assert.Equal(129, viewModel.Bpm);
+        viewModel.ChangeTempo(500);
+        Assert.Equal(250, viewModel.Bpm);
+    }
+
+    [Fact]
     public void KeepsTheTempoWhenTheInputIsCleared()
     {
         var viewModel = new MetronomeViewModel(_metronome, Settings());

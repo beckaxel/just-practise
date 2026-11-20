@@ -36,17 +36,21 @@ internal static class CompositionRoot
         services.AddSingleton<IFolderPicker, StorageFolderPicker>();
         services.AddSingleton<FileBrowserViewModel>();
 
-        services.AddSingleton<SoundFlowOutput>();
+        // Ohne Ausgabegerät läuft die App ohne Ton weiter; die Statusleiste sagt es.
         services.AddSingleton(sp =>
         {
-            var output = sp.GetRequiredService<SoundFlowOutput>();
-            return new AudioSession(output, new FileDecoder(output.Engine), sp.GetRequiredService<TimeProvider>());
+            var device = new SoundFlowOutput();
+            var output = new FallbackOutput(device, new SilentOutput());
+            return new AudioSession(output, new FileDecoder(device.Engine), sp.GetRequiredService<TimeProvider>());
         });
+        services.AddSingleton<IAudioDevice>(sp => sp.GetRequiredService<AudioSession>());
         services.AddSingleton<IPlayer, AudioPlayer>();
         services.AddSingleton<PlayerViewModel>();
         services.AddSingleton<IMetronome, AudioMetronome>();
         services.AddSingleton<MetronomeViewModel>();
 
+        services.AddSingleton<StatusBarViewModel>();
+        services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
 

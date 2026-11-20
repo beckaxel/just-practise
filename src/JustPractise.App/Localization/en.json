@@ -32,5 +32,20 @@
     "meter": "Time",
     "volume": "Volume",
     "resetVolume": "Back to 0 dB"
+  },
+  "status": {
+    "device": "Output: {name}",
+    "defaultDevice": "Output: default device",
+    "noDevice": "No output device found, playing without sound",
+    "late": "{count, plural, one {# late audio callback} other {# late audio callbacks}}"
+  },
+  "settings": {
+    "open": "Settings (Ctrl+,)",
+    "title": "Settings",
+    "language": "Language",
+    "systemLanguage": "Same as the system",
+    "noMusicFolders": "No music folders yet.",
+    "remove": "Remove",
+    "close": "Close"
   }
 }

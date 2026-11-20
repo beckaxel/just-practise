@@ -32,5 +32,20 @@
     "meter": "Taktart",
     "volume": "Lautstärke",
     "resetVolume": "Zurück auf 0 dB"
+  },
+  "status": {
+    "device": "Ausgabe: {name}",
+    "defaultDevice": "Ausgabe: Standardgerät",
+    "noDevice": "Kein Ausgabegerät gefunden, Wiedergabe ohne Ton",
+    "late": "{count, plural, one {# verspäteter Audio-Callback} other {# verspätete Audio-Callbacks}}"
+  },
+  "settings": {
+    "open": "Einstellungen (Strg+,)",
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "systemLanguage": "Wie das System",
+    "noMusicFolders": "Noch keine Musikordner.",
+    "remove": "Entfernen",
+    "close": "Schließen"
   }
 }

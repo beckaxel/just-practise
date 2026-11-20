@@ -77,7 +77,29 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
         memory.Update(value => value.MusicFolders.Any(folder => FolderPaths.AreSame(folder, path))
             ? value
             : value with { MusicFolders = [.. value.MusicFolders, path] });
+        OnPropertyChanged(nameof(MusicFolders));
+        OnPropertyChanged(nameof(HasMusicFolders));
         await ShowAsync(path, keepContent: false);
+    }
+
+    /// <summary>Die gewählten Musikordner.</summary>
+    public IReadOnlyList<string> MusicFolders => memory.Value.MusicFolders;
+
+    public bool HasMusicFolders => MusicFolders.Count > 0;
+
+    /// <summary>Nimmt einen Musikordner aus der Liste; die Dateien bleiben, wo sie sind.</summary>
+    [RelayCommand]
+    private async Task RemoveMusicFolder(string path)
+    {
+        memory.Update(value => value with
+        {
+            MusicFolders = [.. value.MusicFolders.Where(folder => !FolderPaths.AreSame(folder, path))],
+        });
+        OnPropertyChanged(nameof(MusicFolders));
+        OnPropertyChanged(nameof(HasMusicFolders));
+
+        // Lag der angezeigte Ordner darin, geht es auf die oberste Ebene; dort fehlt der Ordner dann.
+        await ShowAsync(Location, keepContent: Location is null);
     }
 
     /// <summary>Ein Klick auf ein Stück wählt seine erste Datei.</summary>

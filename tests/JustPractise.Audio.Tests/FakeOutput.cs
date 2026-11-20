@@ -14,6 +14,8 @@ internal sealed class FakeOutput : IAudioOutput
 
     public string? DeviceName => IsOpen ? "Fake" : null;
 
+    public bool HasDevice => IsOpen;
+
     public TimeSpan Period => TimeSpan.FromMilliseconds(10);
 
     public int MixSampleRate { get; init; } = 48000;

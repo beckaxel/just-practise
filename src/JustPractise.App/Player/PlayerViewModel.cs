@@ -141,7 +141,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
     }
 
     [RelayCommand]
-    private void PlayPause()
+    public void PlayPause()
     {
         if (!IsReady)
         {
@@ -165,12 +165,39 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
     }
 
     [RelayCommand]
-    private void ToStart()
+    public void ToStart()
     {
         if (IsReady)
         {
             player.ToStart();
             ShowPosition(TimeSpan.Zero, TimeSpan.FromSeconds(DurationSeconds));
+        }
+    }
+
+    /// <summary>Springt um <paramref name="seconds"/> vor oder zurück, höchstens bis an Anfang oder Ende.</summary>
+    public void SeekBy(double seconds)
+    {
+        if (IsReady)
+        {
+            PositionSeconds = Math.Clamp(PositionSeconds + seconds, 0, DurationSeconds);
+        }
+    }
+
+    /// <summary>Ändert das Tempo um <paramref name="percent"/> Prozentpunkte, innerhalb von 50 bis 150 %.</summary>
+    public void ChangeTempo(double percent)
+    {
+        if (IsReady)
+        {
+            TempoPercent = Math.Clamp(TempoPercent + percent, MinTempoPercent, MaxTempoPercent);
+        }
+    }
+
+    /// <summary>Ändert die Lautstärke um <paramref name="decibels"/>, innerhalb von −20 bis +10 dB.</summary>
+    public void ChangeVolume(double decibels)
+    {
+        if (IsReady)
+        {
+            VolumeDb = Math.Clamp(VolumeDb + decibels, MinVolumeDb, MaxVolumeDb);
         }
     }
 

@@ -241,6 +241,36 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         Assert.False(browser.IsLoading);
     }
 
+    [Fact]
+    public async Task RemovesAMusicFolderAndLeavesItWhenItWasOpen()
+    {
+        var other = _directory.File("Noten");
+        Directory.CreateDirectory(other);
+        _directory.Create(Path.Combine("Musik", "Jazz", "a.mp3"));
+        var memory = Memory(new DeviceMemory { MusicFolders = [MusicPath, other], LastFolder = Music("Jazz") });
+        var browser = await StartAsync(memory);
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath + Path.DirectorySeparatorChar);
+
+        Assert.Equal([other], browser.MusicFolders);
+        Assert.Equal([other], memory.Value.MusicFolders);
+        Assert.True(browser.IsTop);
+        Assert.Equal([new FolderItem("Noten", other, true)], browser.Folders);
+        Assert.True(Directory.Exists(MusicPath));
+    }
+
+    [Fact]
+    public async Task ShowsTheHintAgainWhenTheLastMusicFolderIsRemoved()
+    {
+        var browser = await StartAsync(MemoryWithMusic());
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath);
+
+        Assert.Empty(browser.MusicFolders);
+        Assert.True(browser.HasNoMusicFolders);
+        Assert.Empty(browser.Folders);
+    }
+
     private sealed class FakeFolderPicker : IFolderPicker
     {
         public string? Next { get; set; }

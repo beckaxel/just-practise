@@ -17,7 +17,7 @@ namespace JustPractise.Audio;
 /// erste Berechnungen nicht im echten Callback anfallen.
 /// Ersetzte Dateien werden regelmäßig freigegeben, aber erst, wenn ihr Decoder fertig ist.
 /// </remarks>
-public sealed class AudioSession : IDisposable
+public sealed class AudioSession : IAudioDevice, IDisposable
 {
     public const int Channels = 2;
 
@@ -67,6 +67,12 @@ public sealed class AudioSession : IDisposable
     public int SampleRate { get; private set; }
 
     public string? DeviceName => _output.DeviceName;
+
+    bool IAudioDevice.IsAvailable => _output.HasDevice;
+
+    string? IAudioDevice.Name => _output.DeviceName;
+
+    long IAudioDevice.LateCallbacks => Monitor.LateCallbacks;
 
     internal bool MetronomeRunning => _metronomeRunning;
 

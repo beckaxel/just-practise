@@ -51,8 +51,8 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | `←` / `→` | 5 Sekunden zurück/vor |
 | `A` / `B` | Loop-Start/-Ende an der aktuellen Position setzen |
 | `L` | Loop an/aus |
-| `[` / `]` | Tempo −/+ 5 % |
-| `↑` / `↓` | Lautstärke +/− |
+| `[` / `]` | Tempo −/+ 5 % (gilt über das Zeichen, auf der deutschen Tastatur also AltGr+8/9) |
+| `↑` / `↓` | Lautstärke +/− 1 dB |
 
 **Übetimer**
 
@@ -144,6 +144,7 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
+- **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
 ### Dateibrowser
 

@@ -32,6 +32,8 @@ public sealed class SoundFlowOutput : IAudioOutput
 
     public string? DeviceName => _device?.Info?.Name;
 
+    public bool HasDevice => _device is not null;
+
     public TimeSpan Period => TimeSpan.FromMilliseconds(BufferMilliseconds);
 
     /// <summary>

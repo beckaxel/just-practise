@@ -182,6 +182,43 @@ public sealed class PlayerViewModelTests : IAsyncDisposable
         Assert.Equal(0, _viewModel.PositionSeconds);
     }
 
+    [Fact]
+    public async Task StepsThroughTheFileTempoAndVolumeWithinTheirLimits()
+    {
+        await _viewModel.OpenAsync(File());
+
+        _viewModel.SeekBy(-5);
+        Assert.Equal(0, _viewModel.PositionSeconds);
+        _viewModel.SeekBy(5);
+        Assert.Contains("seek 5", _player.Calls);
+        _viewModel.SeekBy(1000);
+        Assert.Equal(180, _viewModel.PositionSeconds);
+
+        for (var i = 0; i < 20; i++)
+        {
+            _viewModel.ChangeTempo(-5);
+            _viewModel.ChangeVolume(1);
+        }
+
+        Assert.Equal(50, _viewModel.TempoPercent);
+        Assert.Equal(0.5, _player.Tempo);
+        Assert.Equal(10, _viewModel.VolumeDb);
+        _viewModel.ChangeTempo(5);
+        Assert.Equal(55, _viewModel.TempoPercent);
+    }
+
+    [Fact]
+    public void IgnoresStepsBeforeAFileIsLoaded()
+    {
+        _viewModel.SeekBy(5);
+        _viewModel.ChangeTempo(5);
+        _viewModel.ChangeVolume(1);
+
+        Assert.Equal(100, _viewModel.TempoPercent);
+        Assert.Equal(0, _viewModel.VolumeDb);
+        Assert.Empty(_player.Calls);
+    }
+
     [Theory]
     [InlineData(0, "0:00")]
     [InlineData(65.4, "1:05")]

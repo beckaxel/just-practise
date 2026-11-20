@@ -106,8 +106,11 @@ public sealed partial class MetronomeViewModel : ObservableObject
         }
     }
 
+    /// <summary>Ändert das Tempo um <paramref name="bpm"/>, innerhalb von 30 bis 250 BPM.</summary>
+    public void ChangeTempo(int bpm) => Bpm = Math.Clamp(Bpm + bpm, MinBpm, MaxBpm);
+
     [RelayCommand]
-    private void StartStop()
+    public void StartStop()
     {
         _metronome.SetRunning(!_metronome.IsRunning);
         Tick();
