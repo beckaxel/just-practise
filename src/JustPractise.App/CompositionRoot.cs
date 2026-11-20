@@ -1,5 +1,7 @@
+using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.Core.Settings;
 using JustPractise.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +24,10 @@ internal static class CompositionRoot
         services.AddSingleton(sp => new Translator(
             sp.GetRequiredService<TranslationCatalog>(),
             sp.GetRequiredService<AppDataLocation>().Settings().Load().Value.Language.Ui));
+
+        services.AddSingleton(sp => new DataFileKeeper<DeviceMemory>(sp.GetRequiredService<AppDataLocation>().Device()));
+        services.AddSingleton<IFolderPicker, StorageFolderPicker>();
+        services.AddSingleton<FileBrowserViewModel>();
 
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });

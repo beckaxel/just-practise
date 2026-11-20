@@ -3,8 +3,11 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.Core.Settings;
+using JustPractise.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JustPractise.App;
@@ -26,7 +29,13 @@ public sealed partial class App : Application
             TrExtension.Current = translator; // vor dem ersten Fenster, damit XAML die Texte findet
 
             desktop.MainWindow = _services.GetRequiredService<MainWindow>();
-            desktop.Exit += (_, _) => _services.Dispose();
+            _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
+            desktop.Exit += (_, _) =>
+            {
+                // Noch nicht geschriebene Änderungen am Gedächtnis sichern, z. B. den zuletzt geöffneten Ordner.
+                _services.GetRequiredService<DataFileKeeper<DeviceMemory>>().FlushAsync().Wait(TimeSpan.FromSeconds(2));
+                _services.Dispose();
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

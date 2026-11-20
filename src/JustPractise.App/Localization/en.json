@@ -1,7 +1,17 @@
 {
   "language": { "name": "English" },
   "app": { "title": "just practise" },
-  "browser": { "title": "Files" },
+  "browser": {
+    "title": "Files",
+    "musicFolders": "Music folders",
+    "addFolder": "Add music folder",
+    "refresh": "Refresh",
+    "chooseFolder": "Choose music folder",
+    "noFolders": "Choose the folder where your music is.",
+    "unreachable": "This folder is not reachable.",
+    "notReachable": "(not reachable)",
+    "empty": "No folders or pieces here."
+  },
   "player": { "title": "Player", "empty": "Choose a piece on the left." },
   "metronome": { "title": "Metronome", "bpm": "{bpm} BPM" }
 }

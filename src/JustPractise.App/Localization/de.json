@@ -1,7 +1,17 @@
 {
   "language": { "name": "Deutsch" },
   "app": { "title": "just practise" },
-  "browser": { "title": "Dateien" },
+  "browser": {
+    "title": "Dateien",
+    "musicFolders": "Musikordner",
+    "addFolder": "Musikordner hinzufügen",
+    "refresh": "Aktualisieren",
+    "chooseFolder": "Musikordner wählen",
+    "noFolders": "Wähle den Ordner, in dem deine Musik liegt.",
+    "unreachable": "Dieser Ordner ist nicht erreichbar.",
+    "notReachable": "(nicht erreichbar)",
+    "empty": "Hier gibt es keine Ordner und Stücke."
+  },
   "player": { "title": "Player", "empty": "Wähle links ein Stück." },
   "metronome": { "title": "Metronom", "bpm": "{bpm} BPM" }
 }

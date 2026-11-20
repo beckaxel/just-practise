@@ -153,7 +153,7 @@ Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffne
 - **Startpunkt:** der zuletzt geöffnete Ordner
 - **Ordner nicht erreichbar:** Ist ein Musikordner nicht erreichbar (z. B. externe Platte nicht angeschlossen), zeigt die App ihn weiter an, markiert ihn und greift wieder darauf zu, sobald er da ist.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
-- **Aufbau:** Der Browser zeigt immer einen Ordner, mit einer Pfadzeile zum Zurückspringen: oben die Unterordner, darunter die Stücke. Auf der obersten Ebene stehen die Musikordner. Ein Stück mit mehreren Audiodateien lässt sich im Browser aufklappen; ein Klick auf das Stück lädt seine erste Audiodatei, ein Klick auf eine Datei darunter genau diese.
+- **Aufbau:** Der Browser zeigt immer einen Ordner, mit einer Pfadzeile zum Zurückspringen: oben die Unterordner, darunter die Stücke. Auf der obersten Ebene stehen die Musikordner. Ein Stück mit mehreren Audiodateien lässt sich im Browser aufklappen; ein Klick auf das Stück lädt seine erste Audiodatei, ein Klick auf eine Datei darunter genau diese. Aufgeklappt stehen die vollen Dateinamen mit Endung da, z. B. `Autumn Leaves - Playalong 80.mp3`. Auf der obersten Ebene gibt es einen Knopf, um einen weiteren Musikordner hinzuzufügen; beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner in den Einstellungen.
 
 ### Stücke und Gruppierung
 
