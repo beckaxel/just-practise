@@ -1,6 +1,10 @@
 using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
+using JustPractise.App.Player;
 using JustPractise.App.Shell;
+using JustPractise.Audio;
+using JustPractise.Audio.Engine;
+using JustPractise.Audio.Player;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +32,15 @@ internal static class CompositionRoot
         services.AddSingleton(sp => new DataFileKeeper<DeviceMemory>(sp.GetRequiredService<AppDataLocation>().Device()));
         services.AddSingleton<IFolderPicker, StorageFolderPicker>();
         services.AddSingleton<FileBrowserViewModel>();
+
+        services.AddSingleton<SoundFlowOutput>();
+        services.AddSingleton(sp =>
+        {
+            var output = sp.GetRequiredService<SoundFlowOutput>();
+            return new AudioSession(output, new FileDecoder(output.Engine), sp.GetRequiredService<TimeProvider>());
+        });
+        services.AddSingleton<IPlayer, AudioPlayer>();
+        services.AddSingleton<PlayerViewModel>();
 
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });

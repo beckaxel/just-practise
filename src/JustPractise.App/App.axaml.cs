@@ -3,6 +3,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
@@ -30,10 +31,16 @@ public sealed partial class App : Application
 
             desktop.MainWindow = _services.GetRequiredService<MainWindow>();
             _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
+            var shell = _services.GetRequiredService<MainWindowViewModel>();
+            var ticker = DispatcherTimer.Run(() => { shell.Tick(); return true; }, TimeSpan.FromMilliseconds(33));
             desktop.Exit += (_, _) =>
             {
-                // Noch nicht geschriebene Änderungen am Gedächtnis sichern, z. B. den zuletzt geöffneten Ordner.
-                _services.GetRequiredService<DataFileKeeper<DeviceMemory>>().FlushAsync().Wait(TimeSpan.FromSeconds(2));
+                ticker.Dispose();
+                // Noch nicht geschriebene Änderungen sichern: Gedächtnis (z. B. letzter Ordner) und Sidecar-Datei.
+                Task.WhenAll(
+                        _services.GetRequiredService<DataFileKeeper<DeviceMemory>>().FlushAsync(),
+                        shell.Player.FlushAsync())
+                    .Wait(TimeSpan.FromSeconds(2));
                 _services.Dispose();
             };
         }

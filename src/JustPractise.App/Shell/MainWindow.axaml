@@ -3,6 +3,7 @@
         xmlns:shell="using:JustPractise.App.Shell"
         xmlns:l="using:JustPractise.App.Localization"
         xmlns:fb="using:JustPractise.App.FileBrowser"
+        xmlns:p="using:JustPractise.App.Player"
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
         Title="{l:Tr app.title}"
@@ -36,7 +37,7 @@
       <Border Grid.Row="0" Classes="panel">
         <StackPanel>
           <TextBlock Classes="section" Text="{l:Tr player.title}" />
-          <TextBlock Text="{l:Tr player.empty}" Opacity="0.6" />
+          <p:PlayerView DataContext="{Binding Player}" />
         </StackPanel>
       </Border>
       <Separator Grid.Row="1" Margin="16,0" />

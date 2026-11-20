@@ -12,6 +12,17 @@
     "notReachable": "(not reachable)",
     "empty": "No folders or pieces here."
   },
-  "player": { "title": "Player", "empty": "Choose a piece on the left." },
+  "player": {
+    "title": "Player",
+    "empty": "Choose a piece on the left.",
+    "playPause": "Play or pause",
+    "toStart": "Back to the start",
+    "tempo": "Tempo",
+    "volume": "Volume",
+    "resetTempo": "Back to 100 %",
+    "resetVolume": "Back to 0 dB",
+    "loading": "Loading …",
+    "error": "This file cannot be opened."
+  },
   "metronome": { "title": "Metronome", "bpm": "{bpm} BPM" }
 }

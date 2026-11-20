@@ -29,6 +29,6 @@ public sealed class AppDataLocation(string directory)
 
     public DataFileStore<DeviceMemory> Device() => new(Path.Combine(Directory, "device.json"), AppDataFiles.Device);
 
-    public static DataFileStore<SidecarFile> Sidecar(string folder, Piece piece) =>
-        new(Path.Combine(folder, SidecarFile.FileNameFor(piece.Title)), AppDataFiles.Sidecar);
+    public static DataFileStore<SidecarFile> Sidecar(string folder, string pieceTitle) =>
+        new(Path.Combine(folder, SidecarFile.FileNameFor(pieceTitle)), AppDataFiles.Sidecar);
 }

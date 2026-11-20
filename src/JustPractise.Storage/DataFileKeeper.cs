@@ -1,8 +1,9 @@
 namespace JustPractise.Storage;
 
 /// <summary>
-/// Hält den aktuellen Inhalt einer Datendatei im Speicher und schreibt jede Änderung im Hintergrund,
-/// eine nach der anderen. Die Oberfläche wartet also nie auf die Platte.
+/// Hält den aktuellen Inhalt einer Datendatei im Speicher und schreibt Änderungen im Hintergrund, eine nach der
+/// anderen. Die Oberfläche wartet also nie auf die Platte. Kommen Änderungen schneller, als geschrieben werden kann
+/// (z. B. beim Ziehen eines Reglers), wird nur der jeweils neueste Stand geschrieben.
 /// </summary>
 /// <remarks>
 /// Für Einstellungen und Gedächtnis, die nur diese App schreibt. Schlägt das Schreiben fehl
@@ -15,6 +16,7 @@ public sealed class DataFileKeeper<T>
     private readonly Lock _lock = new();
     private T _value;
     private Task _saving = Task.CompletedTask;
+    private T? _unsaved;
 
     /// <summary>Liest die Datei einmal. Blockiert; beim Start der App erzeugen.</summary>
     public DataFileKeeper(DataFileStore<T> store)
@@ -48,7 +50,14 @@ public sealed class DataFileKeeper<T>
             }
 
             _value = value;
-            _saving = _saving.ContinueWith(_ => Save(value), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+            if (_unsaved is not null)
+            {
+                _unsaved = value; // Ein Schreibvorgang wartet schon und nimmt dann diesen Stand.
+                return;
+            }
+
+            _unsaved = value;
+            _saving = _saving.ContinueWith(_ => SaveUnsaved(), CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
         }
     }
 
@@ -61,8 +70,15 @@ public sealed class DataFileKeeper<T>
         }
     }
 
-    private void Save(T value)
+    private void SaveUnsaved()
     {
+        T value;
+        lock (_lock)
+        {
+            value = _unsaved!;
+            _unsaved = null;
+        }
+
         try
         {
             _store.TrySave(value);

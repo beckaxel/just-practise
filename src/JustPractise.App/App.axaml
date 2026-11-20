@@ -4,5 +4,20 @@
              RequestedThemeVariant="Default">
   <Application.Styles>
     <FluentTheme />
+
+    <!-- Gemeinsame Stile aller Bereiche -->
+    <Style Selector="Button.flat, ToggleButton.flat">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="4" />
+    </Style>
+    <Style Selector="PathIcon.small">
+      <Setter Property="Width" Value="14" />
+      <Setter Property="Height" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.hint">
+      <Setter Property="Opacity" Value="0.6" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Margin" Value="6,4" />
+    </Style>
   </Application.Styles>
 </Application>

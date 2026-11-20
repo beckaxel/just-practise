@@ -12,6 +12,17 @@
     "notReachable": "(nicht erreichbar)",
     "empty": "Hier gibt es keine Ordner und Stücke."
   },
-  "player": { "title": "Player", "empty": "Wähle links ein Stück." },
+  "player": {
+    "title": "Player",
+    "empty": "Wähle links ein Stück.",
+    "playPause": "Abspielen oder anhalten",
+    "toStart": "Zum Anfang",
+    "tempo": "Tempo",
+    "volume": "Lautstärke",
+    "resetTempo": "Zurück auf 100 %",
+    "resetVolume": "Zurück auf 0 dB",
+    "loading": "Wird geladen …",
+    "error": "Diese Datei lässt sich nicht öffnen."
+  },
   "metronome": { "title": "Metronom", "bpm": "{bpm} BPM" }
 }

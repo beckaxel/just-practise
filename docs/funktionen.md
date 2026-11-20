@@ -139,11 +139,11 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 
 - **Dateiformate:** MP3, WAV, FLAC, OGG, M4A/AAC
 - **Visualisierung:** Wellenform des Stücks
-- **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform
+- **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform. Eine gewählte Datei lädt angehalten am Anfang. Am Ende hält die Wiedergabe an; Abspielen fängt dann von vorn an.
 - **Loop:** ein einfacher A-B-Loop
-- **Tempo:** 50 % bis 150 %, ohne Änderung der Tonhöhe
-
-- **Lautstärke:** individuell pro Stück und gespeichert. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
+- **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
+- **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
+- **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
 
 ### Dateibrowser
 

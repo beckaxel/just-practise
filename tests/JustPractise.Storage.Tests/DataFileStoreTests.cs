@@ -134,7 +134,7 @@ public sealed class DataFileStoreTests : IDisposable
     [Fact]
     public void NamesTheSidecarAfterThePiece()
     {
-        var store = AppDataLocation.Sidecar(_directory.Path, new Piece("02 August Song", ["02 August Song.mp3"]));
+        var store = AppDataLocation.Sidecar(_directory.Path, "02 August Song");
 
         Assert.Equal(_directory.File("02 August Song.jps"), store.Path);
     }

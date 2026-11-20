@@ -47,9 +47,9 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
     [ObservableProperty]
     public partial bool IsEmpty { get; private set; }
 
-    /// <summary>Die gewählte Audiodatei als absoluter Pfad.</summary>
+    /// <summary>Die gewählte Audiodatei.</summary>
     [ObservableProperty]
-    public partial string? SelectedFile { get; private set; }
+    public partial PieceFile? SelectedFile { get; private set; }
 
     /// <summary>Öffnet den zuletzt geöffneten Ordner, wenn er noch in einem Musikordner liegt, sonst die oberste Ebene.</summary>
     public Task StartAsync() => ShowAsync(memory.Value.LastFolder, keepContent: false);
@@ -82,14 +82,14 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
 
     /// <summary>Ein Klick auf ein Stück wählt seine erste Datei.</summary>
     [RelayCommand]
-    private void SelectPiece(PieceItem piece) => Select(piece.Files[0].Path);
+    private void SelectPiece(PieceItem piece) => Select(piece.Files[0].File);
 
     [RelayCommand]
-    private void SelectFile(FileItem file) => Select(file.Path);
+    private void SelectFile(FileItem file) => Select(file.File);
 
-    private void Select(string path)
+    private void Select(PieceFile file)
     {
-        SelectedFile = path;
+        SelectedFile = file;
         MarkSelection();
     }
 
@@ -130,7 +130,7 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
             {
                 var folders = content.Subfolders.Select(name => new FolderItem(name, Path.Combine(path, name), true)).ToList();
                 var pieces = content.Pieces
-                    .Select(piece => new PieceItem(piece.Title, [.. piece.Files.Select(file => new FileItem(file, Path.Combine(path, file)))]))
+                    .Select(piece => new PieceItem(piece.Title, [.. piece.Files.Select(file => new FileItem(new PieceFile(path, piece.Title, file)))]))
                     .ToList();
                 Show(folders, pieces, unreachable: !content.IsReachable, empty: content.IsReachable && folders.Count == 0 && pieces.Count == 0);
             }
@@ -159,7 +159,7 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
             var selected = false;
             foreach (var file in piece.Files)
             {
-                file.IsSelected = SelectedFile is not null && string.Equals(file.Path, SelectedFile, FolderPaths.Comparison);
+                file.IsSelected = SelectedFile is not null && string.Equals(file.Path, SelectedFile.Path, FolderPaths.Comparison);
                 selected |= file.IsSelected;
             }
 

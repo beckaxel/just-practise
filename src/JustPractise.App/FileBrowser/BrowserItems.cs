@@ -11,12 +11,20 @@ public sealed record BreadcrumbItem(string? Name, string? Path)
 /// <summary>Ein Ordner im Browser. Auf der obersten Ebene ein Musikordner, der auch fehlen kann.</summary>
 public sealed record FolderItem(string Name, string Path, bool IsReachable);
 
-/// <summary>Eine Audiodatei eines Stücks, angezeigt mit Endung.</summary>
-public sealed partial class FileItem(string name, string path) : ObservableObject
+/// <summary>Eine Audiodatei mit dem Stück, zu dem sie gehört; das Stück bestimmt den Namen der Sidecar-Datei.</summary>
+public sealed record PieceFile(string Folder, string PieceTitle, string FileName)
 {
-    public string Name { get; } = name;
+    public string Path => System.IO.Path.Combine(Folder, FileName);
+}
 
-    public string Path { get; } = path;
+/// <summary>Eine Audiodatei eines Stücks im Browser, angezeigt mit Endung.</summary>
+public sealed partial class FileItem(PieceFile file) : ObservableObject
+{
+    public PieceFile File { get; } = file;
+
+    public string Name => File.FileName;
+
+    public string Path => File.Path;
 
     [ObservableProperty]
     public partial bool IsSelected { get; set; }

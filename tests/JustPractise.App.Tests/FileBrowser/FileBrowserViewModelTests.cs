@@ -185,7 +185,7 @@ public sealed class FileBrowserViewModelTests : IDisposable
 
         browser.SelectPieceCommand.Execute(piece);
 
-        Assert.Equal(Music("Blues - Demo.mp3"), browser.SelectedFile);
+        Assert.Equal(new PieceFile(MusicPath, "Blues", "Blues - Demo.mp3"), browser.SelectedFile);
         Assert.True(piece.IsSelected);
         Assert.True(piece.Files[0].IsSelected);
         Assert.False(piece.Files[1].IsSelected);
@@ -204,7 +204,7 @@ public sealed class FileBrowserViewModelTests : IDisposable
         Assert.True(browser.Pieces.Single().Files[1].IsSelected);
 
         await browser.OpenFolderCommand.ExecuteAsync(browser.Folders.Single());
-        Assert.Equal(Music("Blues - Playalong.mp3"), browser.SelectedFile);
+        Assert.Equal(Music("Blues - Playalong.mp3"), browser.SelectedFile?.Path);
         await browser.OpenBreadcrumbCommand.ExecuteAsync(browser.Breadcrumbs[1]);
 
         Assert.True(browser.Pieces.Single().IsSelected);
