@@ -46,7 +46,7 @@ var rid = RuntimeInformation.RuntimeIdentifier;
 var outputRoot = Path.Combine(root, "artifacts", "startup");
 Variant[] variants =
 [
-    new("jit", "without ReadyToRun", []),
+    new("jit", "without ReadyToRun", ["-p:PublishReadyToRun=false"]),
     new("r2r", "with ReadyToRun", ["-p:PublishReadyToRun=true"]),
 ];
 

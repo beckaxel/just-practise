@@ -25,4 +25,14 @@
     <ProjectReference Include="..\JustPractise.Audio\JustPractise.Audio.csproj" />
     <ProjectReference Include="..\JustPractise.Storage\JustPractise.Storage.csproj" />
   </ItemGroup>
+
+  <!--
+    SkiaSharp und HarfBuzz liefern unter Windows Debug-Symbole ihrer nativen Bibliotheken mit (rund 100 MB).
+    Symbole aus NuGet-Paketen kommen deshalb nicht ins Paket; die eigenen bleiben für Zeilennummern in Fehlerberichten.
+  -->
+  <Target Name="RemovePackageSymbolsFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb' And '%(ResolvedFileToPublish.NuGetPackageId)' != ''" />
+    </ItemGroup>
+  </Target>
 </Project>
