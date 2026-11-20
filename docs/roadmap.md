@@ -35,6 +35,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen
 - Übetimer, Stimmgerät mit Lautstärkeanzeige (Prüfpunkt 5), Touch und Stift (Prüfpunkt 6)
 - macOS und arm64 (Prüfpunkt 10)
+- Schnellerer Start unter Windows: das Audiogerät im Hintergrund öffnen. WASAPI braucht dafür rund 600 ms auf dem UI-Thread, unter Linux sind es 80 ms (Prüfpunkt 9).
 
 ## Meilensteine
 
