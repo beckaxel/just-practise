@@ -415,16 +415,17 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
 8. **Dateiüberwachung:** `FileSystemWatcher` bei großen Musikordnern und in Cloud-Ordnern
 9. **Startzeit und Paketgröße:** mit und ohne Native AOT bzw. ReadyToRun
 
-   **Ergebnis (Debian, November 2026): ReadyToRun, ohne Native AOT.** Gemessen mit `tools/startup.cs`: Es veröffentlicht die App self-contained mit und ohne ReadyToRun und startet beide Varianten abwechselnd je elfmal. Ist die Umgebungsvariable `JUST_PRACTISE_STARTUP_PROBE` gesetzt, schreibt die App die Zeit seit Prozessstart an mehreren Messpunkten in eine Datei und beendet sich nach dem ersten gezeichneten Bild (`Shell/StartupProbe.cs`). Sie öffnet dabei das Audiogerät, spielt aber nichts ab.
+   **Ergebnis (Debian und Windows 11, November 2026): ReadyToRun, ohne Native AOT.** Gemessen mit `tools/startup.cs`: Es veröffentlicht die App self-contained mit und ohne ReadyToRun und startet beide Varianten abwechselnd je elfmal. Ist die Umgebungsvariable `JUST_PRACTISE_STARTUP_PROBE` gesetzt, schreibt die App die Zeit seit Prozessstart an mehreren Messpunkten in eine Datei und beendet sich nach dem ersten gezeichneten Bild (`Shell/StartupProbe.cs`). Sie öffnet dabei das Audiogerät, spielt aber nichts ab.
 
-   | | ohne ReadyToRun | mit ReadyToRun |
-   |---|---|---|
-   | Größe entpackt | 106 MB | 121 MB |
-   | Größe gezippt | 45 MB | 52 MB |
-   | erstes Bild (Median) | 1,95 s | 1,22 s |
+   | | Debian ohne ReadyToRun | Debian mit ReadyToRun | Windows ohne ReadyToRun | Windows mit ReadyToRun |
+   |---|---|---|---|---|
+   | Größe entpackt | 106 MB | 121 MB | 108 MB | 124 MB |
+   | Größe gezippt | 45 MB | 52 MB | 46 MB | 53 MB |
+   | erstes Bild (Median) | 1,95 s | 1,22 s | 1,54 s | 1,03 s |
 
-   - **Wohin die Zeit geht (mit ReadyToRun):** Laufzeit bis `Main` 50 ms, Avalonia mit Skia, Fluent-Theme und Schrift 490 ms, DI-Container, Einstellungen und Sprachdateien 84 ms, Audiogerät mit Vorrechnen 78 ms, ViewModels und Fenster 196 ms, Öffnen bis zum ersten Bild 320 ms. Der Anteil der App selbst liegt bei gut 160 ms. Das Audiogerät im Hintergrund zu öffnen lohnt sich daher nicht.
+   - **Wohin die Zeit geht (mit ReadyToRun):** Laufzeit bis `Main` 50 ms, Avalonia mit Skia, Fluent-Theme und Schrift 490 ms, DI-Container, Einstellungen und Sprachdateien 84 ms, Audiogerät mit Vorrechnen 78 ms, ViewModels und Fenster 196 ms, Öffnen bis zum ersten Bild 320 ms. Der Anteil der App selbst liegt bei gut 160 ms. Unter Windows ist Avalonia schneller bereit (200 ms), dafür braucht das Öffnen des Audiogeräts über WASAPI 390 ms. Das Gerät im Hintergrund zu öffnen, würde den Start unter Windows also merklich verkürzen; das kommt nach der ersten Version (siehe [Roadmap](roadmap.md#später)).
    - **ReadyToRun** ist im App-Projekt eingeschaltet (`PublishReadyToRun`) und wirkt nur bei `dotnet publish`. Es nimmt auch dem Audio-Thread das Übersetzen in den ersten Callbacks ab (siehe Prüfpunkt 3).
+   - **Debug-Symbole aus NuGet-Paketen** kommen nicht ins Paket. SkiaSharp und HarfBuzz liefern unter Windows rund 100 MB davon mit, das Paket war damit 224 MB groß. Die eigenen Symbole bleiben für Zeilennummern in Fehlerberichten.
    - **Native AOT** wurde nicht gemessen. JSON wird per Reflection gelesen, und auch DI und MessageFormat müssten dafür umgebaut werden. Es kommt erst wieder in Frage, falls der Start mit ReadyToRun auf schwächeren Rechnern zu langsam ist.
 10. **arm64:** Bringen Audio-Engine und FFmpeg native Bibliotheken für arm64 unter allen drei Plattformen mit? Läuft das AppImage unter Debian ohne zusätzliche Pakete (FUSE)?
 
