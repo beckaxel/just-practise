@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 2: SoundFlow als Audio-Engine. Steht bewusst nicht in der Solution. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.SoundFlowCheck</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+</Project>

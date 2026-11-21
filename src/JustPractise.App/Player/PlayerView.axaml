@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:p="using:JustPractise.App.Player"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Player.PlayerView"
+             x:DataType="p:PlayerViewModel">
+  <UserControl.Resources>
+    <StreamGeometry x:Key="PlayIcon">M8,5 L19,12 L8,19 Z</StreamGeometry>
+    <StreamGeometry x:Key="PauseIcon">M6,5 H10 V19 H6 Z M14,5 H18 V19 H14 Z</StreamGeometry>
+    <StreamGeometry x:Key="ToStartIcon">M6,5 H8 V19 H6 Z M19,5 L9,12 L19,19 Z</StreamGeometry>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <Style Selector="Button.transport">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="44" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.transport PathIcon">
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="18" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Opacity" Value="0.7" />
+    </Style>
+    <Style Selector="Button.value">
+      <Setter Property="MinWidth" Value="76" />
+      <Setter Property="HorizontalContentAlignment" Value="Right" />
+    </Style>
+  </UserControl.Styles>
+
+  <Panel>
+    <TextBlock Text="{l:Tr player.empty}" Opacity="0.6" IsVisible="{Binding !HasFile}" />
+
+    <StackPanel IsVisible="{Binding HasFile}" Spacing="8">
+      <!-- Stück und Datei -->
+      <StackPanel>
+        <TextBlock Text="{Binding File.PieceTitle, FallbackValue=''}" FontSize="18" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+        <TextBlock Text="{Binding File.FileName, FallbackValue=''}" Opacity="0.6" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+      <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.loading}" IsVisible="{Binding IsLoading}" />
+      <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.error}" IsVisible="{Binding HasError}" />
+
+      <!-- Fortschrittsbalken: ein Klick springt an die Stelle -->
+      <StackPanel IsEnabled="{Binding IsReady}">
+        <Slider Minimum="0"
+                Maximum="{Binding DurationSeconds}"
+                Value="{Binding PositionSeconds}" />
+        <Grid ColumnDefinitions="*,*">
+          <TextBlock Grid.Column="0" Text="{Binding PositionText}" Opacity="0.7" />
+          <TextBlock Grid.Column="1" Text="{Binding DurationText}" Opacity="0.7" HorizontalAlignment="Right" />
+        </Grid>
+      </StackPanel>
+
+      <!-- Bedienung -->
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" IsEnabled="{Binding IsReady}">
+        <Button Classes="transport" Command="{Binding ToStartCommand}" ToolTip.Tip="{l:Tr player.toStart}">
+          <PathIcon Data="{StaticResource ToStartIcon}" />
+        </Button>
+        <Button Classes="transport accent" Command="{Binding PlayPauseCommand}" ToolTip.Tip="{l:Tr player.playPause}">
+          <Panel>
+            <PathIcon Data="{StaticResource PlayIcon}" IsVisible="{Binding !IsPlaying}" />
+            <PathIcon Data="{StaticResource PauseIcon}" IsVisible="{Binding IsPlaying}" />
+          </Panel>
+        </Button>
+      </StackPanel>
+
+      <!-- Tempo und Lautstärke; ein Klick auf den Wert setzt zurück -->
+      <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="12" IsEnabled="{Binding IsReady}">
+        <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="{l:Tr player.tempo}" />
+        <Slider Grid.Row="0" Grid.Column="1"
+                Minimum="{x:Static p:PlayerViewModel.MinTempoPercent}"
+                Maximum="{x:Static p:PlayerViewModel.MaxTempoPercent}"
+                SmallChange="1" LargeChange="5" TickFrequency="1" IsSnapToTickEnabled="True"
+                Value="{Binding TempoPercent}" />
+        <Button Grid.Row="0" Grid.Column="2" Classes="flat value"
+                Command="{Binding ResetTempoCommand}" ToolTip.Tip="{l:Tr player.resetTempo}"
+                Content="{Binding TempoPercent, StringFormat='{}{0:0} %'}" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="{l:Tr player.volume}" />
+        <Slider Grid.Row="1" Grid.Column="1"
+                Minimum="{x:Static p:PlayerViewModel.MinVolumeDb}"
+                Maximum="{x:Static p:PlayerViewModel.MaxVolumeDb}"
+                SmallChange="0.5" LargeChange="3" TickFrequency="0.5" IsSnapToTickEnabled="True"
+                Value="{Binding VolumeDb}" />
+        <Button Grid.Row="1" Grid.Column="2" Classes="flat value"
+                Command="{Binding ResetVolumeCommand}" ToolTip.Tip="{l:Tr player.resetVolume}"
+                Content="{Binding VolumeDb, StringFormat='{}{0:+0.0;−0.0;0.0} dB'}" />
+      </Grid>
+    </StackPanel>
+  </Panel>
+</UserControl>

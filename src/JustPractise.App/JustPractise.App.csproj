@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>just-practise</AssemblyName>
+    <RootNamespace>JustPractise.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Vorläufiges Icon (Kleinbuchstaben jp); PNG für Fenster und Linux, ICO für die exe und das Setup unter Windows. -->
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Prüfpunkt 9: startet gut 40 % schneller, das Paket wird gezippt rund 7 MB größer. Wirkt nur bei dotnet publish. -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="MessageFormat" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Velopack" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\icon.png" />
+    <EmbeddedResource Include="Localization\*.json" LogicalName="Localization.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JustPractise.Core\JustPractise.Core.csproj" />
+    <ProjectReference Include="..\JustPractise.Audio\JustPractise.Audio.csproj" />
+    <ProjectReference Include="..\JustPractise.Storage\JustPractise.Storage.csproj" />
+  </ItemGroup>
+
+  <!--
+    SkiaSharp und HarfBuzz liefern unter Windows Debug-Symbole ihrer nativen Bibliotheken mit (rund 100 MB).
+    Symbole aus NuGet-Paketen kommen deshalb nicht ins Paket; die eigenen bleiben für Zeilennummern in Fehlerberichten.
+  -->
+  <Target Name="RemovePackageSymbolsFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb' And '%(ResolvedFileToPublish.NuGetPackageId)' != ''" />
+    </ItemGroup>
+  </Target>
+</Project>

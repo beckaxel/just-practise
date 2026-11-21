@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 3: Time-Stretching mit signalsmith-stretch und WSOLA. Steht bewusst nicht in der Solution. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.StretchCheck</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+  <!-- Die native Bibliothek kommt aus native/bin/<rid>/ (cmake -S native/stretch -B native/stretch/build). -->
+  <PropertyGroup>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</NativeOs>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativeOs>
+    <NativeOs Condition="'$(NativeOs)' == ''">linux</NativeOs>
+    <NativeArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</NativeArch>
+    <NativeBinDir>$(MSBuildThisFileDirectory)../../native/bin/$(NativeOs)-$(NativeArch)/</NativeBinDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(NativeBinDir)*jpstretch*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckNativeStretch" BeforeTargets="Build">
+    <Error Condition="!Exists('$(NativeBinDir)')" Text="Native Bibliothek fehlt in $(NativeBinDir). Erst bauen: cmake -S native/stretch -B native/stretch/build und cmake --build native/stretch/build --config Release" />
+  </Target>
+
+</Project>

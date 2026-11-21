@@ -1,0 +1,85 @@
+# Builds the packages for a version tag (e.g. v0.1.0-rc.1) and creates a draft GitHub release with them.
+# The release only becomes visible to users and to the update check once it is published by hand.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    strategy:
+      matrix:
+        include:
+          # Ubuntu 22.04: the native library and the AppImage then run on older glibc versions too.
+          - os: ubuntu-22.04
+            rid: linux-x64
+            channel: linux
+          - os: windows-latest
+            rid: win-x64
+            channel: win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Install mksquashfs for the AppImage
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
+      - name: Build native libraries and solution
+        run: dotnet run tools/setup.cs
+      - name: Test
+        run: dotnet test
+      - name: Restore vpk
+        run: dotnet tool restore
+      - name: Download the previous release so Velopack can build delta updates
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          pre=""; [[ "$version" == *-* ]] && pre="--pre"
+          dotnet vpk download github --repoUrl "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" --token "$GH_TOKEN" \
+            --channel ${{ matrix.channel }} $pre --outputDir "artifacts/releases/${{ matrix.rid }}" \
+            || echo "No previous release, building without deltas."
+      - name: Pack
+        run: dotnet run tools/pack.cs -- --version ${{ github.ref_name }} --no-clean
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.rid }}
+          path: artifacts/releases/${{ matrix.rid }}/
+          if-no-files-found: error
+
+  release:
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+      - name: Collect the files of this version and their checksums
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          mkdir out
+          for file in dist/*/*; do
+            name=$(basename "$file")
+            case "$name" in
+              SHA256SUMS) continue ;;
+              *.nupkg) [[ "$name" == *"-$version-"* ]] || continue ;;  # packages of earlier versions, only needed for deltas
+            esac
+            cp "$file" out/
+          done
+          cd out && sha256sum * > SHA256SUMS && cat SHA256SUMS
+      - name: Create the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          pre=""; [[ "$version" == *-* ]] && pre="--prerelease"
+          gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --draft $pre \
+            --title "just practise $version" --notes ""

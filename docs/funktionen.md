@@ -47,11 +47,12 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | Taste | Aktion |
 |---|---|
 | `Leertaste` | Abspielen/Pause |
+| `Pos1` | zum Anfang |
 | `←` / `→` | 5 Sekunden zurück/vor |
 | `A` / `B` | Loop-Start/-Ende an der aktuellen Position setzen |
 | `L` | Loop an/aus |
-| `[` / `]` | Tempo −/+ 5 % |
-| `↑` / `↓` | Lautstärke +/− |
+| `[` / `]` | Tempo −/+ 5 % (gilt über das Zeichen, auf der deutschen Tastatur also AltGr+8/9) |
+| `↑` / `↓` | Lautstärke +/− 1 dB |
 
 **Übetimer**
 
@@ -130,17 +131,20 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 3. Metronom
 4. Stimmgerät
 
+Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Release Candidate](roadmap.md).
+
 ## Schritt 1: Audioplayer
 
 ### Funktionsumfang
 
 - **Dateiformate:** MP3, WAV, FLAC, OGG, M4A/AAC
 - **Visualisierung:** Wellenform des Stücks
-- **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform
+- **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform. Eine gewählte Datei lädt angehalten am Anfang. Am Ende hält die Wiedergabe an; Abspielen fängt dann von vorn an.
 - **Loop:** ein einfacher A-B-Loop
-- **Tempo:** 50 % bis 150 %, ohne Änderung der Tonhöhe
-
-- **Lautstärke:** individuell pro Stück und gespeichert. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
+- **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
+- **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
+- **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
+- **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
 ### Dateibrowser
 
@@ -150,6 +154,7 @@ Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffne
 - **Startpunkt:** der zuletzt geöffnete Ordner
 - **Ordner nicht erreichbar:** Ist ein Musikordner nicht erreichbar (z. B. externe Platte nicht angeschlossen), zeigt die App ihn weiter an, markiert ihn und greift wieder darauf zu, sobald er da ist.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
+- **Aufbau:** Der Browser zeigt immer einen Ordner, mit einer Pfadzeile zum Zurückspringen: oben die Unterordner, darunter die Stücke. Auf der obersten Ebene stehen die Musikordner. Ein Stück mit mehreren Audiodateien lässt sich im Browser aufklappen; ein Klick auf das Stück lädt seine erste Audiodatei, ein Klick auf eine Datei darunter genau diese. Aufgeklappt stehen die vollen Dateinamen mit Endung da, z. B. `Autumn Leaves - Playalong 80.mp3`. Auf der obersten Ebene gibt es einen Knopf, um einen weiteren Musikordner hinzuzufügen; beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner in den Einstellungen.
 
 ### Stücke und Gruppierung
 
@@ -172,10 +177,22 @@ Beispiel:
 | `Blues.mp3`                         | Blues             |
 | `Blues in F.mp3`                    | **Blues in F**, nicht „Blues“ |
 
-Regeln der Erkennung:
+Regeln der Erkennung (abgeleitet aus einer echten Sammlung von rund 2500 Dateien):
 
-- Ein gemeinsamer Namensanfang zählt nur, wenn er an einem Trennzeichen endet, z. B. ` - `, `_`, `(`, `[`.
-- Typische Zusätze werden erkannt und gehören nicht zum Titel, z. B. „Demo“, „Playalong“, Tempoangaben wie „80 bpm“, Seitennummern.
+- **Vergleich:** Groß- und Kleinschreibung zählen nicht, Apostrophe (`'`, `’`, `´`) werden ignoriert, Unicode wird vereinheitlicht. `Aint no Sunshine` und `Ain't No Sunshine` sind also gleich.
+- **Nummern am Anfang** werden für den Vergleich abgetrennt, z. B. `01 `, `001 - `, `01_`, `1-01 `, `45. `, `Track 01 `, `Titel 01 `.
+- **Zusätze am Ende** werden abgetrennt, solange sie bekannt sind. Ein Leerzeichen reicht als Trennung (`August Song Play-Along`), Zahlen dürfen angeklebt sein (`Blue Bossa100`, `60bpm`). Bekannt sind:
+  - Playalong und Begleitung, z. B. Play-Along, Playback, PB, Bck, bckgr, (Rhythm Section Only), (ohne Sax), no piano, only bs and drums
+  - Demo und Vollversion, z. B. Demo, Instr, (mit Sax), full version, complete, orig
+  - Tempo: eine Zahl von 30 bis 400, `80 bpm`, `Tempo 66`, fast, slow. Eine Zahl, die schon in der Nummer am Anfang steht, ist kein Tempo (`30 Titel 30`).
+  - Metronom und Klick
+  - Stimmung und Instrument als nacktes Kürzel: Bb, Eb, Es, C, Ces, Alto, Alt, Tenor, höchstens eines pro Name (in `Skalen Akk C Eb` ist das C die Tonleiter). Nach „in“ bleibt die Tonart Teil des Titels (`Blues in F`), ebenso Angaben wie `G-Dur`.
+  - Kleine Zahlen unter 30 bleiben Teil des Titels (`Impro 4`, `Trommlermarsch 01`). Bleibt nach dem Abtrennen nichts übrig (`Titel 01 click 48`), gilt der ganze Name.
+- **Verschiedene Nummern:** Dateien mit verschiedenen Nummern gehören nur zusammen, wenn sie sich durch Zusätze unterscheiden (`02 August Song` und `03 August Song Play-Along`). Gleiche Namen mit verschiedenen Nummern sind verschiedene Stücke (`003 - Bourrée` und `006 - Bourrée`, `001 PianoFitness` bis `111 PianoFitness`).
+- **Harte Trennzeichen** (` - `, `_`, `(`, `[`): Danach darf beliebiger Text folgen, aber nur, wenn es eine Datei gibt, die genau wie der Teil davor heißt. `Hot Cross Buns - 01 - Metronom` gehört so zu `Hot Cross Buns`, aus `Franz Titscher - Kinderlieder` und `Franz Titscher - Weihnachtslieder` wird aber kein Stück „Franz Titscher“.
+- **Titel:** Der Titel eines Stücks ist der Name seiner Grunddatei (der Datei ohne Zusätze) bis zum Ende des erkannten Titels, mit der Nummer am Anfang, z. B. `02 August Song`. So bleiben die Titel im Ordner eindeutig und passen zur Nummerierung im Heft.
+- Vorerst werden nur Audiodateien gruppiert. Noten und andere Dateien kommen mit der Notenanzeige dazu.
+- Die Listen der Zusätze werden bei Bedarf ergänzt.
 
 **Korrektur von Hand:** Der Nutzer kann eine falsche Gruppierung korrigieren. Die Sidecar-Datei hält dann fest, welche Dateien zum Stück gehören, und hat Vorrang vor der automatischen Erkennung. Ohne Sidecar wird automatisch gruppiert.
 
@@ -275,10 +292,12 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibe
 - **Klänge:** mitgelieferte Klangsets, z. B. Klick, Holzblock und Beep. Zusätzlich kann man eigene Audiodateien als Klänge laden.
 - **Lautstärke:** Betonte Schläge, normale Schläge und Unterteilungen haben je einen eigenen Lautstärkeregler. Alle drei sind unabhängig von der Lautstärke des Audioplayers.
 - **Unabhängig vom Player:** Das Metronom hat ein eigenes Tempo und einen eigenen Start/Stopp. Es läuft nicht synchron zum Stück. Eine Kopplung kann später kommen.
+- **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Wird die Taktart kürzer und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
+- **Bezug der BPM:** Ein Schlag ist eine Zählzeit der Taktart (bei 4/4 die Viertel). Wie das bei Achteltakten wie 6/8 aussieht, wird mit den freien Taktarten entschieden.
 
 ### Speichern
 
-- **Letzte Einstellung:** Tempo, Taktart, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da.
+- **Letzte Einstellung:** Tempo, Taktart, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da. Ob das Metronom lief, wird nicht gemerkt; nach dem Start der App steht es.
 - **Benannte Einstellungen:** Zusätzlich kann man Einstellungen unter einem Namen speichern, z. B. „Etüde 7/8, 92 BPM“, und später wieder aufrufen. Auch sie liegen in den App-Einstellungen, weil sie nicht an ein Stück gebunden sind.
 
 ### Schlaganzeige

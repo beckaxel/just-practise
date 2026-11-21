@@ -1,0 +1,82 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="using:JustPractise.App.Shell"
+        xmlns:l="using:JustPractise.App.Localization"
+        xmlns:fb="using:JustPractise.App.FileBrowser"
+        xmlns:p="using:JustPractise.App.Player"
+        xmlns:m="using:JustPractise.App.Metronome"
+        x:Class="JustPractise.App.Shell.MainWindow"
+        x:DataType="shell:MainWindowViewModel"
+        Title="{l:Tr app.title}"
+        Icon="/Assets/icon.png"
+        Width="1000" Height="700"
+        MinWidth="640" MinHeight="480">
+  <Window.Styles>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="Border.statusbar">
+      <Setter Property="Padding" Value="12,2" />
+      <Setter Property="BorderThickness" Value="0,1,0,0" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+    </Style>
+    <Style Selector="Border.statusbar TextBlock">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.warning">
+      <Setter Property="Foreground" Value="{DynamicResource SystemErrorTextColor}" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel>
+    <!-- Statusleiste: Gerät, verspätete Callbacks (nur wenn es welche gab), Einstellungen -->
+    <Border DockPanel.Dock="Bottom" Classes="statusbar" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="16">
+        <TextBlock Grid.Column="0" Text="{Binding DeviceText}" Classes.warning="{Binding !HasDevice}"
+                   Opacity="0.7" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="1" Text="{Binding LateText}" IsVisible="{Binding HasLateCallbacks}" Opacity="0.7" />
+        <Button Grid.Column="2" Classes="flat"
+                Command="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenSettingsCommand}"
+                ToolTip.Tip="{l:Tr settings.open}">
+          <PathIcon Classes="small" Data="M19.4,13 C19.5,12.7 19.5,12.3 19.5,12 C19.5,11.7 19.5,11.3 19.4,11 L21.5,9.4 L19.5,5.9 L17,6.9 C16.5,6.5 15.9,6.1 15.3,5.9 L14.9,3.2 H10.9 L10.5,5.9 C9.9,6.1 9.3,6.5 8.8,6.9 L6.3,5.9 L4.3,9.4 L6.4,11 C6.3,11.3 6.3,11.7 6.3,12 C6.3,12.3 6.3,12.7 6.4,13 L4.3,14.6 L6.3,18.1 L8.8,17.1 C9.3,17.5 9.9,17.9 10.5,18.1 L10.9,20.8 H14.9 L15.3,18.1 C15.9,17.9 16.5,17.5 17,17.1 L19.5,18.1 L21.5,14.6 Z M12.9,15 A3,3 0 1 1 12.9,9 A3,3 0 1 1 12.9,15 Z" />
+        </Button>
+      </Grid>
+    </Border>
+
+    <Grid ColumnDefinitions="320,Auto,*">
+      <!-- Dateibrowser: immer sichtbar -->
+      <Border Grid.Column="0" Classes="panel">
+        <DockPanel>
+          <TextBlock DockPanel.Dock="Top" Classes="section" Text="{l:Tr browser.title}" />
+          <fb:FileBrowserView DataContext="{Binding Browser}" />
+        </DockPanel>
+      </Border>
+
+      <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" />
+
+      <!-- Player und Metronom untereinander -->
+      <Grid Grid.Column="2" RowDefinitions="Auto,Auto,Auto">
+        <Border Grid.Row="0" Classes="panel">
+          <StackPanel>
+            <TextBlock Classes="section" Text="{l:Tr player.title}" />
+            <p:PlayerView DataContext="{Binding Player}" />
+          </StackPanel>
+        </Border>
+        <Separator Grid.Row="1" Margin="16,0" />
+        <Border Grid.Row="2" Classes="panel">
+          <StackPanel>
+            <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
+            <m:MetronomeView DataContext="{Binding Metronome}" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Grid>
+  </DockPanel>
+</Window>

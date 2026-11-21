@@ -1,0 +1,6 @@
+# Text files have LF line endings in the repository and in every checkout, also on Windows.
+# Tests compare written files (JSON with \n) against multi-line string literals in the source.
+* text=auto eol=lf
+
+*.png binary
+*.ico binary

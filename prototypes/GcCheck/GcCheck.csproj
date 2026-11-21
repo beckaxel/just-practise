@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 1: Aussetzer durch Speicherbereinigung. Steht bewusst nicht in der Solution. -->
+  <PropertyGroup>
+    <!-- Exe statt WinExe, damit das Protokoll auch in der Konsole erscheint. -->
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.GcCheck</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+  <!-- Die native Bibliothek kommt aus native/bin/<rid>/ (dotnet run tools/setup.cs). -->
+  <PropertyGroup>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</NativeOs>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativeOs>
+    <NativeOs Condition="'$(NativeOs)' == ''">linux</NativeOs>
+    <NativeArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</NativeArch>
+    <NativeBinDir>$(MSBuildThisFileDirectory)../../native/bin/$(NativeOs)-$(NativeArch)/</NativeBinDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(NativeBinDir)*jpstretch*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckNativeStretch" BeforeTargets="Build">
+    <Error Condition="!Exists('$(NativeBinDir)')" Text="Native Bibliothek fehlt in $(NativeBinDir). Erst bauen: dotnet run tools/setup.cs" />
+  </Target>
+
+</Project>

@@ -1,0 +1,67 @@
+{
+  "language": { "name": "English" },
+  "app": { "title": "just practise" },
+  "browser": {
+    "title": "Files",
+    "musicFolders": "Music folders",
+    "addFolder": "Add music folder",
+    "refresh": "Refresh",
+    "chooseFolder": "Choose music folder",
+    "noFolders": "Choose the folder where your music is.",
+    "unreachable": "This folder is not reachable.",
+    "notReachable": "(not reachable)",
+    "empty": "No folders or pieces here."
+  },
+  "player": {
+    "title": "Player",
+    "empty": "Choose a piece on the left.",
+    "playPause": "Play or pause",
+    "toStart": "Back to the start",
+    "tempo": "Tempo",
+    "volume": "Volume",
+    "resetTempo": "Back to 100 %",
+    "resetVolume": "Back to 0 dB",
+    "loading": "Loading …",
+    "error": "This file cannot be opened."
+  },
+  "metronome": {
+    "title": "Metronome",
+    "start": "Start",
+    "stop": "Stop",
+    "tempo": "Tempo",
+    "meter": "Time",
+    "volume": "Volume",
+    "resetVolume": "Back to 0 dB"
+  },
+  "status": {
+    "device": "Output: {name}",
+    "defaultDevice": "Output: default device",
+    "noDevice": "No output device found, playing without sound",
+    "late": "{count, plural, one {# late audio callback} other {# late audio callbacks}}"
+  },
+  "settings": {
+    "open": "Settings (Ctrl+,)",
+    "title": "Settings",
+    "language": "Language",
+    "systemLanguage": "Same as the system",
+    "noMusicFolders": "No music folders yet.",
+    "remove": "Remove",
+    "close": "Close"
+  },
+  "updates": {
+    "title": "Updates",
+    "version": "Version {version}",
+    "notInstalled": "This version does not update itself.",
+    "check": "Check for updates",
+    "checking": "Checking …",
+    "upToDate": "just practise is up to date.",
+    "available": "Version {version} is available.",
+    "download": "Download",
+    "downloading": "Downloading … {percent} %",
+    "ready": "The update will be installed the next time you start just practise.",
+    "releases": "Download new versions",
+    "restart": "Restart now",
+    "noConnection": "No connection to the internet.",
+    "failed": "Checking for updates did not work. Please try again later."
+  }
+}

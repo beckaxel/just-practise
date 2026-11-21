@@ -1,0 +1,79 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="using:JustPractise.App.Shell"
+        xmlns:l="using:JustPractise.App.Localization"
+        x:Class="JustPractise.App.Shell.SettingsWindow"
+        x:DataType="shell:SettingsViewModel"
+        Title="{l:Tr settings.title}"
+        Width="520" Height="560" MinWidth="400" MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="TextBlock.heading">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel Margin="20">
+    <Button DockPanel.Dock="Bottom" HorizontalAlignment="Right" MinWidth="96" Margin="0,16,0,0"
+            Content="{l:Tr settings.close}" Command="{Binding CloseCommand}" IsDefault="True" IsCancel="True" />
+
+    <!-- Updates: nur auf Knopfdruck, installiert wird beim nächsten Start -->
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0" Spacing="6">
+      <TextBlock Classes="heading" Text="{l:Tr updates.title}" />
+      <TextBlock Text="{Binding Updates.VersionText}" />
+      <WrapPanel Orientation="Horizontal">
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.check}" Command="{Binding Updates.CheckCommand}"
+                IsVisible="{Binding Updates.ShowCheck}" />
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.download}" Command="{Binding Updates.DownloadCommand}"
+                IsVisible="{Binding Updates.CanDownload}" />
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.restart}" Command="{Binding Updates.RestartCommand}"
+                IsVisible="{Binding Updates.CanRestart}" />
+      </WrapPanel>
+      <TextBlock Text="{Binding Updates.Message}" TextWrapping="Wrap" />
+      <HyperlinkButton Padding="0" Content="{l:Tr updates.releases}" NavigateUri="{Binding Updates.ReleasesPage}"
+                       IsVisible="{Binding Updates.ShowReleasesLink}" />
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,20">
+      <TextBlock Classes="heading" Text="{l:Tr settings.language}" />
+      <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="240">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="shell:LanguageChoice">
+            <Panel>
+              <TextBlock Text="{l:Tr settings.systemLanguage}" IsVisible="{Binding IsSystem}" />
+              <TextBlock Text="{Binding Name}" IsVisible="{Binding !IsSystem}" />
+            </Panel>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+    </StackPanel>
+
+    <!-- Musikordner: entfernen nimmt nur den Eintrag weg, die Dateien bleiben -->
+    <DockPanel>
+      <TextBlock DockPanel.Dock="Top" Classes="heading" Text="{l:Tr browser.musicFolders}" />
+      <Button DockPanel.Dock="Bottom" Margin="0,8,0,0"
+              Content="{l:Tr browser.addFolder}" Command="{Binding Browser.AddMusicFolderCommand}" />
+      <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" CornerRadius="4">
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Classes="hint" Margin="8" Text="{l:Tr settings.noMusicFolders}"
+                       IsVisible="{Binding !Browser.HasMusicFolders}" />
+            <ItemsControl ItemsSource="{Binding Browser.MusicFolders}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <Grid ColumnDefinitions="*,Auto" Margin="8,2">
+                    <TextBlock Text="{Binding}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding}" />
+                    <Button Grid.Column="1" Classes="flat" Content="{l:Tr settings.remove}"
+                            Command="{Binding $parent[Window].((shell:SettingsViewModel)DataContext).Browser.RemoveMusicFolderCommand}"
+                            CommandParameter="{Binding}" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </DockPanel>
+  </DockPanel>
+</Window>

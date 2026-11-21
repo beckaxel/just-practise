@@ -1,0 +1,58 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:JustPractise.Prototypes.GcCheck"
+        x:Class="JustPractise.Prototypes.GcCheck.MainWindow"
+        Title="GcCheck – Prüfpunkt 1"
+        Width="1200" Height="800">
+  <Grid ColumnDefinitions="380,*" Margin="12">
+    <ScrollViewer Grid.Column="0">
+      <StackPanel Spacing="6" Margin="0,0,12,0">
+        <TextBlock x:Name="Header" TextWrapping="Wrap" FontWeight="SemiBold" />
+
+        <Button x:Name="HeardButton" Content="Aussetzer gehört (Leertaste)" HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center" Padding="12" FontSize="16" />
+
+        <TextBlock Text="Wiedergabe" FontSize="16" Margin="0,8,0,0" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button x:Name="PlayButton" Content="Pause" />
+          <CheckBox x:Name="ClickBox" Content="Metronom" />
+        </StackPanel>
+        <TextBlock x:Name="TempoLabel" />
+        <Slider x:Name="TempoSlider" Minimum="50" Maximum="150" Value="50" />
+        <TextBlock x:Name="BpmLabel" />
+        <Slider x:Name="BpmSlider" Minimum="40" Maximum="400" Value="120" />
+
+        <TextBlock Text="Last" FontSize="16" Margin="0,8,0,0" />
+        <TextBlock x:Name="AllocationLabel" />
+        <Slider x:Name="AllocationSlider" Minimum="0" Maximum="500" Value="0" />
+        <TextBlock x:Name="SurvivalLabel" />
+        <Slider x:Name="SurvivalSlider" Minimum="0" Maximum="20" Value="2" />
+        <CheckBox x:Name="LargeBox" Content="Große Objekte (1 MB pro Frame)" />
+        <TextBlock x:Name="RetainedLabel" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Slider x:Name="RetainedSlider" Minimum="0" Maximum="10" Value="0" Width="250" />
+          <Button x:Name="RetainedButton" Content="Anlegen" />
+        </StackPanel>
+        <TextBlock x:Name="LinesLabel" />
+        <Slider x:Name="LinesSlider" Minimum="0" Maximum="20000" Value="2000" />
+        <TextBlock Text="GCLatencyMode" />
+        <ComboBox x:Name="LatencyBox" HorizontalAlignment="Stretch" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button x:Name="CollectButton" Content="Voller GC (blockierend)" />
+          <Button x:Name="ResetButton" Content="Zurücksetzen" />
+        </StackPanel>
+
+        <TextBlock Text="Messung" FontSize="16" Margin="0,8,0,0" />
+        <TextBlock x:Name="StatsText" FontFamily="monospace" TextWrapping="Wrap" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <Grid Grid.Column="1" RowDefinitions="*,220">
+      <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1">
+        <local:RenderLoad x:Name="Load" />
+      </Border>
+      <TextBox Grid.Row="1" x:Name="LogBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
+               FontFamily="monospace" FontSize="12" Margin="0,8,0,0" />
+    </Grid>
+  </Grid>
+</Window>

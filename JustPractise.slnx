@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/JustPractise.App/JustPractise.App.csproj" />
+    <Project Path="src/JustPractise.Audio/JustPractise.Audio.csproj" />
+    <Project Path="src/JustPractise.Core/JustPractise.Core.csproj" />
+    <Project Path="src/JustPractise.Storage/JustPractise.Storage.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/JustPractise.App.Tests/JustPractise.App.Tests.csproj" />
+    <Project Path="tests/JustPractise.Audio.Tests/JustPractise.Audio.Tests.csproj" />
+    <Project Path="tests/JustPractise.Core.Tests/JustPractise.Core.Tests.csproj" />
+    <Project Path="tests/JustPractise.Storage.Tests/JustPractise.Storage.Tests.csproj" />
+  </Folder>
+</Solution>

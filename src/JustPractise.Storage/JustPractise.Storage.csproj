@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\JustPractise.Core\JustPractise.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,29 @@
+# Builds the native library and the solution and runs all tests on Linux and Windows.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Ubuntu 22.04 like the release build, so the native library runs on older glibc versions too.
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Build native libraries and solution
+        run: dotnet run tools/setup.cs
+      - name: Test
+        run: dotnet test

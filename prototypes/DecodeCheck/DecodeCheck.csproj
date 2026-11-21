@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 7: Speicher bei langen Stücken. Steht bewusst nicht in der Solution. Gibt keinen Ton aus. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.DecodeCheck</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Wie in der App geplant (Prüfpunkt 1) -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+</Project>

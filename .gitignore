@@ -55,3 +55,27 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# --- just practise ---
+
+# IDEs
+.vs/
+.idea/
+*.user
+*.DotSettings.user
+
+# CMake-Builds des nativen Codes
+native/**/build/
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+
+# Ausgabe von prototypes/StretchCheck
+stretch-out/
+
+# Ausgabe von prototypes/GcCheck
+gccheck-out/
+
+# Ausgabe von prototypes/DecodeCheck
+decodecheck-out/

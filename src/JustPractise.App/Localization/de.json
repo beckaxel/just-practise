@@ -1,0 +1,67 @@
+{
+  "language": { "name": "Deutsch" },
+  "app": { "title": "just practise" },
+  "browser": {
+    "title": "Dateien",
+    "musicFolders": "Musikordner",
+    "addFolder": "Musikordner hinzufügen",
+    "refresh": "Aktualisieren",
+    "chooseFolder": "Musikordner wählen",
+    "noFolders": "Wähle den Ordner, in dem deine Musik liegt.",
+    "unreachable": "Dieser Ordner ist nicht erreichbar.",
+    "notReachable": "(nicht erreichbar)",
+    "empty": "Hier gibt es keine Ordner und Stücke."
+  },
+  "player": {
+    "title": "Player",
+    "empty": "Wähle links ein Stück.",
+    "playPause": "Abspielen oder anhalten",
+    "toStart": "Zum Anfang",
+    "tempo": "Tempo",
+    "volume": "Lautstärke",
+    "resetTempo": "Zurück auf 100 %",
+    "resetVolume": "Zurück auf 0 dB",
+    "loading": "Wird geladen …",
+    "error": "Diese Datei lässt sich nicht öffnen."
+  },
+  "metronome": {
+    "title": "Metronom",
+    "start": "Start",
+    "stop": "Stopp",
+    "tempo": "Tempo",
+    "meter": "Taktart",
+    "volume": "Lautstärke",
+    "resetVolume": "Zurück auf 0 dB"
+  },
+  "status": {
+    "device": "Ausgabe: {name}",
+    "defaultDevice": "Ausgabe: Standardgerät",
+    "noDevice": "Kein Ausgabegerät gefunden, Wiedergabe ohne Ton",
+    "late": "{count, plural, one {# verspäteter Audio-Callback} other {# verspätete Audio-Callbacks}}"
+  },
+  "settings": {
+    "open": "Einstellungen (Strg+,)",
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "systemLanguage": "Wie das System",
+    "noMusicFolders": "Noch keine Musikordner.",
+    "remove": "Entfernen",
+    "close": "Schließen"
+  },
+  "updates": {
+    "title": "Updates",
+    "version": "Version {version}",
+    "notInstalled": "Diese Version aktualisiert sich nicht selbst.",
+    "check": "Nach Updates suchen",
+    "checking": "Suche läuft …",
+    "upToDate": "just practise ist auf dem neuesten Stand.",
+    "available": "Version {version} ist verfügbar.",
+    "download": "Herunterladen",
+    "downloading": "Wird heruntergeladen … {percent} %",
+    "ready": "Das Update wird beim nächsten Start von just practise installiert.",
+    "releases": "Neue Versionen herunterladen",
+    "restart": "Jetzt neu starten",
+    "noConnection": "Keine Verbindung zum Internet.",
+    "failed": "Die Suche nach Updates hat nicht geklappt. Bitte später noch einmal versuchen."
+  }
+}
