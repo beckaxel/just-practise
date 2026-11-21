@@ -283,11 +283,23 @@ public sealed class PlayerVoiceTests : IDisposable
     public void RendersWithoutAllocating()
     {
         var player = Loaded(Track(10, Tones));
-        player.Play();
-        Render(player, 0.5);
         var block = new float[BlockFrames * 2];
 
+        // Der erste Durchlauf wärmt alle Pfade auf: Beim allerersten Aufruf kann die Laufzeit einmalig etwas
+        // anlegen (unter Windows in der CI 472 Byte). Im laufenden Betrieb darf nichts mehr dazukommen.
+        RenderWithAllOperations(player, block);
         var before = GC.GetAllocatedBytesForCurrentThread();
+        RenderWithAllOperations(player, block);
+
+        Assert.Equal(before, GC.GetAllocatedBytesForCurrentThread());
+    }
+
+    private static void RenderWithAllOperations(PlayerVoice player, float[] block)
+    {
+        player.SetTempo(1);
+        player.SetVolume(0);
+        player.Seek(0);
+        player.Play();
         for (var i = 0; i < 500; i++)
         {
             switch (i)
@@ -311,8 +323,6 @@ public sealed class PlayerVoiceTests : IDisposable
 
             player.Render(block, 2);
         }
-
-        Assert.Equal(before, GC.GetAllocatedBytesForCurrentThread());
     }
 
     /// <summary>Die Frequenz eines reinen Sinustons, gezählt an den Nulldurchgängen.</summary>
