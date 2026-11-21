@@ -87,6 +87,18 @@ cmake --build native/stretch/build --config Release
 
 If CMake on Windows reports "No CMAKE_CXX_COMPILER could be found", the C++ workload is missing: open the Visual Studio Installer and add "Desktop development with C++" to the Build Tools.
 
+## Release packages
+
+Packages are built with [Velopack](https://velopack.io/). Its command line tool `vpk` is a local .NET tool pinned in `dotnet-tools.json`; `dotnet tool restore` installs it. The native library must be built first. Then:
+
+```bash
+dotnet run tools/pack.cs -- --version 0.1.0-rc.1
+```
+
+This publishes the app self-contained with ReadyToRun and writes the packages for the current system to `artifacts/releases/<rid>/`: on Windows `Setup.exe` and a portable ZIP, on Linux an AppImage. `SHA256SUMS` lists the checksums (`sha256sum -c SHA256SUMS`). On Linux the AppImage needs `mksquashfs`: `sudo apt install squashfs-tools` (Debian, Ubuntu), `sudo dnf install squashfs-tools` (Fedora) or `sudo pacman -S squashfs-tools` (Arch).
+
+The CI builds the packages for releases; building them locally is only needed to test packaging.
+
 ## Project structure and conventions
 
 - `src/JustPractise.Core`: domain logic without dependencies

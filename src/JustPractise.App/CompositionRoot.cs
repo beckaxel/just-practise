@@ -3,6 +3,7 @@ using JustPractise.App.Localization;
 using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shell;
+using JustPractise.App.Updates;
 using JustPractise.Audio;
 using JustPractise.Audio.Engine;
 using JustPractise.Audio.Metronome;
@@ -49,6 +50,8 @@ internal static class CompositionRoot
         services.AddSingleton<IMetronome, AudioMetronome>();
         services.AddSingleton<MetronomeViewModel>();
 
+        services.AddSingleton<IUpdateService, VelopackUpdateService>();
+        services.AddSingleton<UpdatesViewModel>();
         services.AddSingleton<StatusBarViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();

@@ -4,6 +4,8 @@ using JustPractise.App.Localization;
 using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shell;
+using JustPractise.App.Tests.Updates;
+using JustPractise.App.Updates;
 using JustPractise.App.Shortcuts;
 using JustPractise.App.Tests.Metronome;
 using JustPractise.App.Tests.Player;
@@ -34,7 +36,7 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
             new PlayerViewModel(_player),
             new MetronomeViewModel(_metronome, _settings),
             new StatusBarViewModel(new NoDevice(), translator),
-            new SettingsViewModel(translator, _settings, browser));
+            new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator)));
     }
 
     public async ValueTask DisposeAsync()

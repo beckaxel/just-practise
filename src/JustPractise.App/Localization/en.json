@@ -47,5 +47,20 @@
     "noMusicFolders": "No music folders yet.",
     "remove": "Remove",
     "close": "Close"
+  },
+  "updates": {
+    "title": "Updates",
+    "version": "Version {version}",
+    "notInstalled": "Updates work only in the installed app.",
+    "check": "Check for updates",
+    "checking": "Checking …",
+    "upToDate": "just practise is up to date.",
+    "available": "Version {version} is available.",
+    "download": "Download",
+    "downloading": "Downloading … {percent} %",
+    "ready": "The update will be installed the next time you start just practise.",
+    "restart": "Restart now",
+    "noConnection": "No connection to the internet.",
+    "failed": "Checking for updates did not work. Please try again later."
   }
 }

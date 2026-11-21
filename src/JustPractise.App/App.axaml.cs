@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.App.Updates;
 using JustPractise.Audio;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
@@ -37,6 +38,7 @@ public sealed partial class App : Application
             desktop.MainWindow = _services.GetRequiredService<MainWindow>();
             StartupProbe.Mark("window");
             StartupProbe.Attach(desktop.MainWindow, desktop);
+            _services.GetRequiredService<UpdatesViewModel>().RestartRequested += (_, _) => desktop.Shutdown();
             _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
             var shell = _services.GetRequiredService<MainWindowViewModel>();
             var ticker = DispatcherTimer.Run(() => { shell.Tick(); return true; }, TimeSpan.FromMilliseconds(33));

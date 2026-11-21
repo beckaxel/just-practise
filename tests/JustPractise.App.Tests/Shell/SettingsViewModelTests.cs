@@ -2,6 +2,8 @@ using System.Globalization;
 using JustPractise.App.FileBrowser;
 using JustPractise.App.Localization;
 using JustPractise.App.Shell;
+using JustPractise.App.Tests.Updates;
+using JustPractise.App.Updates;
 using JustPractise.Core.DataFiles;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
@@ -29,7 +31,7 @@ public sealed class SettingsViewModelTests : IAsyncDisposable
     }
 
     private SettingsViewModel Create() =>
-        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker()));
+        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker()), new UpdatesViewModel(new FakeUpdateService(), _translator));
 
     [Fact]
     public void OffersTheSystemLanguageFirstAndSelectsItByDefault()

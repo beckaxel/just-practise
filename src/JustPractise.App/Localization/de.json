@@ -47,5 +47,20 @@
     "noMusicFolders": "Noch keine Musikordner.",
     "remove": "Entfernen",
     "close": "Schließen"
+  },
+  "updates": {
+    "title": "Updates",
+    "version": "Version {version}",
+    "notInstalled": "Updates gibt es nur in der installierten App.",
+    "check": "Nach Updates suchen",
+    "checking": "Suche läuft …",
+    "upToDate": "just practise ist auf dem neuesten Stand.",
+    "available": "Version {version} ist verfügbar.",
+    "download": "Herunterladen",
+    "downloading": "Wird heruntergeladen … {percent} %",
+    "ready": "Das Update wird beim nächsten Start von just practise installiert.",
+    "restart": "Jetzt neu starten",
+    "noConnection": "Keine Verbindung zum Internet.",
+    "failed": "Die Suche nach Updates hat nicht geklappt. Bitte später noch einmal versuchen."
   }
 }

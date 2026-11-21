@@ -4,6 +4,8 @@
     <AssemblyName>just-practise</AssemblyName>
     <RootNamespace>JustPractise.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Vorläufiges Icon (Kleinbuchstaben jp); PNG für Fenster und Linux, ICO für die exe und das Setup unter Windows. -->
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Prüfpunkt 9: startet gut 40 % schneller, das Paket wird gezippt rund 7 MB größer. Wirkt nur bei dotnet publish. -->
     <PublishReadyToRun>true</PublishReadyToRun>
@@ -16,8 +18,10 @@
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="MessageFormat" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Velopack" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Include="Assets\icon.png" />
     <EmbeddedResource Include="Localization\*.json" LogicalName="Localization.%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>

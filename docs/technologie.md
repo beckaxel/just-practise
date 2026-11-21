@@ -429,6 +429,8 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Native AOT** wurde nicht gemessen. JSON wird per Reflection gelesen, und auch DI und MessageFormat müssten dafür umgebaut werden. Es kommt erst wieder in Frage, falls der Start mit ReadyToRun auf schwächeren Rechnern zu langsam ist.
 10. **arm64:** Bringen Audio-Engine und FFmpeg native Bibliotheken für arm64 unter allen drei Plattformen mit? Läuft das AppImage unter Debian ohne zusätzliche Pakete (FUSE)?
 
+    **Zwischenstand (Debian 13, November 2026):** Das AppImage von Velopack 1.2.161 (x64) startet, mit Icon und Desktop-Eintrag. Auf dem Testrechner ist `libfuse2t64` installiert; ob es auch ohne startet, ist noch offen. Ohne FUSE lässt es sich mit `--appimage-extract-and-run` starten.
+
 ## Offene Punkte
 
 Derzeit keine. Der nächste Schritt ist der Prototyp.

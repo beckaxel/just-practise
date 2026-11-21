@@ -24,6 +24,7 @@ dotnet test --project tests/JustPractise.Core.Tests   # one test project
 dotnet run --project src/JustPractise.App       # start the app
 dotnet run tools/play.cs -- <file> --check      # decode a file without audio; without --check it plays (user only)
 dotnet run tools/startup.cs                     # startup time and package size with/without ReadyToRun (opens the audio device: user only)
+dotnet tool restore && dotnet run tools/pack.cs -- --version 0.1.0-rc.1   # Velopack packages into artifacts/releases/<rid>/ (Linux needs mksquashfs)
 ```
 
 Filtering single tests uses Microsoft Testing Platform syntax after `--`, e.g. `dotnet test --project tests/JustPractise.Core.Tests -- --filter-method "*Grouping*"`.

@@ -5,7 +5,7 @@
         x:Class="JustPractise.App.Shell.SettingsWindow"
         x:DataType="shell:SettingsViewModel"
         Title="{l:Tr settings.title}"
-        Width="520" Height="440" MinWidth="400" MinHeight="320"
+        Width="520" Height="560" MinWidth="400" MinHeight="420"
         WindowStartupLocation="CenterOwner">
   <Window.Styles>
     <Style Selector="TextBlock.heading">
@@ -17,6 +17,21 @@
   <DockPanel Margin="20">
     <Button DockPanel.Dock="Bottom" HorizontalAlignment="Right" MinWidth="96" Margin="0,16,0,0"
             Content="{l:Tr settings.close}" Command="{Binding CloseCommand}" IsDefault="True" IsCancel="True" />
+
+    <!-- Updates: nur auf Knopfdruck, installiert wird beim nächsten Start -->
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0" Spacing="6">
+      <TextBlock Classes="heading" Text="{l:Tr updates.title}" />
+      <TextBlock Text="{Binding Updates.VersionText}" />
+      <WrapPanel Orientation="Horizontal">
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.check}" Command="{Binding Updates.CheckCommand}"
+                IsVisible="{Binding Updates.ShowCheck}" />
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.download}" Command="{Binding Updates.DownloadCommand}"
+                IsVisible="{Binding Updates.CanDownload}" />
+        <Button Margin="0,0,8,0" Content="{l:Tr updates.restart}" Command="{Binding Updates.RestartCommand}"
+                IsVisible="{Binding Updates.CanRestart}" />
+      </WrapPanel>
+      <TextBlock Text="{Binding Updates.Message}" TextWrapping="Wrap" />
+    </StackPanel>
 
     <StackPanel DockPanel.Dock="Top" Margin="0,0,0,20">
       <TextBlock Classes="heading" Text="{l:Tr settings.language}" />

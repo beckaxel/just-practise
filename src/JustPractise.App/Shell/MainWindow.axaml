@@ -8,6 +8,7 @@
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
         Title="{l:Tr app.title}"
+        Icon="/Assets/icon.png"
         Width="1000" Height="700"
         MinWidth="640" MinHeight="480">
   <Window.Styles>
