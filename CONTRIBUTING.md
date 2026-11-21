@@ -99,6 +99,11 @@ This publishes the app self-contained with ReadyToRun and writes the packages fo
 
 The CI builds the packages for releases; building them locally is only needed to test packaging.
 
+## CI and releases
+
+- `.github/workflows/ci.yml` builds the native library and the solution and runs all tests on Ubuntu 22.04 and Windows, for pushes to `main`, pull requests and by hand.
+- `.github/workflows/release.yml` runs for a version tag such as `v0.1.0-rc.1`. It tests and packs on both systems (downloading the previous release first so Velopack can build delta updates) and creates a **draft** GitHub release with all packages and a combined `SHA256SUMS`. Users and the update check see the version only after the draft is published by hand. A version with a suffix (`-rc.1`) becomes a pre-release.
+
 ## Project structure and conventions
 
 - `src/JustPractise.Core`: domain logic without dependencies

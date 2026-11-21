@@ -3,8 +3,10 @@
 // on Windows Setup.exe and a portable single exe, on Linux an AppImage. SHA256SUMS lists the checksums.
 //
 //   dotnet run tools/pack.cs -- --version 0.1.0-rc.1
+//   dotnet run tools/pack.cs -- --version 0.1.0-rc.1 --no-clean   keep artifacts/releases/<rid>/, e.g. the previous
+//                                                                  release from vpk download, so Velopack builds deltas
 //
-// The native library (dotnet run tools/setup.cs) must be built first; the CI runs the same steps.
+// The native library (dotnet run tools/setup.cs) must be built first; the release workflow runs the same steps.
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,11 +15,16 @@ using System.Security.Cryptography;
 using System.Text;
 
 string? version = null;
+var clean = true;
 for (var i = 0; i < args.Length; i++)
 {
     if (args[i] == "--version" && i + 1 < args.Length)
     {
         version = args[++i].TrimStart('v');
+    }
+    else if (args[i] == "--no-clean")
+    {
+        clean = false;
     }
     else
     {
@@ -28,7 +35,7 @@ for (var i = 0; i < args.Length; i++)
 
 if (version is null)
 {
-    Console.WriteLine("Usage: dotnet run tools/pack.cs -- --version 0.1.0-rc.1");
+    Console.WriteLine("Usage: dotnet run tools/pack.cs -- --version 0.1.0-rc.1 [--no-clean]");
     return 2;
 }
 
@@ -42,7 +49,7 @@ if (root is null)
 var rid = RuntimeInformation.RuntimeIdentifier;
 var publishDirectory = Path.Combine(root, "artifacts", "publish", rid);
 var releaseDirectory = Path.Combine(root, "artifacts", "releases", rid);
-foreach (var directory in new[] { publishDirectory, releaseDirectory })
+foreach (var directory in clean ? [publishDirectory, releaseDirectory] : new[] { publishDirectory })
 {
     if (Directory.Exists(directory))
     {
@@ -117,9 +124,13 @@ if (OperatingSystem.IsWindows())
     File.Copy(Path.Combine(portableDirectory, "just-practise.exe"), Path.Combine(releaseDirectory, "just-practise-win-Portable.exe"));
 }
 
-// Prüfsummen für alle Dateien des Releases, im Format von sha256sum (sha256sum -c SHA256SUMS).
+// Prüfsummen für alle Dateien dieses Releases, im Format von sha256sum (sha256sum -c SHA256SUMS).
+// Pakete früherer Versionen (für die Deltas heruntergeladen) gehören nicht dazu.
 var sums = new StringBuilder();
-foreach (var file in Directory.GetFiles(releaseDirectory).Order(StringComparer.Ordinal))
+foreach (var file in Directory.GetFiles(releaseDirectory)
+    .Where(file => Path.GetExtension(file) != ".nupkg" || Path.GetFileName(file).Contains($"-{version}-", StringComparison.Ordinal))
+    .Where(file => Path.GetFileName(file) != "SHA256SUMS")
+    .Order(StringComparer.Ordinal))
 {
     using var stream = File.OpenRead(file);
     sums.Append(Convert.ToHexStringLower(SHA256.HashData(stream))).Append("  ").Append(Path.GetFileName(file)).Append('\n');
