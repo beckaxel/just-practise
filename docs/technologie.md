@@ -260,12 +260,12 @@ Pakete und Updates laufen über [Velopack](https://velopack.io/). Die App wird `
 
 | Plattform | Installation | Portable Variante |
 |---|---|---|
-| Windows | `Setup.exe`, installiert pro Benutzer ohne Administratorrechte | ZIP |
+| Windows | `Setup.exe`, installiert pro Benutzer ohne Administratorrechte | eine einzelne exe |
 | macOS | `.pkg` mit dem App-Bundle | ZIP mit der `.app` |
 | Linux | AppImage, ein Paket für alle Distributionen | Das AppImage ist selbst portabel. |
 
 - **Architekturen:** x64 und arm64 auf allen drei Plattformen. arm64 deckt Apple Silicon, Windows auf ARM und z. B. einen Raspberry Pi ab. Der native Code (Time-Stretching, FFmpeg) wird ebenfalls für beide Architekturen bereitgestellt.
-- **Portable Variante:** läuft ohne Installation. Die Daten liegen wie bei der installierten Variante im Anwendungsdatenordner des Systems, nicht neben der App.
+- **Portable Variante:** läuft ohne Installation. Die Daten liegen wie bei der installierten Variante im Anwendungsdatenordner des Systems, nicht neben der App. Unter Windows ist sie eine einzelne exe (.NET Single File, komprimiert, rund 70 MB) statt des ZIPs von Velopack. Die nativen Bibliotheken entpackt .NET beim ersten Start in einen Cache unter `%TEMP%`. Sie ist keine Velopack-Installation und aktualisiert sich nicht selbst; die Einstellungen verlinken stattdessen die Releases.
 - **Flatpak:** vorerst nicht. Die Sandbox widerspricht dem freien Dateizugriff (nötig wäre `--filesystem=home` oder `host`), und Flatpak übernimmt die Updates selbst. Kann später kommen, falls Bedarf besteht.
 
 ### Bauen und Veröffentlichen

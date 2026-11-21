@@ -22,7 +22,8 @@ public sealed class UpdatesViewModelTests
         Assert.Equal(UpdateState.NotInstalled, updates.State);
         Assert.False(updates.ShowCheck);
         Assert.False(updates.CheckCommand.CanExecute(null));
-        Assert.Equal("Updates work only in the installed app.", updates.VersionText);
+        Assert.True(updates.ShowReleasesLink);
+        Assert.Equal("This version does not update itself.", updates.VersionText);
     }
 
     [Fact]
@@ -34,6 +35,7 @@ public sealed class UpdatesViewModelTests
         Assert.Equal("Version 0.1.0", updates.VersionText);
         Assert.Equal("", updates.Message);
         Assert.True(updates.CheckCommand.CanExecute(null));
+        Assert.False(updates.ShowReleasesLink);
     }
 
     [Fact]

@@ -16,6 +16,8 @@ public sealed class VelopackUpdateService : IUpdateService
     private readonly UpdateManager _manager = new(new GithubSource(RepositoryUrl, accessToken: null, prerelease: IsPrerelease()));
     private UpdateInfo? _found;
 
+    public Uri ReleasesPage { get; } = new(RepositoryUrl + "/releases");
+
     public string? InstalledVersion => _manager.IsInstalled ? _manager.CurrentVersion?.ToString() : null;
 
     public bool IsRestartPending => _manager.IsInstalled && _manager.UpdatePendingRestart is not null;

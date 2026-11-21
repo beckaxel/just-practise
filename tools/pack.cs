@@ -1,6 +1,6 @@
 // Builds the release packages of just practise for this machine with Velopack (vpk, a local .NET tool).
 // Publishes the app self-contained with ReadyToRun and packs it into artifacts/releases/<rid>/:
-// on Windows Setup.exe and a portable ZIP, on Linux an AppImage. SHA256SUMS lists the checksums.
+// on Windows Setup.exe and a portable single exe, on Linux an AppImage. SHA256SUMS lists the checksums.
 //
 //   dotnet run tools/pack.cs -- --version 0.1.0-rc.1
 //
@@ -83,11 +83,38 @@ string[] pack =
     "--exclude", "(?!)",
     "--outputDir", releaseDirectory,
     .. OperatingSystem.IsLinux() ? new[] { "--categories", "AudioVideo;Audio;Music" } : [],
+    // Unter Windows ersetzt eine einzelne exe das ZIP von Velopack (siehe unten).
+    .. OperatingSystem.IsWindows() ? new[] { "--noPortable" } : [],
 ];
 if (Run(root, "dotnet", pack) != 0)
 {
     Console.WriteLine("Packing failed.");
     return 1;
+}
+
+// Portable Variante unter Windows: eine einzelne exe. Die nativen Bibliotheken entpackt .NET beim ersten Start
+// in einen Cache unter %TEMP%. Sie ist keine Velopack-Installation und aktualisiert sich daher nicht selbst.
+if (OperatingSystem.IsWindows())
+{
+    var portableDirectory = Path.Combine(root, "artifacts", "publish", rid + "-portable");
+    if (Directory.Exists(portableDirectory))
+    {
+        Directory.Delete(portableDirectory, recursive: true);
+    }
+
+    string[] portable =
+    [
+        .. publish[..^1], portableDirectory,
+        "-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true", "-p:EnableCompressionInSingleFile=true",
+        "-p:DebugType=embedded", // Symbole in der exe, für Zeilennummern in Fehlerberichten
+    ];
+    if (Run(root, "dotnet", portable) != 0)
+    {
+        Console.WriteLine("Publishing the portable exe failed.");
+        return 1;
+    }
+
+    File.Copy(Path.Combine(portableDirectory, "just-practise.exe"), Path.Combine(releaseDirectory, "just-practise-win-Portable.exe"));
 }
 
 // Prüfsummen für alle Dateien des Releases, im Format von sha256sum (sha256sum -c SHA256SUMS).

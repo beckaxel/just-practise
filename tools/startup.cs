@@ -1,4 +1,4 @@
-// Measures startup time and package size of just practise with and without ReadyToRun (check 9).
+// Measures startup time and package size of just practise with and without ReadyToRun and as a single file (check 9).
 // The app reports the time since process start at several marks (Shell/StartupProbe.cs).
 // Publishes the app self-contained for this machine into artifacts/startup/<variant>/, starts each
 // variant several times and writes artifacts/startup/report.md. The app opens its window and the
@@ -48,6 +48,7 @@ Variant[] variants =
 [
     new("jit", "without ReadyToRun", ["-p:PublishReadyToRun=false"]),
     new("r2r", "with ReadyToRun", ["-p:PublishReadyToRun=true"]),
+    new("single", "single file, compressed, with ReadyToRun", ["-p:PublishReadyToRun=true", "-p:PublishSingleFile=true", "-p:IncludeNativeLibrariesForSelfExtract=true", "-p:EnableCompressionInSingleFile=true"]),
 ];
 
 if (publish)

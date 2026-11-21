@@ -7,7 +7,7 @@ namespace JustPractise.App.Updates;
 
 public enum UpdateState
 {
-    /// <summary>Nicht über ein Paket installiert, Updates gehen nicht.</summary>
+    /// <summary>Nicht über ein Paket installiert (portable exe, <c>dotnet run</c>), Updates gehen nicht.</summary>
     NotInstalled,
     Idle,
     Checking,
@@ -43,7 +43,7 @@ public sealed partial class UpdatesViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCheck), nameof(CanDownload), nameof(CanRestart), nameof(ShowCheck))]
+    [NotifyPropertyChangedFor(nameof(CanCheck), nameof(CanDownload), nameof(CanRestart), nameof(ShowCheck), nameof(ShowReleasesLink))]
     [NotifyCanExecuteChangedFor(nameof(CheckCommand), nameof(DownloadCommand), nameof(RestartCommand))]
     public partial UpdateState State { get; private set; }
 
@@ -65,6 +65,11 @@ public sealed partial class UpdatesViewModel : ObservableObject
     public bool ShowCheck => State is not (UpdateState.NotInstalled or UpdateState.Available or UpdateState.Ready);
 
     public bool CanDownload => State is UpdateState.Available;
+
+    /// <summary>Ohne Installation gibt es statt des Knopfs einen Link auf die Releases.</summary>
+    public bool ShowReleasesLink => State is UpdateState.NotInstalled;
+
+    public Uri ReleasesPage => _updates.ReleasesPage;
 
     public bool CanRestart => State is UpdateState.Ready;
 

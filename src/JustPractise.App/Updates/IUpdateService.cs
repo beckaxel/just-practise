@@ -9,6 +9,9 @@ public interface IUpdateService
     /// <summary>Die installierte Version; <c>null</c>, wenn die App nicht über ein Paket installiert ist (z. B. <c>dotnet run</c>).</summary>
     string? InstalledVersion { get; }
 
+    /// <summary>Die Seite mit allen Versionen, für die portable Variante, die sich nicht selbst aktualisiert.</summary>
+    Uri ReleasesPage { get; }
+
     /// <summary>Ein Update ist heruntergeladen und wird beim nächsten Start installiert.</summary>
     bool IsRestartPending { get; }
 

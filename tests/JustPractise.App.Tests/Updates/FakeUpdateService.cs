@@ -6,6 +6,8 @@ internal sealed class FakeUpdateService : IUpdateService
 {
     public string? InstalledVersion { get; set; } = "0.1.0";
 
+    public Uri ReleasesPage { get; } = new("https://example.org/releases");
+
     public bool IsRestartPending { get; set; }
 
     /// <summary>Was die nächste Suche liefert; eine Ausnahme wird geworfen.</summary>

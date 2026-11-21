@@ -95,7 +95,7 @@ Packages are built with [Velopack](https://velopack.io/). Its command line tool 
 dotnet run tools/pack.cs -- --version 0.1.0-rc.1
 ```
 
-This publishes the app self-contained with ReadyToRun and writes the packages for the current system to `artifacts/releases/<rid>/`: on Windows `Setup.exe` and a portable ZIP, on Linux an AppImage. `SHA256SUMS` lists the checksums (`sha256sum -c SHA256SUMS`). On Linux the AppImage needs `mksquashfs`: `sudo apt install squashfs-tools` (Debian, Ubuntu), `sudo dnf install squashfs-tools` (Fedora) or `sudo pacman -S squashfs-tools` (Arch).
+This publishes the app self-contained with ReadyToRun and writes the packages for the current system to `artifacts/releases/<rid>/`: on Windows `Setup.exe` and a portable single exe (which does not update itself), on Linux an AppImage. `SHA256SUMS` lists the checksums (`sha256sum -c SHA256SUMS`). On Linux the AppImage needs `mksquashfs`: `sudo apt install squashfs-tools` (Debian, Ubuntu), `sudo dnf install squashfs-tools` (Fedora) or `sudo pacman -S squashfs-tools` (Arch).
 
 The CI builds the packages for releases; building them locally is only needed to test packaging.
 
