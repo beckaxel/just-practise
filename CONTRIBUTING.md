@@ -99,10 +99,20 @@ This publishes the app self-contained with ReadyToRun and writes the packages fo
 
 The CI builds the packages for releases; building them locally is only needed to test packaging.
 
+## Branches and pull requests
+
+The project follows GitHub Flow: `main` is always releasable and only changes through pull requests.
+
+- Work on a short-lived branch from `main`: `feature/<topic>`, `fix/<topic>`, `docs/<topic>` or `chore/<topic>`.
+- A pull request can be merged once both CI builds pass. The branch is deleted after the merge.
+- Pull requests are merged by rebase, so each commit lands on `main` on its own. Keep commits small and self-contained and clean them up before merging; squash is the exception for pull requests whose commits are not worth keeping one by one.
+- Releases are tags on `main`. A release branch such as `release/0.1` is only created when an older version needs a fix while `main` has moved on.
+
 ## CI and releases
 
 - `.github/workflows/ci.yml` builds the native library and the solution and runs all tests on Ubuntu 22.04 and Windows, for pushes to `main`, pull requests and by hand.
 - `.github/workflows/release.yml` runs for a version tag such as `v0.1.0-rc.1`. It tests and packs on both systems (downloading the previous release first so Velopack can build delta updates) and creates a **draft** GitHub release with all packages and a combined `SHA256SUMS`. Users and the update check see the version only after the draft is published by hand. A version with a suffix (`-rc.1`) becomes a pre-release.
+- `.github/dependabot.yml` checks the GitHub Actions used in the workflows once a month and opens pull requests for new versions.
 
 ## Project structure and conventions
 

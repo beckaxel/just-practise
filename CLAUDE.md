@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository state
 
-The concept phase is complete; the prototype is being built on the `prototyp` branch, directly in the final project structure. The concept documents (in German) are the source of truth for features and technical decisions:
+The concept phase and the prototype are complete; the first release candidate `v0.1.0-rc.1` is tagged on `main`. Work follows GitHub Flow: short-lived branches (`feature/`, `fix/`, `docs/`, `chore/`) from `main`, pull requests that need both CI builds green, merged by rebase (squash only as the exception), releases as tags on `main` (see `CONTRIBUTING.md`). The concept documents (in German) are the source of truth for features and technical decisions:
 
 - `docs/funktionen.md`: the feature concept (audio player, practice timer, metronome, tuner, keyboard shortcuts, language and music notation, app settings)
 - `docs/technologie.md`: technology decision, libraries, project structure, code conventions, file formats, translations, packaging, signing and the prototype checks

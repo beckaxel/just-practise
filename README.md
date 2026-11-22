@@ -2,7 +2,7 @@
 
 A desktop app that helps musicians practise: an audio player with loops and tempo control, a practice timer, a metronome and a tuner. Free and open source, offline, no account, no ads.
 
-The project is in an early stage: the concept is done, the prototype is being built. It is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/) for Linux, Windows and macOS.
+The project is in an early stage: the first release candidate is out (see Releases). It is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/) for Linux, Windows and macOS.
 
 ## Quick start
 
