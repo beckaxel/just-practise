@@ -48,7 +48,7 @@ jobs:
             || echo "No previous release, building without deltas."
       - name: Pack
         run: dotnet run tools/pack.cs -- --version ${{ github.ref_name }} --no-clean
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ matrix.rid }}
           path: artifacts/releases/${{ matrix.rid }}/
