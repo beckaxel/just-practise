@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using JustPractise.Audio.Engine;
 
 namespace JustPractise.Audio.Tests.Engine;
@@ -42,20 +43,25 @@ public sealed class FallbackOutputTests
         using var output = new SilentOutput();
         var blocks = 0;
         var frames = 0;
+        var clock = Stopwatch.StartNew();
 
         output.Open(48000, 2, buffer =>
         {
             frames = buffer.Length / 2;
             Interlocked.Increment(ref blocks);
         });
-        Thread.Sleep(100);
+        // Wait for blocks instead of a fixed time: a busy CI runner may start the thread late.
+        var called = SpinWait.SpinUntil(() => Volatile.Read(ref blocks) >= 5, TimeSpan.FromSeconds(5));
         output.Close();
+        var elapsed = clock.Elapsed;
         var afterClose = Volatile.Read(ref blocks);
         Thread.Sleep(30);
 
+        Assert.True(called);
         Assert.False(output.HasDevice);
         Assert.Equal(480, frames);
-        Assert.InRange(afterClose, 3, 20);
+        // Block n runs no earlier than (n - 1) periods after the start, so it never runs ahead of the clock.
+        Assert.InRange(afterClose, 5, (int)(elapsed / output.Period) + 1);
         Assert.Equal(afterClose, Volatile.Read(ref blocks));
     }
 
