@@ -1,0 +1,7 @@
+# Keeps the GitHub Actions in the workflows up to date, so a deprecated action does not break a release.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
