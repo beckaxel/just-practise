@@ -7,7 +7,7 @@ public sealed class BlockPoolTests
     [Fact]
     public void ReusesReturnedBlocks()
     {
-        var pool = new BlockPool(blockSamples: 16);
+        using var pool = new BlockPool(blockSamples: 16);
         var block = pool.Rent();
 
         pool.Return(block);
@@ -19,7 +19,7 @@ public sealed class BlockPoolTests
     [Fact]
     public void KeepsOnlyAsManyFreeBlocksAsAllowed()
     {
-        var pool = new BlockPool(blockSamples: 16);
+        using var pool = new BlockPool(blockSamples: 16);
         var blocks = Enumerable.Range(0, 10).Select(_ => pool.Rent()).ToList();
         blocks.ForEach(pool.Return);
 
@@ -29,8 +29,53 @@ public sealed class BlockPoolTests
     }
 
     [Fact]
-    public void RejectsForeignBlocks() =>
-        Assert.Throws<ArgumentException>(() => new BlockPool(blockSamples: 16).Return(new float[8]));
+    public void RejectsForeignBlocks()
+    {
+        using var pool = new BlockPool(blockSamples: 16);
+        using var foreign = new AudioBlock(8);
+
+        Assert.Throws<ArgumentException>(() => pool.Return(foreign));
+    }
+
+    [Fact]
+    public void FreesTheBlocksItDoesNotKeep()
+    {
+        using var pool = new BlockPool(blockSamples: 16);
+        var blocks = Enumerable.Range(0, 3).Select(_ => pool.Rent()).ToList();
+        blocks.ForEach(pool.Return);
+
+        pool.Trim(1);
+
+        Assert.Equal(2, blocks.Count(block => block.IsClosed));
+    }
+
+    [Fact]
+    public void FreesBlocksThatComeBackAfterDisposal()
+    {
+        var pool = new BlockPool(blockSamples: 16);
+        var kept = pool.Rent();
+        var lent = pool.Rent();
+        pool.Return(kept);
+
+        pool.Dispose();
+        pool.Return(lent);
+
+        Assert.True(kept.IsClosed);
+        Assert.True(lent.IsClosed);
+        Assert.Throws<ObjectDisposedException>(() => pool.Rent());
+    }
+
+    [Fact]
+    public void BlocksHoldTheirSamples()
+    {
+        using var block = new AudioBlock(16);
+
+        block.AsSpan(0, 16).Fill(0.5f);
+        block.AsSpan(4, 2).Fill(1f);
+
+        Assert.Equal([0.5f, 1f, 1f, 0.5f], block.AsSpan(3, 4).ToArray());
+        Assert.Throws<ArgumentOutOfRangeException>(() => block.AsSpan(10, 7));
+    }
 
     [Fact]
     public void UsesFourMegabyteBlocksByDefault() =>

@@ -103,6 +103,7 @@ public sealed class AudioSession : IAudioDevice, IDisposable
         }
 
         ReleaseRetired();
+        Pool.Dispose();
     }
 
     internal void LoadTrack(LoadedTrack? track)
@@ -255,10 +256,11 @@ public sealed class AudioSession : IAudioDevice, IDisposable
             new CommandRing<RetiredTrack>(4),
             new AudioStatus());
 
+        using var pool = new BlockPool(blockSamples: sampleRate * Channels);
         LoadedTrack? track = null;
         if (StretchVoice.IsAvailable(out _))
         {
-            var audio = new DecodedAudio(new BlockPool(blockSamples: sampleRate * Channels), Channels, sampleRate);
+            var audio = new DecodedAudio(pool, Channels, sampleRate);
             var tail = audio.WritableTail(sampleRate * Channels);
             tail.Clear();
             audio.Commit(tail.Length);
