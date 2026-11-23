@@ -9,13 +9,13 @@ using SoundFlow.Structs;
 namespace JustPractise.Audio.Engine;
 
 /// <summary>
-/// Ausgabe über SoundFlow (miniaudio): Standardgerät, geteilter Modus, 10 ms Puffer (Prüfpunkt 1 und 2).
+/// Ausgabe über SoundFlow (miniaudio): Standardgerät, geteilter Modus, 20 ms Puffer (Prüfpunkt 1 und 2; mit 10 ms meldete die App beim Laden verspätete Callbacks).
 /// Geöffnet wird mit der Rate des Mischers (siehe <see cref="MixSampleRate"/>).
 /// Der einzige Ort, an dem SoundFlow-Geräte angefasst werden.
 /// </summary>
 public sealed class SoundFlowOutput : IAudioOutput
 {
-    private const uint BufferMilliseconds = 10;
+    private const uint BufferMilliseconds = 20;
 
     /// <summary>Wenn das Gerät seine Rate nicht meldet.</summary>
     private const int FallbackSampleRate = 48000;
