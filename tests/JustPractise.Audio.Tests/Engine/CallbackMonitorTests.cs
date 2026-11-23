@@ -10,12 +10,46 @@ public sealed class CallbackMonitorTests
 
     private static readonly TimeSpan Period = TimeSpan.FromMilliseconds(10);
 
-    private static long Ticks(double milliseconds) => (long)(milliseconds / 1000 * Stopwatch.Frequency);
+    /// <summary>Zeitpunkt in Ticks; die Tests beginnen nach der Anlaufzeit des Geräts.</summary>
+    private static long Ticks(double milliseconds) => (long)((Startup + milliseconds) / 1000 * Stopwatch.Frequency);
+
+    private static readonly double Startup = CallbackMonitor.StartupTime.TotalMilliseconds;
+
+    /// <summary>Ein Monitor, dessen Gerät gleichmäßig angelaufen ist; der nächste Callback ist bei 0 ms fällig.</summary>
+    private static CallbackMonitor Started(int frames = Frames, int sampleRate = SampleRate)
+    {
+        var monitor = new CallbackMonitor(Period);
+        var step = Math.Max(Period.TotalMilliseconds, frames * 1000.0 / sampleRate);
+        for (var time = -Startup; time < 0; time += step)
+        {
+            monitor.Tick(1 + Ticks(time), frames, sampleRate);
+        }
+
+        return monitor;
+    }
+
+    [Fact]
+    public void IgnoresGapsWhileTheDeviceStartsUp()
+    {
+        // Unter PipeWire gemessen: nach dem ersten Callback 100 ms Pause, danach gleichmäßig.
+        var monitor = new CallbackMonitor(Period);
+        monitor.Tick(1 + Ticks(-Startup), Frames, SampleRate);
+        for (var time = -Startup + 100; time < 200; time += 10)
+        {
+            monitor.Tick(1 + Ticks(time), Frames, SampleRate);
+        }
+
+        Assert.Equal(0, monitor.LateCallbacks);
+        Assert.Equal(10, monitor.MaxGap.TotalMilliseconds, 0.01);
+
+        monitor.Tick(1 + Ticks(230), Frames, SampleRate);
+        Assert.Equal(1, monitor.LateCallbacks);
+    }
 
     [Fact]
     public void CountsCallbacksThatComeMuchTooLate()
     {
-        var monitor = new CallbackMonitor(Period);
+        var monitor = Started();
         double[] times = [0, 10, 20, 30, 70, 80, 90, 108, 129];
 
         foreach (var time in times)
@@ -106,8 +140,8 @@ public sealed class CallbackMonitorTests
     [Fact]
     public void StillCountsALongGapAfterASmallBlock()
     {
-        var monitor = new CallbackMonitor(Period);
-        monitor.Tick(1, 32, 44100);
+        var monitor = Started(441, 44100);
+        monitor.Tick(1 + Ticks(0), 32, 44100);
         monitor.Tick(1 + Ticks(40), 441, 44100);
 
         Assert.Equal(1, monitor.LateCallbacks);
@@ -116,8 +150,8 @@ public sealed class CallbackMonitorTests
     [Fact]
     public void MeasuresBlocksLongerThanThePeriodAgainstTheirOwnLength()
     {
-        var monitor = new CallbackMonitor(Period);
-        monitor.Tick(1, 960, SampleRate);
+        var monitor = Started(960);
+        monitor.Tick(1 + Ticks(0), 960, SampleRate);
         monitor.Tick(1 + Ticks(20), 960, SampleRate);
         monitor.Tick(1 + Ticks(40), 960, SampleRate);
 
