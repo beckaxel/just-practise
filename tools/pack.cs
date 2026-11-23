@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 string? version = null;
 var clean = true;
@@ -73,6 +74,18 @@ if (!File.Exists(Path.Combine(publishDirectory, nativeLibrary)))
 {
     Console.WriteLine($"{nativeLibrary} is missing. Build it first with: dotnet run tools/setup.cs");
     return 1;
+}
+
+// Fehlt die GC, die runtimeconfig.json nennt (System.GC.Name), startet die App gar nicht.
+using (var runtimeConfig = JsonDocument.Parse(File.ReadAllText(Path.Combine(publishDirectory, "just-practise.runtimeconfig.json"))))
+{
+    if (runtimeConfig.RootElement.GetProperty("runtimeOptions").TryGetProperty("configProperties", out var properties)
+        && properties.TryGetProperty("System.GC.Name", out var gcName)
+        && !File.Exists(Path.Combine(publishDirectory, gcName.GetString()!)))
+    {
+        Console.WriteLine($"{gcName.GetString()} is missing from the published app, but runtimeconfig.json asks for it.");
+        return 1;
+    }
 }
 
 var icon = Path.Combine(root, "src", "JustPractise.App", "Assets", OperatingSystem.IsWindows() ? "icon.ico" : "icon.png");

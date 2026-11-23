@@ -12,7 +12,16 @@
     <!-- Prüfpunkt 1: Workstation-GC mit Hintergrund-GC; Server-GC und GC ohne Hintergrund halten den Audio-Callback zu lange an. -->
     <ServerGarbageCollection>false</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <!--
+      Unter Linux die GC mit Segmenten (libclrgc.so, Teil der .NET-Runtime) statt mit Regionen: Ihre blockierenden
+      kleinen GCs halten den Audio-Callback nur halb so lange an (Gen1 10 statt 28 ms, siehe docs/technologie.md, Prüfpunkt 1).
+    -->
+    <UseSegmentsGc Condition="'$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Linux'))">true</UseSegmentsGc>
+    <UseSegmentsGc Condition="$(RuntimeIdentifier.StartsWith('linux'))">true</UseSegmentsGc>
   </PropertyGroup>
+  <ItemGroup Condition="'$(UseSegmentsGc)' == 'true'">
+    <RuntimeHostConfigurationOption Include="System.GC.Name" Value="libclrgc.so" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
