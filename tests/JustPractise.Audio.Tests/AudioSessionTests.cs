@@ -29,7 +29,25 @@ public sealed class AudioSessionTests : IDisposable
     {
         _session.Dispose();
         _engine.Dispose();
-        Directory.Delete(_directory, recursive: true);
+        DeleteDirectory();
+    }
+
+    // Ein Test kann enden, während der Decoder seine Datei im Hintergrund noch liest. Windows löscht keine
+    // geöffnete Datei, deshalb wird gewartet, bis der Decoder fertig ist.
+    private void DeleteDirectory()
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                Directory.Delete(_directory, recursive: true);
+                return;
+            }
+            catch (IOException) when (attempt < 50)
+            {
+                Thread.Sleep(100);
+            }
+        }
     }
 
     private string Wav(string name, int sampleRate, int seconds, int channels = 2) =>
