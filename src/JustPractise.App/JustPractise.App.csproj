@@ -9,6 +9,9 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <!-- Prüfpunkt 9: startet gut 40 % schneller, das Paket wird gezippt rund 7 MB größer. Wirkt nur bei dotnet publish. -->
     <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- Prüfpunkt 1: Workstation-GC mit Hintergrund-GC; Server-GC und GC ohne Hintergrund halten den Audio-Callback zu lange an. -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" />
