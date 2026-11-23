@@ -6,9 +6,9 @@ A desktop app that helps musicians practise with their own recordings: browse yo
 
 ## Install
 
-Download the installer or the portable version for Windows, or the AppImage for Linux, from the [website](https://beckaxel.github.io/just-practise/) or the [releases](https://github.com/beckaxel/just-practise/releases). The [installation guide](https://beckaxel.github.io/just-practise/install.html) explains each step, the SmartScreen warning on Windows, updates and where your data is. macOS is not supported yet.
+Download the installer or the portable version for Windows, or the AppImage for Linux, from the [website](https://beckaxel.github.io/just-practise/) or the [releases](https://github.com/beckaxel/just-practise/releases). The [installation guide](https://beckaxel.github.io/just-practise/install.html) explains each step, the SmartScreen warning on Windows, updates and where your data is.
 
-The project is in an early stage: the first release candidate is out, and loops, a waveform, a practice timer and a tuner are planned. It is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/).
+The first release candidate is out. just practise is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/).
 
 ## Build from source
 
