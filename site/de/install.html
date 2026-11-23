@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>just practise installieren</title>
+  <meta name="description" content="So installierst du just practise unter Windows und Linux, hältst es aktuell und entfernst es wieder.">
+  <link rel="icon" href="../images/favicon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="alternate" hreflang="en" href="../install.html">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><img src="../images/icon.png" alt="">just practise</a>
+      <nav>
+        <a href="install.html" aria-current="page">Installation</a>
+        <a href="https://github.com/beckaxel/just-practise">GitHub</a>
+        <a href="../install.html" hreflang="en" lang="en">English</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap guide">
+    <h1>just practise installieren</h1>
+    <p>Die aktuelle Version ist {{version}}. Alle Dateien findest du auf der <a href="https://github.com/beckaxel/just-practise/releases">Release-Seite</a>.</p>
+
+    <nav class="toc" aria-label="Inhalt">
+      <ul>
+        <li><a href="#voraussetzungen">Voraussetzungen</a></li>
+        <li><a href="#windows">Windows mit Installer</a></li>
+        <li><a href="#windows-portabel">Windows ohne Installation</a></li>
+        <li><a href="#linux">Linux</a></li>
+        <li><a href="#pruefen">Download prüfen</a></li>
+        <li><a href="#updates">Updates</a></li>
+        <li><a href="#daten">Wo deine Daten liegen</a></li>
+        <li><a href="#entfernen">Deinstallieren</a></li>
+      </ul>
+    </nav>
+
+    <h2 id="voraussetzungen">Voraussetzungen</h2>
+    <ul>
+      <li>Ein 64-Bit-PC (x64). ARM-Geräte werden noch nicht unterstützt.</li>
+      <li><strong>Windows</strong> 10 oder 11. Getestet unter Windows 11.</li>
+      <li><strong>Linux</strong> mit glibc 2.35 oder neuer, zum Beispiel Ubuntu 22.04, Debian 12, Fedora 36 oder neuer. Getestet unter Debian 13.</li>
+      <li>macOS wird noch nicht unterstützt.</li>
+    </ul>
+    <p>.NET oder andere Programme musst du nicht installieren, alles Nötige ist dabei.</p>
+
+    <h2 id="windows">Windows mit Installer</h2>
+    <ol>
+      <li>Lade <a href="https://github.com/beckaxel/just-practise/releases/download/{{version}}/just-practise-win-Setup.exe"><code>just-practise-win-Setup.exe</code></a> herunter.</li>
+      <li>Starte die Datei. Sie installiert just practise nur für dein Benutzerkonto, du brauchst also keine Administratorrechte, und startet danach die App.</li>
+      <li>Später startest du just practise über das Startmenü.</li>
+    </ol>
+    <p class="note"><strong>Der Computer wurde durch Windows geschützt:</strong> just practise ist noch nicht signiert, deshalb warnt Microsoft Defender SmartScreen beim ersten Mal. Klicke auf <strong>Weitere Informationen</strong> und dann auf <strong>Trotzdem ausführen</strong>. Wenn du sichergehen willst, dass die Datei die richtige ist, <a href="#pruefen">prüfe vorher den Download</a>.</p>
+
+    <h2 id="windows-portabel">Windows ohne Installation</h2>
+    <ol>
+      <li>Lade <a href="https://github.com/beckaxel/just-practise/releases/download/{{version}}/just-practise-win-Portable.exe"><code>just-practise-win-Portable.exe</code></a> herunter und lege die Datei ab, wo du willst, zum Beispiel auf einem USB-Stick.</li>
+      <li>Starte sie per Doppelklick. SmartScreen warnt wie oben beschrieben.</li>
+    </ol>
+    <p>Der erste Start dauert etwas länger, weil sich die Datei entpackt. Diese Variante aktualisiert sich nicht selbst: Lade bei einer neuen Version einfach die neue Datei herunter.</p>
+
+    <h2 id="linux">Linux</h2>
+    <p>just practise gibt es als AppImage, eine einzelne Datei, die auf den meisten Distributionen läuft.</p>
+    <ol>
+      <li>Lade <a href="https://github.com/beckaxel/just-practise/releases/download/{{version}}/just-practise.AppImage"><code>just-practise.AppImage</code></a> herunter.</li>
+      <li>Mache die Datei ausführbar, im Terminal oder in den Dateieigenschaften deines Dateimanagers:
+        <pre><code>chmod +x just-practise.AppImage</code></pre>
+      </li>
+      <li>Starte sie per Doppelklick oder im Terminal:
+        <pre><code>./just-practise.AppImage</code></pre>
+      </li>
+    </ol>
+    <h3>Wenn sie nicht startet</h3>
+    <p>AppImages brauchen FUSE 2. Die meisten Desktop-Distributionen bringen es mit, sonst installierst du es so:</p>
+    <table>
+      <tr><th>Distribution</th><th>Befehl</th></tr>
+      <tr><td>Ubuntu 24.04 oder neuer, Debian 13</td><td><code>sudo apt install libfuse2t64</code></td></tr>
+      <tr><td>Ubuntu 22.04, Debian 12</td><td><code>sudo apt install libfuse2</code></td></tr>
+      <tr><td>Fedora</td><td><code>sudo dnf install fuse-libs</code></td></tr>
+    </table>
+    <p>Ohne FUSE startest du sie so:</p>
+    <pre><code>./just-practise.AppImage --appimage-extract-and-run</code></pre>
+
+    <h2 id="pruefen">Download prüfen</h2>
+    <p>Zu jedem Release gehört eine Datei <code>SHA256SUMS</code> mit den Prüfsummen aller Dateien. Lade sie in denselben Ordner wie deine Datei und vergleiche.</p>
+    <p>Unter Linux:</p>
+    <pre><code>sha256sum --check --ignore-missing SHA256SUMS</code></pre>
+    <p>Unter Windows in der PowerShell:</p>
+    <pre><code>Get-FileHash .\just-practise-win-Setup.exe</code></pre>
+    <p>Der Hash muss mit der Zeile für diese Datei in <code>SHA256SUMS</code> übereinstimmen (Groß- und Kleinschreibung spielt keine Rolle).</p>
+
+    <h2 id="updates">Updates</h2>
+    <p>just practise sucht nie von sich aus nach Updates. Öffne dafür die Einstellungen (<kbd>Strg</kbd>+<kbd>,</kbd>) und klicke auf <strong>Nach Updates suchen</strong>. Gibt es eine neue Version, entscheidest du, ob sie heruntergeladen wird. Installiert wird sie beim nächsten Start der App, nie mitten im Üben.</p>
+    <p>Das funktioniert mit dem Windows-Installer und dem Linux-AppImage. Die portable Windows-Variante verlinkt stattdessen die Download-Seite.</p>
+
+    <h2 id="daten">Wo deine Daten liegen</h2>
+    <ul>
+      <li><strong>Tempo und Lautstärke einer Datei</strong> stehen neben deiner Musik in einer kleinen Datei mit dem Namen des Stücks und der Endung <code>.jps</code>, zum Beispiel <code>Autumn Leaves.jps</code>. Sie entsteht erst, wenn du etwas änderst. So wandern deine Einstellungen mit, wenn du den Ordner auf einen anderen Rechner kopierst.</li>
+      <li><strong>Einstellungen und die Liste deiner Musikordner</strong>:
+        <table>
+          <tr><th>System</th><th>Einstellungen</th><th>Cache (darf jederzeit gelöscht werden)</th></tr>
+          <tr><td>Windows</td><td><code>%APPDATA%\just-practise</code></td><td><code>%LOCALAPPDATA%\just-practise</code></td></tr>
+          <tr><td>Linux</td><td><code>~/.config/just-practise</code></td><td><code>~/.cache/just-practise</code></td></tr>
+        </table>
+      </li>
+    </ul>
+    <p>just practise sendet nichts. Ins Internet geht die App nur, wenn du nach Updates suchst.</p>
+
+    <h2 id="entfernen">Deinstallieren</h2>
+    <ul>
+      <li><strong>Windows mit Installer:</strong> Einstellungen › Apps › Installierte Apps › just practise › Deinstallieren.</li>
+      <li><strong>Windows portabel und Linux:</strong> Lösche die Datei.</li>
+    </ul>
+    <p>Um alles zu entfernen, lösche zusätzlich den oben genannten Einstellungsordner und, wenn du willst, die <code>.jps</code>-Dateien in deinen Musikordnern.</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>just practise · <a href="https://github.com/beckaxel/just-practise/blob/main/LICENSE">MIT-Lizenz</a></span>
+      <a href="https://github.com/beckaxel/just-practise">Quellcode auf GitHub</a>
+    </div>
+  </footer>
+</body>
+</html>

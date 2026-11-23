@@ -82,4 +82,5 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           pre=""; [[ "$version" == *-* ]] && pre="--prerelease"
           gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --draft $pre \
-            --title "just practise $version" --notes ""
+            --title "just practise $version" \
+            --notes "How to install: https://beckaxel.github.io/just-practise/install.html · Auf Deutsch: https://beckaxel.github.io/just-practise/de/install.html"
