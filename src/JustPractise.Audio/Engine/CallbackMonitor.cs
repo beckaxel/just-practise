@@ -18,6 +18,11 @@ namespace JustPractise.Audio.Engine;
 /// deshalb bis auf zwei Perioden steigen und den folgenden langen Abstand auffangen. Er strebt langsam zu einer Periode
 /// zurück, damit kleine Gangunterschiede zwischen Geräte- und Systemuhr sich nicht aufsummieren.
 /// </para>
+/// <para>
+/// Beim Anlaufen lässt das Gerät manchmal eine lange Pause, unter PipeWire bis 100 ms nach dem ersten Callback.
+/// Das ist kein Aussetzer, denn bis dahin hat noch nichts gespielt. Die erste halbe Sekunde nach dem Öffnen zählt
+/// deshalb nicht mit.
+/// </para>
 /// <para>Läuft auf dem Audio-Thread: keine Allokation, keine Sperre.</para>
 /// </remarks>
 public sealed class CallbackMonitor(TimeSpan period)
@@ -31,8 +36,14 @@ public sealed class CallbackMonitor(TimeSpan period)
     /// <summary>Anteil, um den der Vorlauf je Callback zu einer Periode zurückstrebt (Zeitkonstante rund 100 Callbacks).</summary>
     private const double Leak = 0.01;
 
+    /// <summary>So lange nach dem ersten Callback läuft das Gerät noch an und nichts wird gezählt.</summary>
+    public static readonly TimeSpan StartupTime = TimeSpan.FromSeconds(0.5);
+
+    private static readonly long StartupTicks = (long)(StartupTime.TotalSeconds * Stopwatch.Frequency);
+
     private readonly double _periodTicks = period.TotalSeconds * Stopwatch.Frequency;
     private long _last;
+    private long _countFrom;
     private double _lead;
     private long _late;
     private long _maxGapTicks;
@@ -69,6 +80,11 @@ public sealed class CallbackMonitor(TimeSpan period)
         var block = (double)frames / sampleRate * Stopwatch.Frequency;
         var unit = Math.Max(_periodTicks, block);
         if (_last == 0)
+        {
+            _lead = unit;
+            _countFrom = timestamp + StartupTicks;
+        }
+        else if (timestamp < _countFrom)
         {
             _lead = unit;
         }
