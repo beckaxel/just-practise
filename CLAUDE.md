@@ -40,6 +40,7 @@ Empty test projects pass `--ignore-exit-code 8` (no tests found); remove that pr
 - `tests/`: one xUnit v3 project per library
 - `native/`: C/C++ code built with CMake; each folder with a `CMakeLists.txt` builds a shared library `jp<folder>` into `native/bin/<rid>/` (ignored by git)
 - `prototypes/`: small standalone test programs for individual prototype checks, not part of the solution
+- `site/`: the website on GitHub Pages (plain HTML and CSS, no build step), English at the root and German in `site/de/`; it holds the user installation guide. Both languages are kept in sync and list only features that already work. `.github/workflows/pages.yml` fills in `{{version}}` with the newest release.
 - `tools/`: developer scripts as single C# files run with `dotnet run` (file-based apps; `Directory.Build.props` and analyzers apply to them too)
 
 Shared build settings live in `Directory.Build.props` (nullable, warnings as errors, recommended analyzers, code style enforced in build), package versions centrally in `Directory.Packages.props`, code style in `.editorconfig`.

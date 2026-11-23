@@ -1,0 +1,59 @@
+# Publishes the website in site/ to GitHub Pages. {{version}} in the pages becomes the tag of the newest
+# published release (pre-releases included), so the download links follow each release without an edit.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['site/**', '.github/workflows/pages.yml']
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # For a release event the run belongs to the tag; the website always comes from main.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - name: Fill in the newest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(gh release list --repo "$GITHUB_REPOSITORY" --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName')
+          if [[ -z "$version" ]]; then
+            echo "No published release found." >&2
+            exit 1
+          fi
+          echo "Newest release: $version"
+          cp -r site _site
+          find _site -name '*.html' -exec sed -i "s/{{version}}/$version/g" {} +
+          if grep -rl '{{' _site --include='*.html'; then
+            echo "Unfilled placeholders left." >&2
+            exit 1
+          fi
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

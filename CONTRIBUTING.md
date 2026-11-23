@@ -112,6 +112,7 @@ The project follows GitHub Flow: `main` is always releasable and only changes th
 
 - `.github/workflows/ci.yml` builds the native library and the solution and runs all tests on Ubuntu 22.04 and Windows, for pushes to `main`, pull requests and by hand.
 - `.github/workflows/release.yml` runs for a version tag such as `v0.1.0-rc.1`. It tests and packs on both systems (downloading the previous release first so Velopack can build delta updates) and creates a **draft** GitHub release with all packages and a combined `SHA256SUMS`. Users and the update check see the version only after the draft is published by hand. A version with a suffix (`-rc.1`) becomes a pre-release.
+- `.github/workflows/pages.yml` publishes the website in `site/` to GitHub Pages for changes to `site/` on `main` and for each published release. `{{version}}` in the pages becomes the tag of the newest published release, so the download links need no edit.
 - `.github/dependabot.yml` checks the GitHub Actions used in the workflows once a month and opens pull requests for new versions.
 
 ## Project structure and conventions
@@ -124,6 +125,7 @@ The project follows GitHub Flow: `main` is always releasable and only changes th
 - `native/`: C/C++ code built with CMake
 - `prototypes/`: standalone test programs for the prototype checks, not part of the solution
 - `tools/`: developer scripts
+- `site/`: the website (plain HTML and CSS, English and German in `site/de/`), including the installation guide
 
 Code style is enforced in the build via `.editorconfig` and the .NET analyzers. In short: classes are `sealed` by default, composition over inheritance, interfaces only at real boundaries, immutable records for data, constructor injection, time via `TimeProvider`, and no allocations or locks on the audio thread. The full rules are in the section "Weitere Festlegungen" of [docs/technologie.md](docs/technologie.md) (German).
 

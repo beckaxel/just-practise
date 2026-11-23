@@ -1,10 +1,16 @@
 # just practise
 
-A desktop app that helps musicians practise: an audio player with loops and tempo control, a practice timer, a metronome and a tuner. Free and open source, offline, no account, no ads.
+A desktop app that helps musicians practise with their own recordings: browse your music folders, play tracks at 50–150 % tempo without changing the pitch, and keep time with a metronome. Free and open source, offline, no account, no ads.
 
-The project is in an early stage: the first release candidate is out (see Releases). It is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/) for Linux, Windows and macOS.
+**Website:** https://beckaxel.github.io/just-practise/
 
-## Quick start
+## Install
+
+Download the installer or the portable version for Windows, or the AppImage for Linux, from the [website](https://beckaxel.github.io/just-practise/) or the [releases](https://github.com/beckaxel/just-practise/releases). The [installation guide](https://beckaxel.github.io/just-practise/install.html) explains each step, the SmartScreen warning on Windows, updates and where your data is. macOS is not supported yet.
+
+The project is in an early stage: the first release candidate is out, and loops, a waveform, a practice timer and a tuner are planned. It is a native desktop app in C# (.NET 10) with [Avalonia](https://avaloniaui.net/).
+
+## Build from source
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) and Git. Then:
 
