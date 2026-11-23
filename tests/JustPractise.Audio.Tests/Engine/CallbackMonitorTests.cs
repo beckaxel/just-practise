@@ -10,8 +10,11 @@ public sealed class CallbackMonitorTests
 
     private static readonly TimeSpan Period = TimeSpan.FromMilliseconds(10);
 
-    /// <summary>Zeitpunkt in Ticks; die Tests beginnen nach der Anlaufzeit des Geräts.</summary>
-    private static long Ticks(double milliseconds) => (long)((Startup + milliseconds) / 1000 * Stopwatch.Frequency);
+    /// <summary>
+    /// Zeitpunkt in Ticks; die Tests beginnen nach der Anlaufzeit des Geräts. Gerundet, damit Abstände auf der Grenze
+    /// auch mit der 10-MHz-Uhr von Windows genau auf der Grenze bleiben.
+    /// </summary>
+    private static long Ticks(double milliseconds) => (long)Math.Round((Startup + milliseconds) / 1000 * Stopwatch.Frequency);
 
     private static readonly double Startup = CallbackMonitor.StartupTime.TotalMilliseconds;
 
