@@ -15,7 +15,7 @@ public sealed class DecodedAudio
     public const int MaxBlocks = 128;
 
     private readonly BlockPool _pool;
-    private readonly float[]?[] _blocks = new float[MaxBlocks][];
+    private readonly AudioBlock?[] _blocks = new AudioBlock?[MaxBlocks];
     private int _blockCount;
     private long _frames;
     private int _state;
