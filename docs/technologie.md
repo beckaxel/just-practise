@@ -138,7 +138,7 @@ just-practise/
 - **Namensraum:** `JustPractise`
 - **Austauschbare Audio-Engine:** Die Engine steckt hinter einer eigenen Schnittstelle. Der Rest der App kennt SoundFlow nicht, die Engine bleibt austauschbar.
 - **Signalverarbeitung ohne Engine:** Tonhöhenerkennung, Pegelmessung und Klickerzeugung arbeiten nur auf Puffern. Getestet wird mit erzeugten Signalen (z. B. Sinus mit 440 Hz).
-- **App nach Funktionen gegliedert:** `Shell/` (Hauptfenster), `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen.
+- **App nach Funktionen gegliedert:** `Shell/` (Hauptfenster), `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`, statt nach Art (`Views/`, `ViewModels/`). Alles zu einer Komponente liegt zusammen. Bedienelemente, die mehrere Komponenten gleich nutzen (z. B. `StepSlider` für Tempo und Lautstärke), liegen in `Controls/`.
 - **Gemeinsame Einstellungen** in `Directory.Build.props`: Nullable aktiv, Warnungen als Fehler, Analyzer aktiv. Paketversionen stehen zentral in `Directory.Packages.props`.
 
 ### Nativer Code

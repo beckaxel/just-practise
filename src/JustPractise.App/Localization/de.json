@@ -20,7 +20,13 @@
     "resetTempo": "Zurück auf 100 %",
     "resetVolume": "Zurück auf 0 dB",
     "loading": "Wird geladen …",
-    "error": "Diese Datei lässt sich nicht öffnen."
+    "error": "Diese Datei lässt sich nicht öffnen.",
+    "seekBack": "5 Sekunden zurück",
+    "seekForward": "5 Sekunden vor",
+    "slower": "Langsamer",
+    "faster": "Schneller",
+    "quieter": "Leiser",
+    "louder": "Lauter"
   },
   "metronome": {
     "title": "Metronom",
@@ -29,7 +35,12 @@
     "tempo": "Tempo",
     "meter": "Taktart",
     "volume": "Lautstärke",
-    "resetVolume": "Zurück auf 0 dB"
+    "resetVolume": "Zurück auf 0 dB",
+    "slower": "Langsamer",
+    "faster": "Schneller",
+    "quieter": "Leiser",
+    "louder": "Lauter",
+    "enterTempo": "Tempo eingeben"
   },
   "status": {
     "device": "Ausgabe: {name}",
