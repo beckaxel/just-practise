@@ -55,7 +55,13 @@ internal static class CompositionRoot
         services.AddSingleton<StatusBarViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();
-        services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
+        services.AddSingleton<MainWindowPlacement>();
+        services.AddSingleton(sp =>
+        {
+            var window = new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() };
+            sp.GetRequiredService<MainWindowPlacement>().Attach(window);
+            return window;
+        });
 
         return services.BuildServiceProvider(new ServiceProviderOptions
         {

@@ -32,6 +32,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 - Dateibrowser: Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner, Dateiüberwachung (Prüfpunkt 8)
 - Metronom: Tap-Tempo, freie Taktarten, Betonung pro Schlag, Unterteilungen, Klangsets, benannte Einstellungen
 - Komponenten ein- und ausklappen
+- Vollbild (siehe [Fenster](funktionen.md#fenster))
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen
 - Übetimer, Stimmgerät mit Lautstärkeanzeige (Prüfpunkt 5), Touch und Stift (Prüfpunkt 6)
 - macOS und arm64 (Prüfpunkt 10)

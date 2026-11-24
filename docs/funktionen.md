@@ -119,6 +119,13 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 - **Ein- und ausschalten:** Eine kleine Leiste zeigt ein Symbol pro Komponente. Mit einem Klick oder Tipp öffnet oder schließt man die Komponente. Jede Komponente lässt sich schließen, auch der Audioplayer, z. B. wenn man nur Timer und Metronom nutzt.
 - **Merken:** Der Zustand jeder Komponente wird in den App-Einstellungen gespeichert und beim nächsten Start wiederhergestellt.
 
+## Fenster
+
+- **Erster Start:** Das Hauptfenster erscheint mittig auf dem Hauptmonitor und ist immer vollständig sichtbar. Ist der Bildschirm kleiner als die Standardgröße, wird das Fenster passend verkleinert.
+- **Merken:** Größe, Position und ob das Fenster maximiert war, merkt sich die App pro Rechner im gerätespezifischen Gedächtnis. War es maximiert, gelten Größe und Position von davor; dorthin kehrt das Fenster zurück, wenn man die Maximierung aufhebt.
+- **Immer sichtbar:** Die gemerkte Lage gilt nur, wenn das Fenster damit ganz auf einem Monitor liegt. Haben sich die Monitore seit dem letzten Lauf geändert, wird es auf den Monitor geschoben, auf dem es noch teilweise liegt, und bei Bedarf verkleinert. Liegt es auf keinem Monitor mehr, erscheint es mittig auf dem Hauptmonitor.
+- **Vollbild:** Die App lässt sich ins Vollbild schalten, z. B. für ein kleines Notebook am Notenständer.
+
 ## Zielplattformen
 
 - **Desktop:** Linux, Windows und macOS als native App. Die Begründung steht in [technologie.md](technologie.md).
