@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using JustPractise.Core.Settings;
@@ -6,64 +7,126 @@ using JustPractise.Storage;
 namespace JustPractise.App.FileBrowser;
 
 /// <summary>
-/// Der Dateibrowser: zeigt immer einen Ordner mit Pfadzeile, Unterordnern und Stücken. Auf der obersten Ebene
-/// stehen die Musikordner. Der zuletzt geöffnete Ordner wird im gerätespezifischen Gedächtnis gemerkt.
+/// Die Bibliothek: ein Baum aus den Musikordnern mit ihren Unterordnern und Stücken, die sich an Ort und Stelle
+/// aufklappen lassen. Eine Pfadzeile zeigt, wo die gewählte Stelle liegt. Was aufgeklappt und gewählt war, merkt sich
+/// das gerätespezifische Gedächtnis; die zuletzt gewählte Datei wird beim Start wieder geladen.
 /// </summary>
 /// <remarks>
-/// Ordner werden im Hintergrund gelesen, weil Cloud-Ordner blockieren können. Wer währenddessen weiterklickt,
-/// bekommt nur das Ergebnis des zuletzt gewählten Ordners zu sehen. Aufrufe kommen vom UI-Thread.
+/// Ordner werden im Hintergrund gelesen, weil Cloud-Ordner blockieren können. Wird der Baum währenddessen neu
+/// aufgebaut, verfällt das ältere Ergebnis. Aufrufe kommen vom UI-Thread.
 /// </remarks>
 public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> memory, IFolderPicker picker) : ObservableObject
 {
+    private static readonly StringComparer PathComparer =
+        FolderPaths.Comparison == StringComparison.Ordinal ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
+
+    private readonly HashSet<string> _expandedFolders = new(PathComparer);
+    private readonly HashSet<string> _expandedPieces = new(PathComparer);
     private int _version;
 
-    /// <summary>Der angezeigte Ordner oder <c>null</c> für die oberste Ebene.</summary>
+    /// <summary>Die Zeilen des Baums in Anzeigereihenfolge.</summary>
+    public ObservableCollection<LibraryRow> Rows { get; } = [];
+
+    /// <summary>Die gewählte Stelle (ein Ordner) für die Pfadzeile, <c>null</c> ohne Auswahl.</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsTop))]
     public partial string? Location { get; private set; }
 
-    public bool IsTop => Location is null;
-
     [ObservableProperty]
-    public partial IReadOnlyList<BreadcrumbItem> Breadcrumbs { get; private set; } = [new(null, null)];
-
-    [ObservableProperty]
-    public partial IReadOnlyList<FolderItem> Folders { get; private set; } = [];
-
-    [ObservableProperty]
-    public partial IReadOnlyList<PieceItem> Pieces { get; private set; } = [];
+    public partial IReadOnlyList<BreadcrumbItem> Breadcrumbs { get; private set; } = [];
 
     [ObservableProperty]
     public partial bool IsLoading { get; private set; }
 
-    /// <summary>Oberste Ebene ohne Musikordner, z. B. beim ersten Start.</summary>
+    /// <summary>Noch kein Musikordner gewählt, z. B. beim ersten Start.</summary>
     [ObservableProperty]
     public partial bool HasNoMusicFolders { get; private set; }
 
-    [ObservableProperty]
-    public partial bool IsUnreachable { get; private set; }
-
-    /// <summary>Ein erreichbarer Ordner ohne Unterordner und Stücke.</summary>
-    [ObservableProperty]
-    public partial bool IsEmpty { get; private set; }
-
-    /// <summary>Die gewählte Audiodatei.</summary>
+    /// <summary>Die gewählte Audiodatei; der Player lädt sie.</summary>
     [ObservableProperty]
     public partial PieceFile? SelectedFile { get; private set; }
 
-    /// <summary>Öffnet den zuletzt geöffneten Ordner, wenn er noch in einem Musikordner liegt, sonst die oberste Ebene.</summary>
-    public Task StartAsync() => ShowAsync(memory.Value.LastFolder, keepContent: false);
+    /// <summary>Die Ansicht soll diese Zeile sichtbar machen, z. B. die gewählte Datei nach dem Start.</summary>
+    public event EventHandler<LibraryRow>? ScrollRequested;
+
+    /// <summary>Die gewählten Musikordner.</summary>
+    public IReadOnlyList<string> MusicFolders => memory.Value.MusicFolders;
+
+    public bool HasMusicFolders => MusicFolders.Count > 0;
+
+    /// <summary>
+    /// Baut den Baum wie beim letzten Beenden auf und wählt die zuletzt gewählte Datei wieder, wenn es sie noch gibt.
+    /// </summary>
+    public async Task StartAsync()
+    {
+        var saved = memory.Value;
+        _expandedFolders.UnionWith(saved.Library.ExpandedFolders);
+        _expandedPieces.UnionWith(saved.Library.ExpandedPieces);
+        if (saved.Library.IsDefault && saved.LastFolder is { } last)
+        {
+            // Ältere Versionen merkten sich nur den zuletzt geöffneten Ordner: den Weg dorthin aufklappen.
+            ExpandPathTo(last);
+        }
+
+        SetLocation(saved.LastFolder);
+        await RebuildAsync();
+
+        if (saved.Library.SelectedFile is { } path && FolderPaths.FindRoot(MusicFolders, path) is not null && File.Exists(path))
+        {
+            var row = Rows.FirstOrDefault(candidate => candidate.IsFile && SamePath(candidate.Key, path));
+            if (row is not null)
+            {
+                SetLocation(row.Folder);
+                Select(row);
+                ScrollRequested?.Invoke(this, row);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ein Tipp auf eine Zeile: Ordner und virtuelle Stücke klappen auf oder zu, eine Datei wird gewählt und geladen.
+    /// </summary>
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private async Task Activate(LibraryRow row)
+    {
+        SetLocation(row.Folder);
+        switch (row.Kind)
+        {
+            case LibraryRowKind.File:
+                Select(row);
+                break;
+            case LibraryRowKind.Piece:
+                TogglePiece(row);
+                MarkSelection();
+                break;
+            case LibraryRowKind.Folder:
+                await ToggleFolderAsync(row);
+                MarkSelection();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(row), row.Kind, null);
+        }
+
+        SaveState();
+    }
+
+    /// <summary>Ein Glied der Pfadzeile: Der Ordner wird aufgeklappt und sichtbar gemacht.</summary>
+    [RelayCommand(AllowConcurrentExecutions = true)]
+    private async Task OpenBreadcrumb(BreadcrumbItem crumb)
+    {
+        SetLocation(crumb.Path);
+        ExpandPathTo(crumb.Path);
+        SaveState();
+        await RebuildAsync();
+        if (Rows.FirstOrDefault(row => row.IsFolder && SamePath(row.Key, crumb.Path)) is { } target)
+        {
+            ScrollRequested?.Invoke(this, target);
+        }
+    }
 
     [RelayCommand(AllowConcurrentExecutions = true)]
-    private Task OpenFolder(FolderItem folder) => ShowAsync(folder.Path, keepContent: false);
+    private Task Refresh() => RebuildAsync();
 
-    [RelayCommand(AllowConcurrentExecutions = true)]
-    private Task OpenBreadcrumb(BreadcrumbItem crumb) => ShowAsync(crumb.Path, keepContent: false);
-
-    [RelayCommand(AllowConcurrentExecutions = true)]
-    private Task Refresh() => ShowAsync(Location, keepContent: true);
-
-    /// <summary>Fügt einen Musikordner über den Dialog des Systems hinzu und öffnet ihn.</summary>
+    /// <summary>Fügt einen Musikordner über den Dialog des Systems hinzu und klappt ihn auf.</summary>
     [RelayCommand]
     private async Task AddMusicFolder()
     {
@@ -79,13 +142,16 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
             : value with { MusicFolders = [.. value.MusicFolders, path] });
         OnPropertyChanged(nameof(MusicFolders));
         OnPropertyChanged(nameof(HasMusicFolders));
-        await ShowAsync(path, keepContent: false);
+
+        _expandedFolders.Add(path);
+        SetLocation(path);
+        SaveState();
+        await RebuildAsync();
+        if (Rows.FirstOrDefault(row => row.IsFolder && SamePath(row.Key, path)) is { } added)
+        {
+            ScrollRequested?.Invoke(this, added);
+        }
     }
-
-    /// <summary>Die gewählten Musikordner.</summary>
-    public IReadOnlyList<string> MusicFolders => memory.Value.MusicFolders;
-
-    public bool HasMusicFolders => MusicFolders.Count > 0;
 
     /// <summary>Nimmt einen Musikordner aus der Liste; die Dateien bleiben, wo sie sind.</summary>
     [RelayCommand]
@@ -98,104 +164,242 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
         OnPropertyChanged(nameof(MusicFolders));
         OnPropertyChanged(nameof(HasMusicFolders));
 
-        // Lag der angezeigte Ordner darin, geht es auf die oberste Ebene; dort fehlt der Ordner dann.
-        await ShowAsync(Location, keepContent: Location is null);
+        if (Location is not null && FolderPaths.FindRoot(MusicFolders, Location) is null)
+        {
+            SetLocation(null);
+        }
+
+        SaveState();
+        await RebuildAsync();
     }
 
-    /// <summary>Ein Klick auf ein Stück wählt seine erste Datei.</summary>
-    [RelayCommand]
-    private void SelectPiece(PieceItem piece) => Select(piece.Files[0].File);
-
-    [RelayCommand]
-    private void SelectFile(FileItem file) => Select(file.File);
-
-    private void Select(PieceFile file)
+    private void Select(LibraryRow row)
     {
-        SelectedFile = file;
+        SelectedFile = row.File;
         MarkSelection();
     }
 
-    private async Task ShowAsync(string? path, bool keepContent)
+    private void TogglePiece(LibraryRow row)
+    {
+        if (row.IsExpanded)
+        {
+            _expandedPieces.Remove(row.Key);
+            Collapse(row);
+            return;
+        }
+
+        _expandedPieces.Add(row.Key);
+        row.IsExpanded = true;
+        Insert(row, PieceFileRows(row.Files, row.Depth + 1));
+    }
+
+    private async Task ToggleFolderAsync(LibraryRow row)
+    {
+        if (!row.HasChildren)
+        {
+            return;
+        }
+
+        if (row.IsExpanded)
+        {
+            _expandedFolders.Remove(row.Key);
+            Collapse(row);
+            return;
+        }
+
+        _expandedFolders.Add(row.Key);
+        row.IsExpanded = true;
+        row.IsLoading = true;
+        var version = _version;
+        var children = await ReadChildrenAsync(row.Key, row.Depth + 1);
+        row.IsLoading = false;
+        if (version != _version || !row.IsExpanded || !Rows.Contains(row))
+        {
+            return; // Inzwischen neu aufgebaut oder wieder zugeklappt.
+        }
+
+        row.HasChildren = children.Count > 0;
+        row.IsExpanded = children.Count > 0;
+        Insert(row, children);
+    }
+
+    private void Collapse(LibraryRow row)
+    {
+        row.IsExpanded = false;
+        var index = Rows.IndexOf(row);
+        while (index + 1 < Rows.Count && Rows[index + 1].Depth > row.Depth)
+        {
+            Rows.RemoveAt(index + 1);
+        }
+    }
+
+    private void Insert(LibraryRow parent, IReadOnlyList<LibraryRow> children)
+    {
+        var index = Rows.IndexOf(parent);
+        for (var i = 0; i < children.Count; i++)
+        {
+            Rows.Insert(index + 1 + i, children[i]);
+        }
+    }
+
+    /// <summary>Baut den ganzen Baum neu auf; aufgeklappt bleibt, was aufgeklappt war.</summary>
+    private async Task RebuildAsync()
     {
         var version = ++_version;
-        var roots = memory.Value.MusicFolders;
-        if (path is not null)
-        {
-            // Liegt der Ordner nicht (mehr) in einem Musikordner, geht es auf die oberste Ebene.
-            path = FolderPaths.FindRoot(roots, path) is null ? null : FolderPaths.Normalize(path);
-        }
-
-        Location = path;
-        Breadcrumbs = BuildBreadcrumbs(roots, path);
         IsLoading = true;
-        if (!keepContent)
+        var roots = MusicFolders;
+        var rows = new List<LibraryRow>();
+        foreach (var root in roots)
         {
-            Show([], [], unreachable: false, empty: false);
-        }
-
-        memory.Update(value => value.LastFolder == path ? value : value with { LastFolder = path });
-
-        if (path is null)
-        {
-            var folders = await Task.Run(() => roots
-                .Select(root => new FolderItem(FolderPaths.DisplayName(root), root, Directory.Exists(root)))
-                .ToList());
-            if (version == _version)
+            var path = FolderPaths.Normalize(root);
+            var (reachable, hasChildren) = await Task.Run(() => (Directory.Exists(path), FolderReader.HasEntries(path)));
+            var row = LibraryRow.ForFolder(path, FolderPaths.DisplayName(path), 0, hasChildren, reachable);
+            rows.Add(row);
+            if (row.HasChildren && _expandedFolders.Contains(path))
             {
-                Show(folders, [], unreachable: false, empty: false);
-            }
-        }
-        else
-        {
-            var content = await Task.Run(() => FolderReader.Read(path));
-            if (version == _version)
-            {
-                var folders = content.Subfolders.Select(name => new FolderItem(name, Path.Combine(path, name), true)).ToList();
-                var pieces = content.Pieces
-                    .Select(piece => new PieceItem(piece.Title, [.. piece.Files.Select(file => new FileItem(new PieceFile(path, piece.Title, file)))]))
-                    .ToList();
-                Show(folders, pieces, unreachable: !content.IsReachable, empty: content.IsReachable && folders.Count == 0 && pieces.Count == 0);
+                var children = await ReadChildrenAsync(path, 1);
+                row.IsExpanded = children.Count > 0;
+                rows.AddRange(children);
             }
         }
 
-        if (version == _version)
+        if (version != _version)
         {
-            IsLoading = false;
+            return;
         }
-    }
 
-    private void Show(IReadOnlyList<FolderItem> folders, IReadOnlyList<PieceItem> pieces, bool unreachable, bool empty)
-    {
-        Folders = folders;
-        Pieces = pieces;
-        IsUnreachable = unreachable;
-        IsEmpty = empty;
-        HasNoMusicFolders = Location is null && memory.Value.MusicFolders.Count == 0;
+        Rows.Clear();
+        foreach (var row in rows)
+        {
+            Rows.Add(row);
+        }
+
+        HasNoMusicFolders = roots.Count == 0;
         MarkSelection();
+        IsLoading = false;
     }
+
+    /// <summary>Liest einen Ordner und darunter alles, was aufgeklappt war.</summary>
+    private async Task<IReadOnlyList<LibraryRow>> ReadChildrenAsync(string folder, int depth)
+    {
+        var (content, subfolders) = await Task.Run(() =>
+        {
+            var read = FolderReader.Read(folder);
+            var folders = read.Subfolders
+                .Select(name => (Name: name, Path: Path.Combine(folder, name)))
+                .Select(sub => (sub.Name, sub.Path, HasChildren: FolderReader.HasEntries(sub.Path)))
+                .ToList();
+            return (read, folders);
+        });
+
+        var rows = new List<LibraryRow>();
+        foreach (var (name, path, hasChildren) in subfolders)
+        {
+            var row = LibraryRow.ForFolder(path, name, depth, hasChildren);
+            rows.Add(row);
+            if (hasChildren && _expandedFolders.Contains(path))
+            {
+                var children = await ReadChildrenAsync(path, depth + 1);
+                row.IsExpanded = children.Count > 0;
+                rows.AddRange(children);
+            }
+        }
+
+        foreach (var piece in content.Pieces)
+        {
+            var files = piece.Files.Select(file => new PieceFile(folder, piece.Title, file)).ToList();
+            if (files.Count == 1)
+            {
+                rows.Add(LibraryRow.ForFile(files[0], piece.Title, depth));
+                continue;
+            }
+
+            var row = LibraryRow.ForPiece(folder, piece.Title, files, depth);
+            rows.Add(row);
+            if (_expandedPieces.Contains(row.Key))
+            {
+                row.IsExpanded = true;
+                rows.AddRange(PieceFileRows(files, depth + 1));
+            }
+        }
+
+        return rows;
+    }
+
+    private static List<LibraryRow> PieceFileRows(IReadOnlyList<PieceFile> files, int depth) =>
+        [.. files.Select(file => LibraryRow.ForFile(file, file.FileName, depth))];
 
     private void MarkSelection()
     {
-        foreach (var piece in Pieces)
+        var selected = SelectedFile?.Path;
+        foreach (var row in Rows)
         {
-            var selected = false;
-            foreach (var file in piece.Files)
+            row.IsSelected = selected is not null && row.Kind switch
             {
-                file.IsSelected = SelectedFile is not null && string.Equals(file.Path, SelectedFile.Path, FolderPaths.Comparison);
-                selected |= file.IsSelected;
-            }
-
-            piece.IsSelected = selected;
+                LibraryRowKind.File => SamePath(row.Key, selected),
+                LibraryRowKind.Piece => !row.IsExpanded && row.Files.Any(file => SamePath(file.Path, selected)),
+                _ => false,
+            };
         }
     }
 
+    /// <summary>Klappt den Musikordner und alle Ordner bis einschließlich <paramref name="path"/> auf.</summary>
+    private void ExpandPathTo(string path)
+    {
+        if (FolderPaths.FindRoot(MusicFolders, path) is not { } root)
+        {
+            return;
+        }
+
+        var current = FolderPaths.Normalize(root);
+        _expandedFolders.Add(current);
+        foreach (var segment in FolderPaths.Segments(root, path))
+        {
+            current = Path.Combine(current, segment);
+            _expandedFolders.Add(current);
+        }
+    }
+
+    private void SetLocation(string? path)
+    {
+        if (path is not null && FolderPaths.FindRoot(MusicFolders, path) is null)
+        {
+            path = null;
+        }
+
+        Location = path is null ? null : FolderPaths.Normalize(path);
+        Breadcrumbs = BuildBreadcrumbs(MusicFolders, Location);
+    }
+
+    private void SaveState()
+    {
+        var library = new LibraryState
+        {
+            ExpandedFolders = [.. _expandedFolders.Order(StringComparer.Ordinal)],
+            ExpandedPieces = [.. _expandedPieces.Order(StringComparer.Ordinal)],
+            SelectedFile = SelectedFile?.Path,
+        };
+        memory.Update(value =>
+        {
+            var changed = value with { LastFolder = Location, Library = library with { Unknown = value.Library.Unknown } };
+            return changed.LastFolder == value.LastFolder
+                && changed.Library.SelectedFile == value.Library.SelectedFile
+                && changed.Library.ExpandedFolders.SequenceEqual(value.Library.ExpandedFolders)
+                && changed.Library.ExpandedPieces.SequenceEqual(value.Library.ExpandedPieces)
+                ? value
+                : changed;
+        });
+    }
+
+    private static bool SamePath(string a, string b) => string.Equals(a, b, FolderPaths.Comparison);
+
     private static List<BreadcrumbItem> BuildBreadcrumbs(IReadOnlyList<string> roots, string? path)
     {
-        var crumbs = new List<BreadcrumbItem> { new(null, null) };
+        var crumbs = new List<BreadcrumbItem>();
         if (path is not null && FolderPaths.FindRoot(roots, path) is { } root)
         {
             var current = FolderPaths.Normalize(root);
-            crumbs.Add(new BreadcrumbItem(FolderPaths.DisplayName(root), current));
+            crumbs.Add(new BreadcrumbItem(FolderPaths.DisplayName(root), current) { IsFirst = true });
             foreach (var segment in FolderPaths.Segments(root, path))
             {
                 current = Path.Combine(current, segment);

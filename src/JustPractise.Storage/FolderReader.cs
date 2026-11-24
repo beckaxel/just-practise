@@ -13,17 +13,19 @@ public sealed record FolderContent(string Path, bool IsReachable, IReadOnlyList<
 /// <remarks>Blockiert, z. B. bei Cloud-Ordnern. Nicht vom UI-Thread aus aufrufen.</remarks>
 public static class FolderReader
 {
+    private static readonly EnumerationOptions Options = new()
+    {
+        AttributesToSkip = FileAttributes.Hidden | FileAttributes.System,
+        IgnoreInaccessible = true,
+        RecurseSubdirectories = false,
+    };
+
     public static FolderContent Read(string path)
     {
         try
         {
             var directory = new DirectoryInfo(path);
-            var options = new EnumerationOptions
-            {
-                AttributesToSkip = FileAttributes.Hidden | FileAttributes.System,
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = false,
-            };
+            var options = Options;
 
             var subfolders = directory.EnumerateDirectories("*", options)
                 .Select(folder => folder.Name)
@@ -40,6 +42,23 @@ public static class FolderReader
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Security.SecurityException)
         {
             return new FolderContent(path, false, [], []);
+        }
+    }
+
+    /// <summary>
+    /// Ob der Ordner etwas zum Anzeigen enthält: einen Unterordner oder eine Audiodatei. Hört beim ersten Treffer auf.
+    /// </summary>
+    public static bool HasEntries(string path)
+    {
+        try
+        {
+            var directory = new DirectoryInfo(path);
+            return directory.EnumerateDirectories("*", Options).Any(folder => !IsHidden(folder.Name))
+                || directory.EnumerateFiles("*", Options).Any(file => !IsHidden(file.Name) && AudioFiles.IsSupported(file.Name));
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+        {
+            return false;
         }
     }
 

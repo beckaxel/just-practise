@@ -2,19 +2,16 @@
   "language": { "name": "English" },
   "app": { "title": "just practise" },
   "browser": {
-    "title": "Files",
+    "title": "Library",
     "musicFolders": "Music folders",
     "addFolder": "Add music folder",
     "refresh": "Refresh",
     "chooseFolder": "Choose music folder",
     "noFolders": "Choose the folder where your music is.",
-    "unreachable": "This folder is not reachable.",
-    "notReachable": "(not reachable)",
-    "empty": "No folders or pieces here."
+    "notReachable": "(not reachable)"
   },
   "player": {
     "title": "Player",
-    "empty": "Choose a piece on the left.",
     "playPause": "Play or pause",
     "toStart": "Back to the start",
     "tempo": "Tempo",

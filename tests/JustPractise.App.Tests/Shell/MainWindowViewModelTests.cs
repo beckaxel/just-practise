@@ -55,7 +55,7 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         _memory.Update(memory => memory with { MusicFolders = [_directory.File("Musik")], LastFolder = _directory.File("Musik") });
         await _shell.Browser.StartAsync();
 
-        _shell.Browser.SelectPieceCommand.Execute(_shell.Browser.Pieces.Single());
+        await _shell.Browser.ActivateCommand.ExecuteAsync(_shell.Browser.Rows.Single(row => row.IsFile));
         await WaitUntil(() => _shell.Player.IsReady);
 
         Assert.Contains("load Blues.mp3", _player.Calls);

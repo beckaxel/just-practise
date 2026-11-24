@@ -2,6 +2,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="JustPractise.App.App"
              RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <!--
+        Farben der Bibliothek: Ordner in der Textfarbe des Schemas (weiß bzw. schwarz), virtuelle Stücke leicht
+        bläulich, abspielbare Stücke leicht grünlich. Je Schema so gewählt, dass sie gut lesbar bleiben.
+      -->
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="LibraryFolderBrush" Color="#000000" />
+          <SolidColorBrush x:Key="LibraryPieceBrush" Color="#1D4F8C" />
+          <SolidColorBrush x:Key="LibraryFileBrush" Color="#1F6B3A" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="LibraryFolderBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="LibraryPieceBrush" Color="#A9CBF5" />
+          <SolidColorBrush x:Key="LibraryFileBrush" Color="#B4E6BF" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
   <Application.Styles>
     <FluentTheme />
 
