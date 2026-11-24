@@ -117,6 +117,19 @@ public sealed class WindowPlacerTests
         Assert.Equal(memory.Window, AppDataFiles.Device.Read(json).Value.Window! with { Unknown = null });
     }
 
+    [Fact]
+    public void KeepsFractionalSizes()
+    {
+        var memory = new DeviceMemory { Window = new WindowPlacement { X = 10, Y = 10, Width = 998.4, Height = 700.8 } };
+
+        var json = AppDataFiles.Device.Write(memory);
+        var read = AppDataFiles.Device.Read(json).Value.Window!;
+
+        Assert.Contains("\"width\": 998.4,", json, StringComparison.Ordinal);
+        Assert.Equal(998.4, read.Width);
+        Assert.Same(read, Placer.Place(read, [FullHd], FullHd));
+    }
+
     private static PixelBox Outer(WindowPlacement placement, double scaling) => new(
         placement.X,
         placement.Y,

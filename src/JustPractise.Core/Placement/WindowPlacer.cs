@@ -30,7 +30,7 @@ public readonly record struct ScreenArea(PixelBox WorkingArea, double Scaling);
 /// Wie groß Rahmen und Titelleiste sind, weiß die App vor dem Öffnen nicht; das hängt vom System ab. Gerechnet wird
 /// deshalb mit einem großzügigen Zuschlag (<see cref="Frame"/>) zur Größe des Inhalts.
 /// </remarks>
-public sealed class WindowPlacer(int defaultWidth, int defaultHeight)
+public sealed class WindowPlacer(double defaultWidth, double defaultHeight)
 {
     /// <summary>Zuschlag für Rahmen und Titelleiste in geräteunabhängigen Einheiten (Breite, Höhe).</summary>
     public static (int Width, int Height) Frame { get; } = (16, 48);
@@ -88,7 +88,7 @@ public sealed class WindowPlacer(int defaultWidth, int defaultHeight)
         ToPixels(placement.Width + Frame.Width, scaling),
         ToPixels(placement.Height + Frame.Height, scaling));
 
-    private static WindowPlacement Center(ScreenArea screen, int width, int height, bool maximized)
+    private static WindowPlacement Center(ScreenArea screen, double width, double height, bool maximized)
     {
         (width, height) = FitSize(screen, width, height);
         var area = screen.WorkingArea;
@@ -105,7 +105,7 @@ public sealed class WindowPlacer(int defaultWidth, int defaultHeight)
     }
 
     /// <summary>Verkleinert die Größe, bis das Fenster samt Rahmen in den Arbeitsbereich passt.</summary>
-    private static (int Width, int Height) FitSize(ScreenArea screen, int width, int height)
+    private static (double Width, double Height) FitSize(ScreenArea screen, double width, double height)
     {
         var scaling = screen.Scaling > 0 ? screen.Scaling : 1;
         var maxWidth = (int)Math.Floor(screen.WorkingArea.Width / scaling) - Frame.Width;
@@ -113,6 +113,6 @@ public sealed class WindowPlacer(int defaultWidth, int defaultHeight)
         return (Math.Max(1, Math.Min(width, maxWidth)), Math.Max(1, Math.Min(height, maxHeight)));
     }
 
-    private static int ToPixels(int units, double scaling) =>
+    private static int ToPixels(double units, double scaling) =>
         (int)Math.Ceiling(units * (scaling > 0 ? scaling : 1));
 }
