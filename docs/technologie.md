@@ -346,6 +346,7 @@ Beispiel:
 
 ## Weitere Festlegungen
 
+- **Bildschirmschoner aufhalten** (siehe [Funktionskonzept](funktionen.md#bildschirmschoner)): hinter `IScreenSaverInhibitor`. Windows über `SetThreadExecutionState` (`ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED`, vom UI-Thread). Linux über die D-Bus-Schnittstelle `org.freedesktop.ScreenSaver` (`Inhibit`/`UnInhibit`, KDE, GNOME, Xfce u. a.) mit `Tmds.DBus.Protocol`, das Avalonia ohnehin mitbringt; die Sperre hängt an der Verbindung und endet mit der App. Avalonia selbst bietet das (`TopLevel.RequestPlatformInhibition`) in Version 12.1 nur unter macOS an. macOS bleibt vorerst ohne.
 - **Tastenkürzel** wirken global im Fenster, unabhängig vom Fokus, außer in Textfeldern. Die Belegung ist frei änderbar und wird aus den Einstellungen geladen, statt fest im Code zu stehen.
 - **Mehrsprachigkeit von Anfang an:** Kein Text steht fest im Code, alle Texte kommen aus Übersetzungsdateien im JSON-Format. Sie sind für Mitwirkende ohne Programmierkenntnisse bearbeitbar. Details unter [Übersetzungen](#übersetzungen).
 - **Ton- und Akkordnamen** erzeugt eine eigene, gut testbare Komponente, unabhängig von der Sprache der Oberfläche. Intern rechnet die App nur mit Tonhöhen und Akkordtypen, die Namen entstehen erst bei der Anzeige.

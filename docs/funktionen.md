@@ -119,6 +119,10 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 - **Ein- und ausschalten:** Eine kleine Leiste zeigt ein Symbol pro Komponente. Mit einem Klick oder Tipp öffnet oder schließt man die Komponente. Jede Komponente lässt sich schließen, auch der Audioplayer, z. B. wenn man nur Timer und Metronom nutzt.
 - **Merken:** Der Zustand jeder Komponente wird in den App-Einstellungen gespeichert und beim nächsten Start wiederhergestellt.
 
+## Bildschirmschoner
+
+Beim Üben gibt es oft lange keine Eingabe, obwohl man auf die App schaut, z. B. auf den Fortschrittsbalken oder die Schlaganzeige. Solange das Hauptfenster maximiert ist (später auch im Vollbild), gehen deshalb Bildschirmschoner, Abschalten des Bildschirms und automatische Sperre nicht an. In normaler Größe oder minimiert gelten wieder die Einstellungen des Systems.
+
 ## Zielplattformen
 
 - **Desktop:** Linux, Windows und macOS als native App. Die Begründung steht in [technologie.md](technologie.md).
