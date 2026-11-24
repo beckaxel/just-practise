@@ -5,10 +5,10 @@ using JustPractise.Audio;
 namespace JustPractise.App.Shell;
 
 /// <summary>
-/// Die Statusleiste: das Ausgabegerät (oder dass es fehlt) und, nur wenn es welche gab, die Zahl der verspäteten
-/// Audio-Callbacks (Prüfpunkt 1).
+/// Die Statusleiste: das Ausgabegerät (oder dass es fehlt) und, nur im Entwickler-Modus und nur wenn es welche gab,
+/// die Zahl der verspäteten Audio-Callbacks (Prüfpunkt 1).
 /// </summary>
-public sealed partial class StatusBarViewModel(IAudioDevice device, Translator translator) : ObservableObject
+public sealed partial class StatusBarViewModel(IAudioDevice device, Translator translator, DeveloperMode developer) : ObservableObject
 {
     private (bool Available, string? Name, long Late, string Language)? _shown;
 
@@ -28,7 +28,7 @@ public sealed partial class StatusBarViewModel(IAudioDevice device, Translator t
     public void Tick()
     {
         var available = device.IsAvailable;
-        var current = (available, device.Name, available ? device.LateCallbacks : 0, translator.Language);
+        var current = (available, device.Name, available && developer.IsEnabled ? device.LateCallbacks : 0, translator.Language);
         if (current == _shown)
         {
             return;

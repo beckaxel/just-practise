@@ -23,7 +23,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 - **Rahmen:**
   - Oberfläche auf Deutsch und Englisch
   - Tastenkürzel für Player und Metronom nach der [Standardbelegung](funktionen.md#standardbelegung), noch nicht änderbar
-  - Zähler für verspätete Callbacks (siehe Prüfpunkt 1)
+  - Zähler für verspätete Callbacks (siehe Prüfpunkt 1), nur im Entwickler-Modus
 - **Pakete:** Windows und Linux, jeweils x64
 
 ## Später

@@ -156,7 +156,7 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
-- **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
+- **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur im Entwickler-Modus und nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
 ### Dateibrowser
 
@@ -226,6 +226,10 @@ Die App speichert zwei Arten von Daten getrennt:
 
 - **Einstellungen:** alles, was der Nutzer einstellt, z. B. Timerdauer, letzte und benannte Metronom-Einstellungen, Kammerton
 - **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die Musikordner, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen), das Eingabegerät des Stimmgeräts und der gewählte Speicherort
+
+#### Entwickler-Modus
+
+Ein Schalter in den Einstellungen blendet Angaben für die Fehlersuche ein, bisher die Zahl der verspäteten Audio-Callbacks in der Statusleiste. Er ist standardmäßig aus und gilt pro Rechner (gerätespezifisches Gedächtnis), wandert also nicht mit den Einstellungen mit. Weitere Hilfen für die Fehlersuche kommen ebenfalls hierher statt in die normale Oberfläche.
 
 #### Speicherort
 

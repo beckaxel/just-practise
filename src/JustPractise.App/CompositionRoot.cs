@@ -53,6 +53,7 @@ internal static class CompositionRoot
 
         services.AddSingleton<IUpdateService, VelopackUpdateService>();
         services.AddSingleton<UpdatesViewModel>();
+        services.AddSingleton<DeveloperMode>();
         services.AddSingleton<StatusBarViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();
