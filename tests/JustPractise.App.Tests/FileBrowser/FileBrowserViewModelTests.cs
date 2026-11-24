@@ -54,21 +54,27 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         return browser;
     }
 
+    /// <summary>Die Zeilen als „Tiefe Art Name“, z. B. „1 Folder Jazz“, damit ein Vergleich den ganzen Baum zeigt.</summary>
+    private static string[] Tree(FileBrowserViewModel browser) =>
+        [.. browser.Rows.Select(row => $"{row.Depth} {row.Kind} {row.Name}{(row.HasChildren ? (row.IsExpanded ? " -" : " +") : "")}")];
+
+    private static LibraryRow Row(FileBrowserViewModel browser, string name) => browser.Rows.Single(row => row.Name == name);
+
     [Fact]
     public async Task AsksForAMusicFolderOnTheFirstStart()
     {
         var browser = await StartAsync(Memory());
 
-        Assert.True(browser.IsTop);
         Assert.True(browser.HasNoMusicFolders);
-        Assert.Empty(browser.Folders);
-        Assert.Equal([new BreadcrumbItem(null, null)], browser.Breadcrumbs);
+        Assert.Empty(browser.Rows);
+        Assert.Empty(browser.Breadcrumbs);
         Assert.False(browser.IsLoading);
     }
 
     [Fact]
-    public async Task AddsTheChosenMusicFolderAndOpensIt()
+    public async Task AddsTheChosenMusicFolderAndExpandsIt()
     {
+        _directory.Create(Path.Combine("Musik", "Blues.mp3"));
         var memory = Memory();
         var browser = await StartAsync(memory);
         _picker.Next = MusicPath + Path.DirectorySeparatorChar;
@@ -76,10 +82,11 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         await browser.AddMusicFolderCommand.ExecuteAsync(null);
 
         Assert.Equal([MusicPath], memory.Value.MusicFolders);
+        Assert.Equal(["0 Folder Musik -", "1 File Blues"], Tree(browser));
         Assert.Equal(MusicPath, browser.Location);
         Assert.False(browser.HasNoMusicFolders);
         await memory.FlushAsync();
-        Assert.Equal(MusicPath, DeviceStore().Load().Value.LastFolder);
+        Assert.Equal([MusicPath], DeviceStore().Load().Value.Library.ExpandedFolders);
     }
 
     [Fact]
@@ -97,152 +104,204 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task ListsTheMusicFoldersOnTheTopLevelAndMarksMissingOnes()
+    public async Task ListsTheMusicFoldersAsRootsAndMarksMissingOnes()
     {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
         var missing = _directory.File("Externe Platte");
         var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath, missing] }));
 
-        Assert.Equal(
-            [new FolderItem("Musik", MusicPath, true), new FolderItem("Externe Platte", missing, false)],
-            browser.Folders);
-        Assert.False(browser.HasNoMusicFolders);
+        Assert.Equal(["0 Folder Musik +", "0 Folder Externe Platte"], Tree(browser));
+        Assert.True(Row(browser, "Musik").IsReachable);
+        Assert.False(Row(browser, "Externe Platte").IsReachable);
     }
 
     [Fact]
-    public async Task ShowsSubfoldersAndGroupedPiecesWithBreadcrumbs()
+    public async Task ExpandsFoldersInPlaceWithVirtualAndRealPieces()
     {
-        _directory.Create(Path.Combine("Musik", "Jazz", "Standards", "Autumn Leaves - Demo.mp3"));
-        _directory.Create(Path.Combine("Musik", "Jazz", "Standards", "Autumn Leaves - Playalong 80.mp3"));
-        _directory.Create(Path.Combine("Musik", "Jazz", "Standards", "Blues in F.mp3"));
-        _directory.Create(Path.Combine("Musik", "Jazz", "Standards", "Autumn Leaves.jps"));
-        _directory.Create(Path.Combine("Musik", "Jazz", "Standards", "Latin", "x.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Autumn Leaves - Demo.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Autumn Leaves - Playalong 80.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues in F.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Autumn Leaves.jps"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Latin", "x.mp3"));
+        Directory.CreateDirectory(Music("Jazz", "Leer"));
+        _directory.Create(Path.Combine("Musik", "Etüde.mp3"));
         var browser = await StartAsync(MemoryWithMusic());
 
-        await browser.OpenFolderCommand.ExecuteAsync(browser.Folders.Single());
-        await browser.OpenFolderCommand.ExecuteAsync(browser.Folders.Single());
-        await browser.OpenFolderCommand.ExecuteAsync(browser.Folders.Single());
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Autumn Leaves"));
 
-        Assert.Equal(Music("Jazz", "Standards"), browser.Location);
         Assert.Equal(
             [
-                new BreadcrumbItem(null, null),
-                new BreadcrumbItem("Musik", MusicPath),
-                new BreadcrumbItem("Jazz", Music("Jazz")),
-                new BreadcrumbItem("Standards", Music("Jazz", "Standards")),
+                "0 Folder Musik -",
+                "1 Folder Jazz -",
+                "2 Folder Latin +",
+                "2 Folder Leer",
+                "2 Piece Autumn Leaves -",
+                "3 File Autumn Leaves - Demo.mp3",
+                "3 File Autumn Leaves - Playalong 80.mp3",
+                "2 File Blues in F",
+                "1 File Etüde",
             ],
-            browser.Breadcrumbs);
-        Assert.Equal([new FolderItem("Latin", Music("Jazz", "Standards", "Latin"), true)], browser.Folders);
-        Assert.Equal(["Autumn Leaves", "Blues in F"], browser.Pieces.Select(piece => piece.Title));
-        Assert.Equal(["Autumn Leaves - Demo.mp3", "Autumn Leaves - Playalong 80.mp3"], browser.Pieces[0].Files.Select(file => file.Name));
-        Assert.Equal(Music("Jazz", "Standards", "Blues in F.mp3"), browser.Pieces[1].Files[0].Path);
-        Assert.True(browser.Pieces[0].HasSeveralFiles);
-        Assert.False(browser.Pieces[1].HasSeveralFiles);
-        Assert.False(browser.IsEmpty);
+            Tree(browser));
+        Assert.Equal(Music("Jazz", "Blues in F.mp3"), Row(browser, "Blues in F").File?.Path);
+        Assert.Equal(2 * LibraryRow.IndentPerLevel, Row(browser, "Latin").Indent);
     }
 
     [Fact]
-    public async Task JumpsBackThroughTheBreadcrumbs()
+    public async Task CollapsesAndRestoresWhatWasExpandedBelow()
     {
-        _directory.Create(Path.Combine("Musik", "Jazz", "a.mp3"));
-        var browser = await StartAsync(MemoryWithMusic(Music("Jazz")));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Latin", "x.mp3"));
+        var browser = await StartAsync(MemoryWithMusic());
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Latin"));
 
-        await browser.OpenBreadcrumbCommand.ExecuteAsync(browser.Breadcrumbs[1]);
-        Assert.Equal(MusicPath, browser.Location);
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        Assert.Equal(["0 Folder Musik +"], Tree(browser));
 
-        await browser.OpenBreadcrumbCommand.ExecuteAsync(browser.Breadcrumbs[0]);
-        Assert.True(browser.IsTop);
-        Assert.Equal([new FolderItem("Musik", MusicPath, true)], browser.Folders);
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        Assert.Equal(["0 Folder Musik -", "1 Folder Jazz -", "2 Folder Latin -", "3 File x"], Tree(browser));
     }
 
     [Fact]
-    public async Task StartsInTheLastFolder()
+    public async Task OnlyRealPiecesArePlayable()
+    {
+        _directory.Create(Path.Combine("Musik", "Blues - Demo.mp3"));
+        _directory.Create(Path.Combine("Musik", "Blues - Playalong.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
+
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues"));
+        Assert.Null(browser.SelectedFile);
+
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues - Playalong.mp3"));
+
+        Assert.Equal(new PieceFile(MusicPath, "Blues", "Blues - Playalong.mp3"), browser.SelectedFile);
+        Assert.True(Row(browser, "Blues - Playalong.mp3").IsSelected);
+        Assert.False(Row(browser, "Blues - Demo.mp3").IsSelected);
+        Assert.False(Row(browser, "Blues").IsSelected);
+
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues"));
+        Assert.True(Row(browser, "Blues").IsSelected); // zugeklappt zeigt das Stück, dass eine seiner Dateien gewählt ist
+    }
+
+    [Fact]
+    public async Task RestoresTheTreeAndTheSelectedFileOnTheNextStart()
+    {
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues - Demo.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues - Playalong.mp3"));
+        var memory = MemoryWithMusic();
+        var browser = await StartAsync(memory);
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues - Playalong.mp3"));
+        await memory.FlushAsync();
+
+        LibraryRow? scrolledTo = null;
+        var next = new FileBrowserViewModel(Memory(), _picker);
+        next.ScrollRequested += (_, row) => scrolledTo = row;
+        await next.StartAsync();
+
+        Assert.Equal(Tree(browser), Tree(next));
+        Assert.Equal(Music("Jazz", "Blues - Playalong.mp3"), next.SelectedFile?.Path);
+        Assert.Same(Row(next, "Blues - Playalong.mp3"), scrolledTo);
+        Assert.Equal(Music("Jazz"), next.Location);
+        Assert.Equal(["Musik", "Jazz"], next.Breadcrumbs.Select(crumb => crumb.Name));
+    }
+
+    [Fact]
+    public async Task ForgetsASelectedFileThatIsGone()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory
+        {
+            MusicFolders = [MusicPath],
+            Library = new LibraryState { ExpandedFolders = [MusicPath], SelectedFile = Music("weg.mp3") },
+        }));
+
+        Assert.Null(browser.SelectedFile);
+    }
+
+    [Fact]
+    public async Task ExpandsTheWayToTheLastFolderOfAnOlderVersion()
     {
         _directory.Create(Path.Combine("Musik", "Jazz", "a.mp3"));
 
         var browser = await StartAsync(MemoryWithMusic(Music("Jazz")));
 
+        Assert.Equal(["0 Folder Musik -", "1 Folder Jazz -", "2 File a"], Tree(browser));
         Assert.Equal(Music("Jazz"), browser.Location);
-        Assert.Equal(["a"], browser.Pieces.Select(piece => piece.Title));
     }
 
     [Fact]
-    public async Task StartsAtTheTopWhenTheLastFolderIsNoLongerInAMusicFolder()
+    public async Task ShowsThePathOfTheChosenPlace()
     {
-        var browser = await StartAsync(MemoryWithMusic(_directory.File("Anderswo")));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Latin", "x.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
+        Assert.Empty(browser.Breadcrumbs);
 
-        Assert.True(browser.IsTop);
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Latin"));
+        Assert.Equal(["Musik", "Jazz", "Latin"], browser.Breadcrumbs.Select(crumb => crumb.Name));
+        Assert.True(browser.Breadcrumbs[0].IsFirst);
+        Assert.False(browser.Breadcrumbs[1].IsFirst);
+
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "x"));
+        Assert.Equal(Music("Jazz", "Latin"), browser.Location);
     }
 
     [Fact]
-    public async Task ReportsUnreachableAndEmptyFolders()
+    public async Task ABreadcrumbExpandsItsFolderAndScrollsToIt()
     {
-        Directory.CreateDirectory(Music("Leer"));
-        var browser = await StartAsync(MemoryWithMusic(Music("Leer")));
-        Assert.True(browser.IsEmpty);
-        Assert.False(browser.IsUnreachable);
+        _directory.Create(Path.Combine("Musik", "Jazz", "Latin", "x.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory
+        {
+            MusicFolders = [MusicPath],
+            LastFolder = Music("Jazz", "Latin"),
+            Library = new LibraryState { ExpandedFolders = [MusicPath] },
+        }));
+        Assert.Equal(["0 Folder Musik -", "1 Folder Jazz +"], Tree(browser));
+        LibraryRow? scrolledTo = null;
+        browser.ScrollRequested += (_, row) => scrolledTo = row;
 
-        Directory.Delete(Music("Leer"));
-        await browser.RefreshCommand.ExecuteAsync(null);
-        Assert.True(browser.IsUnreachable);
-        Assert.False(browser.IsEmpty);
-    }
-
-    [Fact]
-    public async Task SelectingAPieceChoosesItsFirstFile()
-    {
-        _directory.Create(Path.Combine("Musik", "Blues - Demo.mp3"));
-        _directory.Create(Path.Combine("Musik", "Blues - Playalong.mp3"));
-        var browser = await StartAsync(MemoryWithMusic(MusicPath));
-        var piece = browser.Pieces.Single();
-
-        browser.SelectPieceCommand.Execute(piece);
-
-        Assert.Equal(new PieceFile(MusicPath, "Blues", "Blues - Demo.mp3"), browser.SelectedFile);
-        Assert.True(piece.IsSelected);
-        Assert.True(piece.Files[0].IsSelected);
-        Assert.False(piece.Files[1].IsSelected);
-    }
-
-    [Fact]
-    public async Task KeepsTheSelectionAfterRefreshingAndComingBack()
-    {
-        _directory.Create(Path.Combine("Musik", "Blues - Demo.mp3"));
-        _directory.Create(Path.Combine("Musik", "Blues - Playalong.mp3"));
-        _directory.Create(Path.Combine("Musik", "Jazz", "a.mp3"));
-        var browser = await StartAsync(MemoryWithMusic(MusicPath));
-
-        browser.SelectFileCommand.Execute(browser.Pieces.Single().Files[1]);
-        await browser.RefreshCommand.ExecuteAsync(null);
-        Assert.True(browser.Pieces.Single().Files[1].IsSelected);
-
-        await browser.OpenFolderCommand.ExecuteAsync(browser.Folders.Single());
-        Assert.Equal(Music("Blues - Playalong.mp3"), browser.SelectedFile?.Path);
         await browser.OpenBreadcrumbCommand.ExecuteAsync(browser.Breadcrumbs[1]);
 
-        Assert.True(browser.Pieces.Single().IsSelected);
-        Assert.False(browser.Pieces.Single().Files[0].IsSelected);
-        Assert.True(browser.Pieces.Single().Files[1].IsSelected);
+        Assert.Equal(["0 Folder Musik -", "1 Folder Jazz -", "2 Folder Latin +"], Tree(browser));
+        Assert.Same(Row(browser, "Jazz"), scrolledTo);
+        Assert.Equal(Music("Jazz"), browser.Location);
     }
 
     [Fact]
-    public async Task ShowsOnlyTheFolderOpenedLast()
+    public async Task RefreshKeepsTheTreeAndTheSelection()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "a"));
+        _directory.Create(Path.Combine("Musik", "b.mp3"));
+
+        await browser.RefreshCommand.ExecuteAsync(null);
+
+        Assert.Equal(["0 Folder Musik -", "1 File a", "1 File b"], Tree(browser));
+        Assert.True(Row(browser, "a").IsSelected);
+    }
+
+    [Fact]
+    public async Task IgnoresAnExpandThatARebuildOvertook()
     {
         _directory.Create(Path.Combine("Musik", "A", "a.mp3"));
-        _directory.Create(Path.Combine("Musik", "B", "b.mp3"));
-        var browser = await StartAsync(MemoryWithMusic(MusicPath));
-        var folders = browser.Folders;
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
 
-        var first = browser.OpenFolderCommand.ExecuteAsync(folders[0]);
-        var second = browser.OpenFolderCommand.ExecuteAsync(folders[1]);
-        await Task.WhenAll(first, second);
+        var expand = browser.ActivateCommand.ExecuteAsync(Row(browser, "A"));
+        var refresh = browser.RefreshCommand.ExecuteAsync(null);
+        await Task.WhenAll(expand, refresh);
 
-        Assert.Equal(Music("B"), browser.Location);
-        Assert.Equal(["b"], browser.Pieces.Select(piece => piece.Title));
+        Assert.Equal(1, browser.Rows.Count(row => row.Name == "a"));
         Assert.False(browser.IsLoading);
     }
 
     [Fact]
-    public async Task RemovesAMusicFolderAndLeavesItWhenItWasOpen()
+    public async Task RemovesAMusicFolderAndClearsThePathInIt()
     {
         var other = _directory.File("Noten");
         Directory.CreateDirectory(other);
@@ -254,8 +313,9 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
 
         Assert.Equal([other], browser.MusicFolders);
         Assert.Equal([other], memory.Value.MusicFolders);
-        Assert.True(browser.IsTop);
-        Assert.Equal([new FolderItem("Noten", other, true)], browser.Folders);
+        Assert.Equal(["0 Folder Noten"], Tree(browser));
+        Assert.Null(browser.Location);
+        Assert.Empty(browser.Breadcrumbs);
         Assert.True(Directory.Exists(MusicPath));
     }
 
@@ -268,7 +328,7 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
 
         Assert.Empty(browser.MusicFolders);
         Assert.True(browser.HasNoMusicFolders);
-        Assert.Empty(browser.Folders);
+        Assert.Empty(browser.Rows);
     }
 
     private sealed class FakeFolderPicker : IFolderPicker

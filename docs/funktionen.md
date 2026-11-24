@@ -160,13 +160,18 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 
 ### Dateibrowser
 
-Die App funktioniert wie ein Dateibrowser: Man navigiert durch Ordner und öffnet Stücke direkt. Es gibt keinen Import und keine Bibliothek.
+Die App funktioniert wie ein Dateibrowser: Man klappt Ordner auf und öffnet Stücke direkt. Es gibt keinen Import und keine Datenbank; die Überschrift „Bibliothek“ meint nur den Baum aus den eigenen Musikordnern.
 
 - **Musikordner:** Beim ersten Start wählt man einen Ordner, z. B. den Musik-Ordner. Weitere Ordner lassen sich jederzeit hinzufügen, z. B. einen Ordner auf einer zweiten Platte. Innerhalb der Musikordner navigiert man frei durch alle Unterordner.
-- **Startpunkt:** der zuletzt geöffnete Ordner
+- **Startzustand:** wie beim letzten Beenden: Aufgeklappte Ordner und Stücke sind wieder aufgeklappt, die zuletzt gewählte Datei ist markiert, sichtbar und im Player geladen (angehalten). Gibt es sie nicht mehr, ist nichts gewählt.
 - **Ordner nicht erreichbar:** Ist ein Musikordner nicht erreichbar (z. B. externe Platte nicht angeschlossen), zeigt die App ihn weiter an, markiert ihn und greift wieder darauf zu, sobald er da ist.
 - **Anzeige:** Ordner und Stücke (siehe unten). Andere Dateien und die Sidecar-Dateien sind ausgeblendet.
-- **Aufbau:** Der Browser zeigt immer einen Ordner, mit einer Pfadzeile zum Zurückspringen: oben die Unterordner, darunter die Stücke. Auf der obersten Ebene stehen die Musikordner. Ein Stück mit mehreren Audiodateien lässt sich im Browser aufklappen; ein Klick auf das Stück lädt seine erste Audiodatei, ein Klick auf eine Datei darunter genau diese. Aufgeklappt stehen die vollen Dateinamen mit Endung da, z. B. `Autumn Leaves - Playalong 80.mp3`. Auf der obersten Ebene gibt es einen Knopf, um einen weiteren Musikordner hinzuzufügen; beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner in den Einstellungen.
+- **Aufbau:** Der Browser ist ein Baum. Oben stehen die Musikordner, darunter klappt man Unterordner und Stücke an Ort und Stelle auf; jede Ebene ist ein wenig eingerückt. Ein Chevron vor dem Eintrag zeigt, dass es etwas zum Aufklappen gibt; leere Ordner haben keinen. In jedem Ordner stehen erst die Unterordner, dann die Stücke.
+- **Stücke:** Ordner tragen ein Ordnersymbol, Stücke ein Notensymbol (zwei Achtelnoten). Ein Stück mit mehreren Audiodateien ist „virtuell“: Es fasst die Dateien zusammen, lässt sich aufklappen, aber nicht abspielen. Aufgeklappt stehen darunter die vollen Dateinamen mit Endung, z. B. `Autumn Leaves - Playalong 80.mp3`. Ein Stück mit nur einer Datei ist „echt“: Es steht mit seinem Titel da und lässt sich direkt abspielen, ebenso jede Datei unter einem virtuellen Stück. Ein Tipp auf einen Ordner oder ein virtuelles Stück klappt auf oder zu, ein Tipp auf ein echtes Stück lädt es in den Player.
+- **Farben:** Ordnername und -symbol in der Textfarbe des Schemas (weiß im dunklen, schwarz im hellen Schema), virtuelle Stücke leicht bläulich, echte Stücke leicht grünlich.
+- **Pfadzeile:** Über dem Baum zeigt eine Pfadzeile, wo die gewählte Stelle liegt, z. B. `Musik › Jazz › Standards`. Ein Tipp auf ein Glied klappt den Weg zu diesem Ordner auf und scrollt dorthin.
+- **Bedienung:** Der Browser lässt sich mit dem Finger bedienen und ist aus etwas Abstand lesbar: Zeilen mindestens 44 Einheiten hoch, Schrift 16.
+- **Musikordner verwalten:** Neben der Pfadzeile gibt es Knöpfe, um einen Musikordner hinzuzufügen und den Baum neu einzulesen. Ein neuer Musikordner erscheint gleich aufgeklappt. Beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner in den Einstellungen.
 
 ### Stücke und Gruppierung
 

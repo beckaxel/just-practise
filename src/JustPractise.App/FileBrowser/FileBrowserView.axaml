@@ -6,34 +6,78 @@
              x:DataType="fb:FileBrowserViewModel">
   <UserControl.Resources>
     <StreamGeometry x:Key="FolderIcon">M2,5 H9 L11,7 H22 V19 H2 Z</StreamGeometry>
+    <!-- Zwei Achtelnoten mit Balken -->
+    <StreamGeometry x:Key="NotesIcon">F1 M8.5,4 L20,1 V4.5 L10,7.1 V17.5 H8.5 Z M10,17.5 A3.5,2.8 0 1 1 3,17.5 A3.5,2.8 0 1 1 10,17.5 Z M18.5,2 H20 V15.5 H18.5 Z M20,15.5 A3.5,2.8 0 1 1 13,15.5 A3.5,2.8 0 1 1 20,15.5 Z</StreamGeometry>
     <StreamGeometry x:Key="ChevronIcon">M9,5 L16,12 L9,19 L7.6,17.6 L13.2,12 L7.6,6.4 Z</StreamGeometry>
     <StreamGeometry x:Key="PlusIcon">M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z</StreamGeometry>
     <StreamGeometry x:Key="RefreshIcon">M12,4 A8,8 0 1 0 20,12 H18 A6,6 0 1 1 12,6 V9 L16,5 L12,1 Z</StreamGeometry>
   </UserControl.Resources>
 
   <UserControl.Styles>
+    <!-- Zeilen groß genug für Finger und aus Abstand lesbar -->
     <Style Selector="Button.row">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="HorizontalContentAlignment" Value="Left" />
-      <Setter Property="Padding" Value="6,4" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="MinHeight" Value="44" />
+      <Setter Property="Padding" Value="4,0,8,0" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="CornerRadius" Value="4" />
     </Style>
     <Style Selector="Button.row.selected">
       <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListAccentLowBrush}" />
     </Style>
-    <Style Selector="ToggleButton.expander PathIcon">
+    <Style Selector="Button.row PathIcon.kind">
+      <Setter Property="Width" Value="20" />
+      <Setter Property="Height" Value="20" />
+    </Style>
+    <Style Selector="Button.row.folder TextBlock.name">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryFolderBrush}" />
+    </Style>
+    <Style Selector="Button.row.folder PathIcon.kind">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryFolderBrush}" />
+    </Style>
+    <Style Selector="Button.row.piece TextBlock.name">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryPieceBrush}" />
+    </Style>
+    <Style Selector="Button.row.piece PathIcon.kind">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryPieceBrush}" />
+    </Style>
+    <Style Selector="Button.row.file TextBlock.name">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryFileBrush}" />
+    </Style>
+    <Style Selector="Button.row.file PathIcon.kind">
+      <Setter Property="Foreground" Value="{DynamicResource LibraryFileBrush}" />
+    </Style>
+    <Style Selector="PathIcon.chevron">
+      <Setter Property="Width" Value="14" />
+      <Setter Property="Height" Value="14" />
+      <Setter Property="Opacity" Value="0.7" />
       <Setter Property="RenderTransform" Value="rotate(0deg)" />
     </Style>
-    <Style Selector="ToggleButton.expander:checked PathIcon">
+    <Style Selector="PathIcon.chevron.expanded">
       <Setter Property="RenderTransform" Value="rotate(90deg)" />
     </Style>
-    <Style Selector="ToggleButton.expander:checked">
-      <Setter Property="Background" Value="Transparent" />
+    <Style Selector="Button.tool">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="44" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.tool PathIcon">
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="18" />
+    </Style>
+    <Style Selector="Button.crumb">
+      <Setter Property="MinHeight" Value="36" />
+      <Setter Property="Padding" Value="6,2" />
+      <Setter Property="FontSize" Value="14" />
     </Style>
   </UserControl.Styles>
 
   <DockPanel>
-    <!-- Pfadzeile mit Knöpfen -->
+    <!-- Pfadzeile zur gewählten Stelle, daneben Hinzufügen und Aktualisieren -->
     <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
       <ItemsControl Grid.Column="0" ItemsSource="{Binding Breadcrumbs}" VerticalAlignment="Center">
         <ItemsControl.ItemsPanel>
@@ -44,95 +88,68 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="fb:BreadcrumbItem">
             <StackPanel Orientation="Horizontal">
-              <TextBlock Text="›" Opacity="0.5" VerticalAlignment="Center" Margin="2,0" IsVisible="{Binding !IsTop}" />
-              <Button Classes="flat"
+              <TextBlock Text="›" Opacity="0.5" VerticalAlignment="Center" Margin="1,0" IsVisible="{Binding !IsFirst}" />
+              <Button Classes="flat crumb" Content="{Binding Name}"
                       Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).OpenBreadcrumbCommand}"
-                      CommandParameter="{Binding}">
-                <Panel>
-                  <TextBlock Text="{l:Tr browser.musicFolders}" IsVisible="{Binding IsTop}" />
-                  <TextBlock Text="{Binding Name}" IsVisible="{Binding !IsTop}" />
-                </Panel>
-              </Button>
+                      CommandParameter="{Binding}" />
             </StackPanel>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
-      <Button Grid.Column="1" Classes="flat" VerticalAlignment="Top"
+      <Button Grid.Column="1" Classes="flat tool" VerticalAlignment="Top"
               Command="{Binding AddMusicFolderCommand}"
-              IsVisible="{Binding IsTop}"
               ToolTip.Tip="{l:Tr browser.addFolder}">
-        <PathIcon Classes="small" Data="{StaticResource PlusIcon}" />
+        <PathIcon Data="{StaticResource PlusIcon}" />
       </Button>
-      <Button Grid.Column="2" Classes="flat" VerticalAlignment="Top"
+      <Button Grid.Column="2" Classes="flat tool" VerticalAlignment="Top"
               Command="{Binding RefreshCommand}"
               ToolTip.Tip="{l:Tr browser.refresh}">
-        <PathIcon Classes="small" Data="{StaticResource RefreshIcon}" />
+        <PathIcon Data="{StaticResource RefreshIcon}" />
       </Button>
     </Grid>
 
     <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" IsVisible="{Binding IsLoading}" MinHeight="2" Height="2" />
 
-    <ScrollViewer>
-      <StackPanel>
-        <!-- Hinweise -->
-        <StackPanel IsVisible="{Binding HasNoMusicFolders}" Spacing="8">
-          <TextBlock Classes="hint" Text="{l:Tr browser.noFolders}" />
-          <Button Content="{l:Tr browser.chooseFolder}" Command="{Binding AddMusicFolderCommand}" Margin="6,0" />
-        </StackPanel>
-        <TextBlock Classes="hint" Text="{l:Tr browser.unreachable}" IsVisible="{Binding IsUnreachable}" />
-        <TextBlock Classes="hint" Text="{l:Tr browser.empty}" IsVisible="{Binding IsEmpty}" />
+    <!-- Erster Start: noch kein Musikordner -->
+    <StackPanel DockPanel.Dock="Top" IsVisible="{Binding HasNoMusicFolders}" Spacing="8">
+      <TextBlock Classes="hint" FontSize="15" Text="{l:Tr browser.noFolders}" />
+      <Button Content="{l:Tr browser.chooseFolder}" Command="{Binding AddMusicFolderCommand}" Margin="6,0" MinHeight="44" />
+    </StackPanel>
 
-        <!-- Unterordner bzw. Musikordner -->
-        <ItemsControl ItemsSource="{Binding Folders}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="fb:FolderItem">
-              <Button Classes="row"
-                      Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).OpenFolderCommand}"
-                      CommandParameter="{Binding}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <PathIcon Classes="small" Data="{StaticResource FolderIcon}" Opacity="0.7" />
-                  <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                  <TextBlock Text="{l:Tr browser.notReachable}" Opacity="0.6" IsVisible="{Binding !IsReachable}" />
-                </StackPanel>
-              </Button>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-
-        <!-- Stücke, mit mehreren Dateien aufklappbar -->
-        <ItemsControl ItemsSource="{Binding Pieces}">
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="fb:PieceItem">
-              <StackPanel>
-                <Grid ColumnDefinitions="24,*">
-                  <ToggleButton Grid.Column="0" Classes="flat expander"
-                                IsChecked="{Binding IsExpanded}"
-                                IsVisible="{Binding HasSeveralFiles}"
-                                VerticalAlignment="Center">
-                    <PathIcon Width="10" Height="10" Data="{StaticResource ChevronIcon}" RenderTransformOrigin="50%,50%" />
-                  </ToggleButton>
-                  <Button Grid.Column="1" Classes="row" Classes.selected="{Binding IsSelected}"
-                          Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).SelectPieceCommand}"
-                          CommandParameter="{Binding}">
-                    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-                  </Button>
-                </Grid>
-                <ItemsControl ItemsSource="{Binding Files}" IsVisible="{Binding IsExpanded}" Margin="24,0,0,0">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="fb:FileItem">
-                      <Button Classes="row" Classes.selected="{Binding IsSelected}"
-                              Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).SelectFileCommand}"
-                              CommandParameter="{Binding}">
-                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" Opacity="0.85" />
-                      </Button>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </StackPanel>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </StackPanel>
+    <!-- Der Baum: Ordner, virtuelle Stücke (aufklappbar) und abspielbare Dateien, eingerückt nach Tiefe -->
+    <ScrollViewer x:Name="Scroller" HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl x:Name="Library" ItemsSource="{Binding Rows}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <VirtualizingStackPanel />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="fb:LibraryRow">
+            <Button Classes="row"
+                    Classes.folder="{Binding IsFolder}" Classes.piece="{Binding IsPiece}" Classes.file="{Binding IsFile}"
+                    Classes.selected="{Binding IsSelected}"
+                    Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).ActivateCommand}"
+                    CommandParameter="{Binding}">
+              <Grid ColumnDefinitions="Auto,24,Auto,*" ColumnSpacing="6">
+                <Border Grid.Column="0" Width="{Binding Indent}" />
+                <PathIcon Grid.Column="1" Classes="chevron" Classes.expanded="{Binding IsExpanded}"
+                          Data="{StaticResource ChevronIcon}" RenderTransformOrigin="50%,50%"
+                          IsVisible="{Binding HasChildren}" />
+                <Panel Grid.Column="2" VerticalAlignment="Center">
+                  <PathIcon Classes="kind" Data="{StaticResource FolderIcon}" IsVisible="{Binding IsFolder}" />
+                  <PathIcon Classes="kind" Data="{StaticResource NotesIcon}" IsVisible="{Binding !IsFolder}" />
+                </Panel>
+                <DockPanel Grid.Column="3" VerticalAlignment="Center">
+                  <TextBlock DockPanel.Dock="Right" Margin="6,0,0,0" Text="{l:Tr browser.notReachable}" Opacity="0.6"
+                             IsVisible="{Binding !IsReachable}" />
+                  <TextBlock Classes="name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}" />
+                </DockPanel>
+              </Grid>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
     </ScrollViewer>
   </DockPanel>
 </UserControl>

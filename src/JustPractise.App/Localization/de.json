@@ -2,19 +2,16 @@
   "language": { "name": "Deutsch" },
   "app": { "title": "just practise" },
   "browser": {
-    "title": "Dateien",
+    "title": "Bibliothek",
     "musicFolders": "Musikordner",
     "addFolder": "Musikordner hinzufügen",
     "refresh": "Aktualisieren",
     "chooseFolder": "Musikordner wählen",
     "noFolders": "Wähle den Ordner, in dem deine Musik liegt.",
-    "unreachable": "Dieser Ordner ist nicht erreichbar.",
-    "notReachable": "(nicht erreichbar)",
-    "empty": "Hier gibt es keine Ordner und Stücke."
+    "notReachable": "(nicht erreichbar)"
   },
   "player": {
     "title": "Player",
-    "empty": "Wähle links ein Stück.",
     "playPause": "Abspielen oder anhalten",
     "toStart": "Zum Anfang",
     "tempo": "Tempo",

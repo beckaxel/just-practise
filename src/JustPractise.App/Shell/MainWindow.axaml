@@ -50,7 +50,7 @@
       </Grid>
     </Border>
 
-    <Grid ColumnDefinitions="320,Auto,*">
+    <Grid ColumnDefinitions="360,Auto,*">
       <!-- Dateibrowser: immer sichtbar -->
       <Border Grid.Column="0" Classes="panel">
         <DockPanel>
