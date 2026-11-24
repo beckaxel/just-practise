@@ -1,5 +1,6 @@
 using Avalonia;
 using JustPractise.App.Shell;
+using JustPractise.Storage;
 using Velopack;
 
 namespace JustPractise.App;
@@ -22,5 +23,7 @@ internal static class Program
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            // Muss zum Namen der .desktop-Datei passen, sonst ordnet der Desktop das Fenster nicht zu (Anpinnen).
+            .With(new X11PlatformOptions { WmClass = DesktopEntry.Id })
             .LogToTrace();
 }

@@ -38,6 +38,7 @@ public sealed partial class App : Application
             desktop.MainWindow = _services.GetRequiredService<MainWindow>();
             StartupProbe.Mark("window");
             StartupProbe.Attach(desktop.MainWindow, desktop);
+            LinuxDesktopIntegration.Start();
             _services.GetRequiredService<UpdatesViewModel>().RestartRequested += (_, _) => desktop.Shutdown();
             _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
             var shell = _services.GetRequiredService<MainWindowViewModel>();
