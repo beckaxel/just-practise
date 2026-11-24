@@ -20,7 +20,13 @@
     "resetTempo": "Back to 100 %",
     "resetVolume": "Back to 0 dB",
     "loading": "Loading …",
-    "error": "This file cannot be opened."
+    "error": "This file cannot be opened.",
+    "seekBack": "Back 5 seconds",
+    "seekForward": "Forward 5 seconds",
+    "slower": "Slower",
+    "faster": "Faster",
+    "quieter": "Quieter",
+    "louder": "Louder"
   },
   "metronome": {
     "title": "Metronome",
@@ -29,7 +35,12 @@
     "tempo": "Tempo",
     "meter": "Time",
     "volume": "Volume",
-    "resetVolume": "Back to 0 dB"
+    "resetVolume": "Back to 0 dB",
+    "slower": "Slower",
+    "faster": "Faster",
+    "quieter": "Quieter",
+    "louder": "Louder",
+    "enterTempo": "Enter tempo"
   },
   "status": {
     "device": "Output: {name}",

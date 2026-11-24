@@ -156,6 +156,8 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
+- **Bedienung:** Die Zeitleiste geht über die ganze Breite. Darunter stehen in einer Zeile, die bei schmalem Fenster umbricht: zum Anfang, 5 Sekunden zurück, Abspielen/Pause, 5 Sekunden vor, dann Tempo und Lautstärke. Tempo und Lautstärke haben je einen Regler mit Knöpfen − und + davor und dahinter (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und den Wert daneben; ein Symbol statt einer Beschriftung spart Platz.
+- **Touch und Lesbarkeit:** Alle Knöpfe sind mindestens 44 Einheiten groß, Werte und Zeiten groß genug, um sie aus etwas Abstand zu lesen.
 - **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur im Entwickler-Modus und nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
 ### Dateibrowser
@@ -315,6 +317,8 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibe
 - **Unabhängig vom Player:** Das Metronom hat ein eigenes Tempo und einen eigenen Start/Stopp. Es läuft nicht synchron zum Stück. Eine Kopplung kann später kommen.
 - **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Wird die Taktart kürzer und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
 - **Bezug der BPM:** Ein Schlag ist eine Zählzeit der Taktart (bei 4/4 die Viertel). Wie das bei Achteltakten wie 6/8 aussieht, wird mit den freien Taktarten entschieden.
+- **Bedienung wie im Player:** Tempo und Lautstärke haben dasselbe Bedienelement wie im Player: Regler mit − und + (1 BPM bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und den Wert daneben. Ein Tipp auf den BPM-Wert öffnet die direkte Eingabe, ein Tipp auf die Lautstärke setzt sie auf 0 dB zurück.
+- **Platz:** Das Metronom nutzt die ganze Breite und bleibt flach: Start/Stopp mit Schlaganzeige, Tempo, Taktart und Lautstärke stehen in einer Zeile, die bei schmalem Fenster umbricht. Alle Knöpfe sind mindestens 44 Einheiten groß.
 
 ### Speichern
 

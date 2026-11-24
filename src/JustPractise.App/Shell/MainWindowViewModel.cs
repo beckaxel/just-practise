@@ -15,7 +15,6 @@ namespace JustPractise.App.Shell;
 public sealed partial class MainWindowViewModel : ObservableObject
 {
     /// <summary>Schrittweiten der Tastenkürzel.</summary>
-    private const double SeekSeconds = 5;
     private const double TempoStepPercent = 5;
     private const double VolumeStepDb = 1;
     private const int BpmStep = 1;
@@ -72,10 +71,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 Player.ToStart();
                 break;
             case ShortcutAction.SeekBack:
-                Player.SeekBy(-SeekSeconds);
+                Player.SeekBy(-PlayerViewModel.SeekSeconds);
                 break;
             case ShortcutAction.SeekForward:
-                Player.SeekBy(SeekSeconds);
+                Player.SeekBy(PlayerViewModel.SeekSeconds);
                 break;
             case ShortcutAction.TempoDown:
                 Player.ChangeTempo(-TempoStepPercent);

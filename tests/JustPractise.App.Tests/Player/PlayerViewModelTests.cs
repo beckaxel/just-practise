@@ -183,6 +183,20 @@ public sealed class PlayerViewModelTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task TheSeekButtonsJumpFiveSeconds()
+    {
+        await _viewModel.OpenAsync(File());
+
+        _viewModel.SeekForwardCommand.Execute(null);
+        _viewModel.SeekForwardCommand.Execute(null);
+        Assert.Equal(10, _viewModel.PositionSeconds);
+
+        _viewModel.SeekBackCommand.Execute(null);
+        Assert.Equal(5, _viewModel.PositionSeconds);
+        Assert.Contains("seek 5", _player.Calls);
+    }
+
+    [Fact]
     public async Task StepsThroughTheFileTempoAndVolumeWithinTheirLimits()
     {
         await _viewModel.OpenAsync(File());

@@ -36,7 +36,7 @@ Empty test projects pass `--ignore-exit-code 8` (no tests found); remove that pr
 - `src/JustPractise.Core`: domain logic without dependencies (grouping files into pieces, models for sidecar files and settings, note and chord names, timer and metronome logic, key bindings)
 - `src/JustPractise.Audio`: audio layer behind its own interface (engine, player, metronome clicks, pitch detection, level metering, waveform peaks, native interop). References Core only.
 - `src/JustPractise.Storage`: file system and persistence (folder traversal, atomic sidecar/settings I/O, caches, file watching). References Core only.
-- `src/JustPractise.App`: Avalonia UI with MVVM (CommunityToolkit.Mvvm), organized by feature folders (`Shell/`, later `FileBrowser/`, `Player/`, `Timer/`, `Metronome/`, `Tuner/`, `Settings/`). `CompositionRoot.cs` is the only place that touches the DI container.
+- `src/JustPractise.App`: Avalonia UI with MVVM (CommunityToolkit.Mvvm), organized by feature folders (`Shell/`, `FileBrowser/`, `Player/`, `Metronome/`, later `Timer/`, `Tuner/`, `Settings/`); controls shared by several features live in `Controls/`. `CompositionRoot.cs` is the only place that touches the DI container.
 - `tests/`: one xUnit v3 project per library
 - `native/`: C/C++ code built with CMake; each folder with a `CMakeLists.txt` builds a shared library `jp<folder>` into `native/bin/<rid>/` (ignored by git)
 - `prototypes/`: small standalone test programs for individual prototype checks, not part of the solution

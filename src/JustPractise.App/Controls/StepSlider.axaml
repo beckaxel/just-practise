@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:JustPractise.App.Controls"
+             x:Class="JustPractise.App.Controls.StepSlider"
+             x:DataType="c:StepSlider">
+  <!--
+    Ein Wert mit [−] Regler [+] und Anzeige, gleich in Player und Metronom. Die Knöpfe sind groß genug für den Finger
+    und wiederholen, solange man sie hält. Ein Tipp auf den Wert führt ValueCommand aus oder öffnet ValueFlyout.
+  -->
+  <UserControl.Styles>
+    <Style Selector="RepeatButton.step">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="44" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="Delay" Value="400" />
+      <Setter Property="Interval" Value="80" />
+    </Style>
+    <Style Selector="Button.value">
+      <Setter Property="MinHeight" Value="44" />
+      <Setter Property="HorizontalContentAlignment" Value="Right" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="17" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="4">
+    <PathIcon Grid.Column="0" Width="20" Height="20" Margin="0,0,4,0" Opacity="0.75"
+              Data="{Binding $parent[c:StepSlider].Icon}" IsVisible="{Binding $parent[c:StepSlider].Icon, Converter={x:Static ObjectConverters.IsNotNull}}"
+              ToolTip.Tip="{Binding $parent[c:StepSlider].Label}" />
+    <RepeatButton Grid.Column="1" Classes="step" Content="−" Click="OnDecrease"
+                  ToolTip.Tip="{Binding $parent[c:StepSlider].DecreaseTip}" />
+    <!-- Grenzen und Wert setzt der Code, in dieser Reihenfolge (siehe StepSlider.Sync) -->
+    <Slider Grid.Column="2" x:Name="Slider" MinWidth="80" VerticalAlignment="Center"
+            SmallChange="{Binding $parent[c:StepSlider].Step}"
+            LargeChange="{Binding $parent[c:StepSlider].LargeChange}"
+            TickFrequency="{Binding $parent[c:StepSlider].Step}"
+            IsSnapToTickEnabled="True" />
+    <RepeatButton Grid.Column="3" Classes="step" Content="+" Click="OnIncrease"
+                  ToolTip.Tip="{Binding $parent[c:StepSlider].IncreaseTip}" />
+    <Button Grid.Column="4" x:Name="ValueButton" Classes="flat value"
+            MinWidth="{Binding $parent[c:StepSlider].ValueWidth}"
+            Content="{Binding $parent[c:StepSlider].ValueText}"
+            Command="{Binding $parent[c:StepSlider].ValueCommand}"
+            ToolTip.Tip="{Binding $parent[c:StepSlider].ValueTip}" />
+  </Grid>
+</UserControl>

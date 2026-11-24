@@ -23,6 +23,9 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
     public const double MinVolumeDb = -20;
     public const double MaxVolumeDb = 10;
 
+    /// <summary>Sprung der Knöpfe „5 s zurück/vor“ und der Pfeiltasten.</summary>
+    public const double SeekSeconds = 5;
+
     private int _version;
     private double _positionSeconds;
     private DataFileKeeper<SidecarFile>? _sidecar;
@@ -200,6 +203,12 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
             VolumeDb = Math.Clamp(VolumeDb + decibels, MinVolumeDb, MaxVolumeDb);
         }
     }
+
+    [RelayCommand]
+    private void SeekBack() => SeekBy(-SeekSeconds);
+
+    [RelayCommand]
+    private void SeekForward() => SeekBy(SeekSeconds);
 
     [RelayCommand]
     private void ResetTempo() => TempoPercent = 100;
