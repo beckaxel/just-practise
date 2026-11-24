@@ -14,14 +14,19 @@ public sealed record LanguageChoice(string? Code, string Name)
     public bool IsSystem => Code is null;
 }
 
-/// <summary>Das Einstellungsfenster: Sprache der Oberfläche, Musikordner und Updates.</summary>
+/// <summary>Das Einstellungsfenster: Sprache der Oberfläche, Musikordner, Entwickler-Modus und Updates.</summary>
 /// <remarks>Die Musikordner verwaltet der Dateibrowser; dieses Fenster zeigt sie nur an und reicht Änderungen weiter.</remarks>
 public sealed partial class SettingsViewModel : ObservableObject
 {
     private readonly Translator _translator;
     private readonly DataFileKeeper<AppSettings> _settings;
 
-    public SettingsViewModel(Translator translator, DataFileKeeper<AppSettings> settings, FileBrowserViewModel browser, UpdatesViewModel updates)
+    public SettingsViewModel(
+        Translator translator,
+        DataFileKeeper<AppSettings> settings,
+        FileBrowserViewModel browser,
+        UpdatesViewModel updates,
+        DeveloperMode developer)
     {
         ArgumentNullException.ThrowIfNull(translator);
         ArgumentNullException.ThrowIfNull(settings);
@@ -29,6 +34,7 @@ public sealed partial class SettingsViewModel : ObservableObject
         _settings = settings;
         Browser = browser;
         Updates = updates;
+        Developer = developer;
         Languages = [new LanguageChoice(null, ""), .. translator.Languages.Select(option => new LanguageChoice(option.Code, option.Name))];
         var saved = settings.Value.Language.Ui;
         Language = Languages.FirstOrDefault(choice => choice.Code == saved) ?? Languages[0];
@@ -44,6 +50,9 @@ public sealed partial class SettingsViewModel : ObservableObject
     public FileBrowserViewModel Browser { get; }
 
     public UpdatesViewModel Updates { get; }
+
+    /// <summary>Der Entwickler-Modus zum Ein- und Ausschalten.</summary>
+    public DeveloperMode Developer { get; }
 
     /// <summary>Fordert das Schließen des Fensters an.</summary>
     public event EventHandler? CloseRequested;

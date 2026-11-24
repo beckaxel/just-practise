@@ -14,6 +14,17 @@ public sealed class SettingsTests
     }
 
     [Fact]
+    public void WritesTheDeveloperModeOnlyWhenEnabled()
+    {
+        var memory = new DeviceMemory { Developer = new DeveloperSettings { Enabled = true } };
+
+        var json = AppDataFiles.Device.Write(memory);
+
+        Assert.Equal("{\n  \"format\": 1,\n  \"developer\": {\n    \"enabled\": true\n  }\n}\n", json);
+        Assert.True(AppDataFiles.Device.Read(json).Value.Developer.Enabled);
+    }
+
+    [Fact]
     public void ReadsTheMetronomeFromTheConceptExample()
     {
         var json = """

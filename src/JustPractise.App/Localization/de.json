@@ -40,6 +40,8 @@
     "late": "{count, plural, one {# verspäteter Audio-Callback} other {# verspätete Audio-Callbacks}}"
   },
   "settings": {
+    "developer": "Entwickler-Modus",
+    "developerHint": "Zeigt zusätzliche Angaben für die Fehlersuche, z. B. verspätete Audio-Callbacks in der Statusleiste.",
     "open": "Einstellungen (Strg+,)",
     "title": "Einstellungen",
     "language": "Sprache",

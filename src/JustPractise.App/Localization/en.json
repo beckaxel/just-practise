@@ -40,6 +40,8 @@
     "late": "{count, plural, one {# late audio callback} other {# late audio callbacks}}"
   },
   "settings": {
+    "developer": "Developer mode",
+    "developerHint": "Shows extra information for troubleshooting, such as late audio callbacks in the status bar.",
     "open": "Settings (Ctrl+,)",
     "title": "Settings",
     "language": "Language",

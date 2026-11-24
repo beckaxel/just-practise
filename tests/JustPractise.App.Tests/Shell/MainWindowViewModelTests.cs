@@ -31,12 +31,13 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         _memory = new DataFileKeeper<DeviceMemory>(new DataFileStore<DeviceMemory>(_directory.File("device.json"), AppDataFiles.Device));
         var translator = new Translator(TranslationCatalog.Load(null), "en", CultureInfo.GetCultureInfo("en-US"));
         var browser = new FileBrowserViewModel(_memory, new NoPicker());
+        var developer = new DeveloperMode(_memory);
         _shell = new MainWindowViewModel(
             browser,
             new PlayerViewModel(_player),
             new MetronomeViewModel(_metronome, _settings),
-            new StatusBarViewModel(new NoDevice(), translator),
-            new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator)));
+            new StatusBarViewModel(new NoDevice(), translator, developer),
+            new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer));
     }
 
     public async ValueTask DisposeAsync()

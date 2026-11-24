@@ -31,7 +31,22 @@ public sealed class SettingsViewModelTests : IAsyncDisposable
     }
 
     private SettingsViewModel Create() =>
-        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker()), new UpdatesViewModel(new FakeUpdateService(), _translator));
+        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker()), new UpdatesViewModel(new FakeUpdateService(), _translator), new DeveloperMode(_memory));
+
+    [Fact]
+    public async Task TurnsTheDeveloperModeOnAndOffAndSavesItForThisComputer()
+    {
+        var settings = Create();
+        Assert.False(settings.Developer.IsEnabled);
+
+        settings.Developer.IsEnabled = true;
+        await _memory.FlushAsync();
+        Assert.True(new DataFileStore<DeviceMemory>(_directory.File("device.json"), AppDataFiles.Device).Load().Value.Developer.Enabled);
+
+        settings.Developer.IsEnabled = false;
+        await _memory.FlushAsync();
+        Assert.False(new DataFileStore<DeviceMemory>(_directory.File("device.json"), AppDataFiles.Device).Load().Value.Developer.Enabled);
+    }
 
     [Fact]
     public void OffersTheSystemLanguageFirstAndSelectsItByDefault()
