@@ -126,6 +126,10 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 - **Immer sichtbar:** Die gemerkte Lage gilt nur, wenn das Fenster damit ganz auf einem Monitor liegt. Haben sich die Monitore seit dem letzten Lauf geändert, wird es auf den Monitor geschoben, auf dem es noch teilweise liegt, und bei Bedarf verkleinert. Liegt es auf keinem Monitor mehr, erscheint es mittig auf dem Hauptmonitor.
 - **Vollbild:** Die App lässt sich ins Vollbild schalten, z. B. für ein kleines Notebook am Notenständer.
 
+## Bildschirmschoner
+
+Beim Üben gibt es oft lange keine Eingabe, obwohl man auf die App schaut, z. B. auf den Fortschrittsbalken oder die Schlaganzeige. Solange das Hauptfenster maximiert ist (später auch im Vollbild), gehen deshalb Bildschirmschoner, Abschalten des Bildschirms und automatische Sperre nicht an. In normaler Größe oder minimiert gelten wieder die Einstellungen des Systems.
+
 ## Zielplattformen
 
 - **Desktop:** Linux, Windows und macOS als native App. Die Begründung steht in [technologie.md](technologie.md).

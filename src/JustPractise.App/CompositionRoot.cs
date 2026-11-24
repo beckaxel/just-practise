@@ -3,6 +3,7 @@ using JustPractise.App.Localization;
 using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shell;
+using JustPractise.App.Shell.ScreenSaver;
 using JustPractise.App.Updates;
 using JustPractise.Audio;
 using JustPractise.Audio.Engine;
@@ -62,6 +63,12 @@ internal static class CompositionRoot
             sp.GetRequiredService<MainWindowPlacement>().Attach(window);
             return window;
         });
+        services.AddSingleton<IScreenSaverInhibitor>(_ =>
+            OperatingSystem.IsWindows() ? new WindowsScreenSaverInhibitor()
+            : OperatingSystem.IsLinux() ? new FreedesktopScreenSaverInhibitor()
+            : new NoScreenSaverInhibitor());
+        services.AddSingleton<KeepScreenAwake>();
+        services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
 
         return services.BuildServiceProvider(new ServiceProviderOptions
         {

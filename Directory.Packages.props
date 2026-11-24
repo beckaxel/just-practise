@@ -9,6 +9,8 @@
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.1.6" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageVersion Include="MessageFormat" Version="8.0.0" />
+    <!-- D-Bus für den Bildschirmschoner unter Linux; dieselbe Version, die Avalonia.FreeDesktop ohnehin mitbringt. -->
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.94.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" />
     <PackageVersion Include="Velopack" Version="1.2.161" />
   </ItemGroup>

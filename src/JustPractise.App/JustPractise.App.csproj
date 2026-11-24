@@ -4,6 +4,8 @@
     <AssemblyName>just-practise</AssemblyName>
     <RootNamespace>JustPractise.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Für den Code, den LibraryImport für P/Invoke erzeugt. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!-- Vorläufiges Icon (Kleinbuchstaben jp); PNG für Fenster und Linux, ICO für die exe und das Setup unter Windows. -->
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -30,6 +32,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="MessageFormat" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Tmds.DBus.Protocol" />
     <PackageReference Include="Velopack" />
   </ItemGroup>
   <ItemGroup>
