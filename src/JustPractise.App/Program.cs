@@ -15,7 +15,17 @@ internal static class Program
         // Muss vor allem anderen laufen: Velopack ruft die App beim Installieren, Aktualisieren und Entfernen
         // mit eigenen Argumenten auf und beendet sie dann hier. Ein heruntergeladenes Update wird hier installiert.
         VelopackApp.Build().Run();
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+        // Nur eine Instanz: Läuft die App schon, holt eine weitere deren Fenster nach vorn und endet hier.
+        using var instance = SingleInstance.Start(SingleInstance.DefaultDirectory, TimeSpan.FromSeconds(3));
+        if (instance is null)
+        {
+            return;
+        }
+
+        BuildAvaloniaApp()
+            .AfterSetup(builder => ((App)builder.Instance!).Instance = instance)
+            .StartWithClassicDesktopLifetime(args);
     }
 
     // Wird auch vom Avalonia-Designer verwendet.
