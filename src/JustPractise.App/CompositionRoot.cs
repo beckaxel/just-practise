@@ -68,7 +68,6 @@ internal static class CompositionRoot
             : OperatingSystem.IsLinux() ? new FreedesktopScreenSaverInhibitor()
             : new NoScreenSaverInhibitor());
         services.AddSingleton<KeepScreenAwake>();
-        services.AddSingleton(sp => new MainWindow { DataContext = sp.GetRequiredService<MainWindowViewModel>() });
 
         return services.BuildServiceProvider(new ServiceProviderOptions
         {
