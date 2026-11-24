@@ -8,6 +8,7 @@ namespace JustPractise.App.Shell;
 public sealed partial class MainWindow : Window
 {
     private SettingsWindow? _settings;
+    private WindowState _beforeMinimized = WindowState.Normal;
 
     public MainWindow()
     {
@@ -16,6 +17,13 @@ public sealed partial class MainWindow : Window
         // Vor den Bedienelementen abfangen: Ein Kürzel wirkt immer gleich, egal was den Fokus hat
         // (sonst würde z. B. die Leertaste den fokussierten Knopf auslösen).
         AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == WindowStateProperty && e.OldValue is WindowState old and not WindowState.Minimized)
+            {
+                _beforeMinimized = old;
+            }
+        };
         DataContextChanged += (_, _) =>
         {
             if (DataContext is MainWindowViewModel viewModel)
@@ -23,6 +31,17 @@ public sealed partial class MainWindow : Window
                 viewModel.SettingsRequested += (_, _) => ShowSettings(viewModel);
             }
         };
+    }
+
+    /// <summary>Holt das Fenster nach vorn, z. B. wenn die App ein zweites Mal gestartet wurde.</summary>
+    public void BringToFront()
+    {
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = _beforeMinimized;
+        }
+
+        Activate();
     }
 
     private void OnPreviewKeyDown(object? sender, KeyEventArgs e)

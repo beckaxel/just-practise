@@ -124,6 +124,7 @@ Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
 - **Erster Start:** Das Hauptfenster erscheint mittig auf dem Hauptmonitor und ist immer vollständig sichtbar. Ist der Bildschirm kleiner als die Standardgröße, wird das Fenster passend verkleinert.
 - **Merken:** Größe, Position und ob das Fenster maximiert war, merkt sich die App pro Rechner im gerätespezifischen Gedächtnis. War es maximiert, gelten Größe und Position von davor; dorthin kehrt das Fenster zurück, wenn man die Maximierung aufhebt.
 - **Immer sichtbar:** Die gemerkte Lage gilt nur, wenn das Fenster damit ganz auf einem Monitor liegt. Haben sich die Monitore seit dem letzten Lauf geändert, wird es auf den Monitor geschoben, auf dem es noch teilweise liegt, und bei Bedarf verkleinert. Liegt es auf keinem Monitor mehr, erscheint es mittig auf dem Hauptmonitor.
+- **Nur eine Instanz:** Die App läuft nur einmal. Startet man sie ein zweites Mal, holt das das vorhandene Fenster nach vorn, auch wenn es minimiert war, und es öffnet sich kein zweites.
 - **Vollbild:** Die App lässt sich ins Vollbild schalten, z. B. für ein kleines Notebook am Notenständer.
 
 ## Bildschirmschoner

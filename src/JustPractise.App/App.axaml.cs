@@ -20,6 +20,9 @@ public sealed partial class App : Application
 {
     private ServiceProvider? _services;
 
+    /// <summary>Die laufende Instanz; meldet, wenn die App ein zweites Mal gestartet wurde.</summary>
+    internal SingleInstance? Instance { get; set; }
+
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override void OnFrameworkInitializationCompleted()
@@ -40,6 +43,10 @@ public sealed partial class App : Application
             StartupProbe.Mark("window");
             StartupProbe.Attach(desktop.MainWindow, desktop);
             _services.GetRequiredService<KeepScreenAwake>().Attach(desktop.MainWindow);
+            if (Instance is { } instance && desktop.MainWindow is MainWindow window)
+            {
+                instance.ActivationRequested += (_, _) => Dispatcher.UIThread.Post(window.BringToFront);
+            }
             LinuxDesktopIntegration.Start();
             _services.GetRequiredService<UpdatesViewModel>().RestartRequested += (_, _) => desktop.Shutdown();
             _ = _services.GetRequiredService<FileBrowserViewModel>().StartAsync();
