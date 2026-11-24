@@ -14,10 +14,14 @@ public sealed record WindowPlacement
 
     public int Y { get; init; }
 
-    /// <summary>Breite des Fensterinhalts in geräteunabhängigen Einheiten (ohne Rahmen und Titelleiste).</summary>
-    public int Width { get; init; }
+    /// <summary>
+    /// Breite des Fensterinhalts in geräteunabhängigen Einheiten (ohne Rahmen und Titelleiste), auf zwei
+    /// Nachkommastellen. Ganze Zahlen reichen nicht: Bei krummer Skalierung (z. B. 104 %) würde das Fenster sonst
+    /// bei jedem Start um eine Einheit schrumpfen.
+    /// </summary>
+    public double Width { get; init; }
 
-    public int Height { get; init; }
+    public double Height { get; init; }
 
     public bool Maximized { get; init; }
 

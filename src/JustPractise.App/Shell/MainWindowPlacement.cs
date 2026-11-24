@@ -77,8 +77,8 @@ internal sealed class MainWindowPlacement(DataFileKeeper<DeviceMemory> memory)
                 {
                     X = window.Position.X,
                     Y = window.Position.Y,
-                    Width = (int)Math.Round(window.ClientSize.Width),
-                    Height = (int)Math.Round(window.ClientSize.Height),
+                    Width = Math.Round(window.ClientSize.Width, 2),
+                    Height = Math.Round(window.ClientSize.Height, 2),
                 };
                 _maximized = false;
                 break;
