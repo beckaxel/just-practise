@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JustPractise.Core.Placement;
 
 namespace JustPractise.Core.Settings;
 
@@ -16,6 +17,9 @@ public sealed record DeviceMemory
 
     /// <summary>Der zuletzt geöffnete Ordner als absoluter Pfad.</summary>
     public string? LastFolder { get; init; }
+
+    /// <summary>Lage des Hauptfensters beim letzten Beenden; <c>null</c> vor dem ersten Beenden.</summary>
+    public WindowPlacement? Window { get; init; }
 
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Unknown { get; init; }
