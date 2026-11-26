@@ -33,6 +33,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         Status = status;
         Settings = settings;
         Browser.PropertyChanged += OnBrowserChanged;
+        Browser.ReleaseSelection = Player.CloseAsync;
     }
 
     public FileBrowserViewModel Browser { get; }

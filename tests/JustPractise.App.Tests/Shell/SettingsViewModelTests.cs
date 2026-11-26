@@ -8,6 +8,8 @@ using JustPractise.Core.DataFiles;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
 
+using JustPractise.App.Tests.FileBrowser;
+
 namespace JustPractise.App.Tests.Shell;
 
 public sealed class SettingsViewModelTests : IAsyncDisposable
@@ -31,7 +33,7 @@ public sealed class SettingsViewModelTests : IAsyncDisposable
     }
 
     private SettingsViewModel Create() =>
-        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker()), new UpdatesViewModel(new FakeUpdateService(), _translator), new DeveloperMode(_memory));
+        new(_translator, _settings, new FileBrowserViewModel(_memory, new NoPicker(), new FakeRemoveFolderDialog()), new UpdatesViewModel(new FakeUpdateService(), _translator), new DeveloperMode(_memory));
 
     [Fact]
     public async Task TurnsTheDeveloperModeOnAndOffAndSavesItForThisComputer()

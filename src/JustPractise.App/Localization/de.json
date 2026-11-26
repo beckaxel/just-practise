@@ -74,5 +74,15 @@
     "restart": "Jetzt neu starten",
     "noConnection": "Keine Verbindung zum Internet.",
     "failed": "Die Suche nach Updates hat nicht geklappt. Bitte später noch einmal versuchen."
+  },
+  "removeFolder": {
+    "title": "Musikordner entfernen",
+    "question": "„{name}“ aus der Bibliothek entfernen?",
+    "filesStay": "Deine Musikdateien bleiben, wo sie sind; der Ordner wird nur aus der Bibliothek genommen.",
+    "deleteSidecars": "{count, plural, one {Auch die # .jps-Datei darin löschen} other {Auch die # .jps-Dateien darin löschen}} (Tempo und Lautstärke pro Datei)",
+    "warning": "Achtung: Gelöschte .jps-Dateien lassen sich nicht wiederherstellen. Fügst du den Ordner später wieder hinzu, sind Tempo und Lautstärke auf den Standardwerten.",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen",
+    "removeTip": "Musikordner aus der Bibliothek entfernen"
   }
 }

@@ -14,6 +14,8 @@ using JustPractise.Core.DataFiles;
 using JustPractise.Core.Settings;
 using JustPractise.Storage;
 
+using JustPractise.App.Tests.FileBrowser;
+
 namespace JustPractise.App.Tests.Shell;
 
 public sealed class MainWindowViewModelTests : IAsyncDisposable
@@ -30,7 +32,7 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         _settings = new DataFileKeeper<AppSettings>(new DataFileStore<AppSettings>(_directory.File("settings.json"), AppDataFiles.Settings));
         _memory = new DataFileKeeper<DeviceMemory>(new DataFileStore<DeviceMemory>(_directory.File("device.json"), AppDataFiles.Device));
         var translator = new Translator(TranslationCatalog.Load(null), "en", CultureInfo.GetCultureInfo("en-US"));
-        var browser = new FileBrowserViewModel(_memory, new NoPicker());
+        var browser = new FileBrowserViewModel(_memory, new NoPicker(), new FakeRemoveFolderDialog());
         var developer = new DeveloperMode(_memory);
         _shell = new MainWindowViewModel(
             browser,

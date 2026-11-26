@@ -70,6 +70,9 @@ public sealed partial class LibraryRow : ObservableObject
 
     public bool IsFile => Kind == LibraryRowKind.File;
 
+    /// <summary>Ein Musikordner auf der obersten Ebene; nur er lässt sich aus der Bibliothek entfernen.</summary>
+    public bool IsMusicFolder => IsFolder && Depth == 0;
+
     /// <summary>Der Ordner, in dem der Eintrag liegt; bei Ordnern der Ordner selbst.</summary>
     public required string Folder { get; init; }
 

@@ -9,6 +9,7 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
 {
     private readonly TemporaryDirectory _directory = new();
     private readonly FakeFolderPicker _picker = new();
+    private readonly FakeRemoveFolderDialog _removeDialog = new();
     private readonly List<DataFileKeeper<DeviceMemory>> _memories = [];
 
     public FileBrowserViewModelTests() => Directory.CreateDirectory(MusicPath);
@@ -49,7 +50,7 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
 
     private async Task<FileBrowserViewModel> StartAsync(DataFileKeeper<DeviceMemory> memory)
     {
-        var browser = new FileBrowserViewModel(memory, _picker);
+        var browser = new FileBrowserViewModel(memory, _picker, _removeDialog);
         await browser.StartAsync();
         return browser;
     }
@@ -199,7 +200,7 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         await memory.FlushAsync();
 
         LibraryRow? scrolledTo = null;
-        var next = new FileBrowserViewModel(Memory(), _picker);
+        var next = new FileBrowserViewModel(Memory(), _picker, _removeDialog);
         next.ScrollRequested += (_, row) => scrolledTo = row;
         await next.StartAsync();
 
@@ -317,6 +318,85 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         Assert.Null(browser.Location);
         Assert.Empty(browser.Breadcrumbs);
         Assert.True(Directory.Exists(MusicPath));
+    }
+
+    [Fact]
+    public async Task KeepsEverythingWhenRemovingIsCancelled()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        _directory.Create(Path.Combine("Musik", "a.jps"));
+        var browser = await StartAsync(MemoryWithMusic());
+        _removeDialog.Answer = RemoveFolderChoice.Cancel;
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath);
+
+        Assert.Equal([("Musik", 1)], _removeDialog.Questions);
+        Assert.Equal([MusicPath], browser.MusicFolders);
+        Assert.True(File.Exists(Music("a.jps")));
+    }
+
+    [Fact]
+    public async Task KeepsTheSidecarsUnlessTheirDeletionIsChosen()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        _directory.Create(Path.Combine("Musik", "a.jps"));
+        var browser = await StartAsync(MemoryWithMusic());
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath);
+
+        Assert.Empty(browser.MusicFolders);
+        Assert.True(File.Exists(Music("a.jps")));
+    }
+
+    [Fact]
+    public async Task DeletesTheSidecarsBelowButNotInAnotherMusicFolderInside()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        _directory.Create(Path.Combine("Musik", "a.jps"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues.jps"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues.mp3"));
+        _directory.Create(Path.Combine("Musik", "Eigen", "b.jps"));
+        var memory = Memory(new DeviceMemory { MusicFolders = [MusicPath, Music("Eigen")] });
+        var browser = await StartAsync(memory);
+        _removeDialog.Answer = RemoveFolderChoice.RemoveWithSidecars;
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath);
+
+        Assert.Equal([("Musik", 2)], _removeDialog.Questions);
+        Assert.False(File.Exists(Music("a.jps")));
+        Assert.False(File.Exists(Music("Jazz", "Blues.jps")));
+        Assert.True(File.Exists(Music("Jazz", "Blues.mp3")));
+        Assert.True(File.Exists(Music("Eigen", "b.jps")));
+        Assert.Equal([Music("Eigen")], memory.Value.MusicFolders);
+    }
+
+    [Fact]
+    public async Task ReleasesTheSelectedFileBeforeItsFolderIsRemoved()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "a"));
+        var released = false;
+        browser.ReleaseSelection = () =>
+        {
+            released = true;
+            return Task.CompletedTask;
+        };
+
+        await browser.RemoveMusicFolderCommand.ExecuteAsync(MusicPath);
+
+        Assert.True(released);
+        Assert.Null(browser.SelectedFile);
+    }
+
+    [Fact]
+    public async Task OffersTheRemoveButtonOnlyOnMusicFolders()
+    {
+        _directory.Create(Path.Combine("Musik", "Jazz", "a.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath] } }));
+
+        Assert.True(Row(browser, "Musik").IsMusicFolder);
+        Assert.False(Row(browser, "Jazz").IsMusicFolder);
     }
 
     [Fact]
