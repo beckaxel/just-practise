@@ -7,7 +7,7 @@ namespace JustPractise.App.Localization;
 /// Alle Sprachdateien: die eingebetteten aus <c>Localization/*.json</c> und eigene aus dem Ordner <c>translations</c>
 /// im Anwendungsdatenordner. Eine eigene Datei ersetzt die eingebettete derselben Sprache.
 /// </summary>
-/// <remarks>Die verschachtelten Objekte werden zu Schlüsseln mit Punkten, z. B. <c>player.play</c>.</remarks>
+/// <remarks>Die verschachtelten Objekte werden zu Schlüsseln mit Punkten, z. B. <c>player.playPause</c>.</remarks>
 public sealed class TranslationCatalog(IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> languages)
 {
     /// <summary>Die Referenzsprache: Neue Texte kommen zuerst hierher, fehlende Texte anderer Sprachen kommen von hier.</summary>

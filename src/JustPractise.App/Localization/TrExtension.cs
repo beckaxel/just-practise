@@ -5,7 +5,7 @@ using Avalonia.Data.Converters;
 namespace JustPractise.App.Localization;
 
 /// <summary>
-/// Übersetzt in XAML: <c>{l:Tr player.play}</c>. Die Bindung hängt an <see cref="Translator.Language"/>, sodass sich
+/// Übersetzt in XAML: <c>{l:Tr player.playPause}</c>. Die Bindung hängt an <see cref="Translator.Language"/>, sodass sich
 /// der Text beim Wechsel der Sprache ohne Neustart aktualisiert.
 /// </summary>
 /// <remarks>

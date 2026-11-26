@@ -11,6 +11,7 @@
     "notReachable": "(nicht erreichbar)"
   },
   "player": {
+    "empty": "Wähle links ein Stück.",
     "title": "Player",
     "playPause": "Abspielen oder anhalten",
     "toStart": "Zum Anfang",

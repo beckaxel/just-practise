@@ -25,6 +25,29 @@ public sealed class TranslationFilesTests
     private static string[] Placeholders(string text) =>
         [.. new PatternParser().Parse(new StringBuilder(text)).Select(request => request.Variable).Order(StringComparer.Ordinal)];
 
+    /// <summary>
+    /// Jeder Text, den die Oberfläche über <c>{l:Tr …}</c> oder <c>translator.Get/Format("…")</c> anfordert, steht in
+    /// der Referenz; sonst zeigt die App den Schlüssel statt des Textes.
+    /// </summary>
+    [Fact]
+    public void ContainsEveryKeyTheAppUses()
+    {
+        var source = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "JustPractise.App");
+        var used = Directory.EnumerateFiles(source, "*.*", SearchOption.AllDirectories)
+            .Where(path => path.EndsWith(".axaml", StringComparison.Ordinal) || path.EndsWith(".cs", StringComparison.Ordinal))
+            .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .SelectMany(path => System.Text.RegularExpressions.Regex.Matches(
+                File.ReadAllText(path),
+                @"\{l:Tr ([a-zA-Z0-9_.]+)\}|translator\.(?:Get|Format)\(""([a-zA-Z0-9_.]+)""")
+                .Select(match => match.Groups[1].Success ? match.Groups[1].Value : match.Groups[2].Value))
+            .Distinct()
+            .ToList();
+
+        Assert.NotEmpty(used);
+        var missing = used.Where(key => !Reference.ContainsKey(key)).ToList();
+        Assert.True(missing.Count == 0, "Fehlende Texte: " + string.Join(", ", missing));
+    }
+
     [Fact]
     public void ContainsGermanAndEnglish()
     {
