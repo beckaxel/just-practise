@@ -11,6 +11,7 @@
     "notReachable": "(not reachable)"
   },
   "player": {
+    "empty": "Choose a piece on the left.",
     "title": "Player",
     "playPause": "Play or pause",
     "toStart": "Back to the start",
