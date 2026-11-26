@@ -41,23 +41,29 @@ public sealed partial class MainWindow : Window
                 {
                     if (e.PropertyName == nameof(MainWindowViewModel.IsMetronomeOpen) && viewModel.IsMetronomeOpen)
                     {
-                        PlaceMetronomePanel();
+                        PlaceToolPanel(MetronomePanel, MetronomeTool);
+                    }
+                    else if (e.PropertyName == nameof(MainWindowViewModel.IsTimerOpen) && viewModel.IsTimerOpen)
+                    {
+                        PlaceToolPanel(TimerPanel, TimerTool);
                     }
                 };
                 Dismiss.PointerPressed += (_, e) =>
                 {
-                    // Ein Tipp neben die Einstellungen schließt sie; trifft er Start/Stopp, startet bzw. stoppt
-                    // das Metronom zugleich (der Knopf liegt unter dieser Ebene und bekommt den Tipp sonst nicht).
-                    viewModel.IsMetronomeOpen = false;
-                    var start = MetronomeTool.StartStop;
-                    if (new Rect(start.Bounds.Size).Contains(e.GetPosition(start)))
+                    // Ein Tipp neben die Einstellungen schließt sie; trifft er Start/Stopp eines Werkzeugs, wird das
+                    // zugleich ausgelöst (die Knöpfe liegen unter dieser Ebene und bekommen den Tipp sonst nicht).
+                    viewModel.CloseTools();
+                    if (Hits(MetronomeTool.StartStop, e))
                     {
                         viewModel.Metronome.StartStop();
                     }
+                    else if (Hits(TimerTool.StartPause, e))
+                    {
+                        viewModel.Timer.StartPause();
+                    }
 
                     e.Handled = true;
-                };
-            }
+                };            }
         };
     }
 
@@ -101,9 +107,8 @@ public sealed partial class MainWindow : Window
 
         if (e.Key == Key.Escape && e.KeyModifiers == KeyModifiers.None)
         {
-            if (viewModel.IsMetronomeOpen)
+            if (viewModel.CloseTools())
             {
-                viewModel.IsMetronomeOpen = false;
                 e.Handled = true;
                 return;
             }
@@ -160,12 +165,15 @@ public sealed partial class MainWindow : Window
         Splitter.DragCompleted += (_, _) => pane.Resized(Body.ColumnDefinitions[0].ActualWidth);
     }
 
-    /// <summary>Legt die Einstellungen des Metronoms rechtsbündig direkt unter das Werkzeug.</summary>
-    private void PlaceMetronomePanel()
+    /// <summary>Legt die Einstellungen eines Werkzeugs rechtsbündig direkt unter das Werkzeug.</summary>
+    private void PlaceToolPanel(Control panel, Control tool)
     {
-        if (MetronomeTool.TranslatePoint(new Point(MetronomeTool.Bounds.Width, MetronomeTool.Bounds.Height), Root) is { } corner)
+        if (tool.TranslatePoint(new Point(tool.Bounds.Width, tool.Bounds.Height), Root) is { } corner)
         {
-            MetronomePanel.Margin = new Thickness(0, corner.Y + 12, Math.Max(8, Root.Bounds.Width - corner.X - 12), 0);
+            panel.Margin = new Thickness(0, corner.Y + 12, Math.Max(8, Root.Bounds.Width - corner.X - 12), 0);
         }
     }
+
+    private static bool Hits(Control control, PointerEventArgs e) =>
+        new Rect(control.Bounds.Size).Contains(e.GetPosition(control));
 }

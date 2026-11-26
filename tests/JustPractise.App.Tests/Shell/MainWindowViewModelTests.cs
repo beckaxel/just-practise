@@ -5,6 +5,7 @@ using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shell;
 using JustPractise.App.Tests.Updates;
+using JustPractise.App.Timer;
 using JustPractise.App.Updates;
 using JustPractise.App.Shortcuts;
 using JustPractise.App.Tests.Metronome;
@@ -38,6 +39,7 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
             browser,
             new PlayerViewModel(_player),
             new MetronomeViewModel(_metronome, _settings),
+            new TimerViewModel(TimeProvider.System, _settings),
             new StatusBarViewModel(new NoDevice(), translator, developer),
             new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer),
             new LibraryPane(_memory));
@@ -119,6 +121,36 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         await _shell.Browser.OpenBreadcrumbCommand.ExecuteAsync(_shell.Browser.Breadcrumbs[0]);
 
         Assert.False(_shell.LibraryPane.IsCollapsed);
+    }
+
+    [Fact]
+    public void OpensOneToolAtATimeAndClosesThemAll()
+    {
+        _shell.OpenMetronomeCommand.Execute(null);
+        _shell.OpenTimerCommand.Execute(null);
+        Assert.False(_shell.IsMetronomeOpen);
+        Assert.True(_shell.IsTimerOpen);
+
+        Assert.True(_shell.CloseTools());
+        Assert.False(_shell.IsTimerOpen);
+        Assert.False(_shell.CloseTools());
+    }
+
+    [Fact]
+    public void TimerShortcutsStartResetAndChangeTheDuration()
+    {
+        Assert.Equal(ShortcutAction.TimerStartPause, Shortcut.Match(Avalonia.Input.Key.T, Avalonia.Input.KeyModifiers.None, "t"));
+        Assert.Equal(ShortcutAction.TimerReset, Shortcut.Match(Avalonia.Input.Key.T, Avalonia.Input.KeyModifiers.Shift, "T"));
+        Assert.Equal(ShortcutAction.TimerLonger, Shortcut.Match(Avalonia.Input.Key.Up, Avalonia.Input.KeyModifiers.Shift, null));
+        Assert.Equal(ShortcutAction.TimerShorter, Shortcut.Match(Avalonia.Input.Key.Down, Avalonia.Input.KeyModifiers.Shift, null));
+
+        _shell.Execute(ShortcutAction.TimerLonger);
+        Assert.Equal(11, _shell.Timer.CurrentMinutes);
+        _shell.Execute(ShortcutAction.TimerStartPause);
+        Assert.True(_shell.Timer.IsRunning);
+        _shell.Execute(ShortcutAction.TimerReset);
+        Assert.False(_shell.Timer.IsRunning);
+        Assert.True(_shell.Timer.IsReady);
     }
 
     [Fact]

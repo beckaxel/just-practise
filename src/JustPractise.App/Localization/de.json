@@ -39,10 +39,10 @@
     "louder": "Lauter",
     "enterTempo": "Tempo eingeben",
     "open": "Metronom einstellen",
-    "done": "Fertig",
     "moreBeats": "Mehr Schläge pro Takt",
     "fewerBeats": "Weniger Schläge pro Takt",
-    "beats": "Schläge pro Takt"
+    "beats": "Schläge pro Takt",
+    "startStop": "Start/Stopp (M)"
   },
   "status": {
     "device": "Ausgabe: {name}",
@@ -92,6 +92,17 @@
     "expandLibrary": "Bibliothek ausklappen",
     "resize": "Ziehen, um die Breite der Bibliothek zu ändern",
     "fullScreen": "Vollbild an/aus (F11)",
-    "practice": "Übung"
+    "practice": "Übung",
+    "collapseTool": "Einklappen"
+  },
+  "timer": {
+    "title": "Übetimer",
+    "open": "Timer einstellen",
+    "start": "Start",
+    "pause": "Pause",
+    "duration": "Dauer",
+    "shorter": "Kürzer",
+    "longer": "Länger",
+    "restart": "Neu starten"
   }
 }

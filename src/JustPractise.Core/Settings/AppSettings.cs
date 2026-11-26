@@ -17,6 +17,8 @@ public sealed record AppSettings
 
     public MetronomeSettings Metronome { get; init; } = MetronomeSettings.Default;
 
+    public TimerSettings Timer { get; init; } = TimerSettings.Default;
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Unknown { get; init; }
 }
@@ -96,4 +98,31 @@ public sealed record MetronomeSetup : IDataSection
 
     public MetronomeSetup WithMeter(Meter meter) =>
         this with { Meter = meter == Metronome.Meter.FourFour ? null : meter.ToString() };
+}
+
+/// <summary>Der Übetimer: die zuletzt eingestellte Dauer in ganzen Minuten.</summary>
+public sealed record TimerSettings : IDataSection
+{
+    public const int DefaultMinutes = 10;
+    public const int MinMinutes = 1;
+    public const int MaxMinutes = 60;
+
+    public static TimerSettings Default { get; } = new();
+
+    public int? Minutes { get; init; }
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Unknown { get; init; }
+
+    [JsonIgnore]
+    public int EffectiveMinutes => Math.Clamp(Minutes ?? DefaultMinutes, MinMinutes, MaxMinutes);
+
+    [JsonIgnore]
+    public bool IsDefault => Minutes is null && Unknown is not { Count: > 0 };
+
+    public TimerSettings WithMinutes(int minutes)
+    {
+        var clamped = Math.Clamp(minutes, MinMinutes, MaxMinutes);
+        return this with { Minutes = clamped == DefaultMinutes ? null : clamped };
+    }
 }

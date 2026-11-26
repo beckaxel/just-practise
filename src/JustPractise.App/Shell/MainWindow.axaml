@@ -5,6 +5,7 @@
         xmlns:fb="using:JustPractise.App.FileBrowser"
         xmlns:p="using:JustPractise.App.Player"
         xmlns:m="using:JustPractise.App.Metronome"
+        xmlns:t="using:JustPractise.App.Timer"
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
         Title="{l:Tr app.title}"
@@ -17,6 +18,7 @@
     <StreamGeometry x:Key="CollapseIcon">M15.4,5 L8.4,12 L15.4,19 L16.8,17.6 L11.2,12 L16.8,6.4 Z</StreamGeometry>
     <StreamGeometry x:Key="PlusIcon">M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z</StreamGeometry>
     <StreamGeometry x:Key="RefreshIcon">M12,4 A8,8 0 1 0 20,12 H18 A6,6 0 1 1 12,6 V9 L16,5 L12,1 Z</StreamGeometry>
+    <StreamGeometry x:Key="ChevronUpIcon">M5,15.4 L12,8.4 L19,15.4 L17.6,16.8 L12,11.2 L6.4,16.8 Z</StreamGeometry>
     <StreamGeometry x:Key="ExpandIcon">M8.6,5 L15.6,12 L8.6,19 L7.2,17.6 L12.8,12 L7.2,6.4 Z</StreamGeometry>
   </Window.Resources>
 
@@ -25,6 +27,12 @@
       <Setter Property="FontSize" Value="14" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <!-- Überschrift der aufgeklappten Werkzeuge: aus Abstand lesbar -->
+    <Style Selector="TextBlock.toolTitle">
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border.panel">
@@ -59,7 +67,7 @@
     </Style>
     <Style Selector="Border.statusbar TextBlock">
       <Setter Property="VerticalAlignment" Value="Center" />
-      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontSize" Value="15" />
     </Style>
     <Style Selector="TextBlock.warning">
       <Setter Property="Foreground" Value="{DynamicResource SystemErrorTextColor}" />
@@ -152,10 +160,13 @@
           Stimmgerät). Jedes zeigt nur das Nötigste; ein Tipp klappt seine Einstellungen auf.
         -->
         <Border DockPanel.Dock="Top" Classes="toolbar">
-          <!-- Rechtsbündig, solange das Metronom allein ist -->
+          <!-- Rechtsbündig: Metronom, rechts daneben der Übetimer -->
           <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
             <m:MetronomeToolView x:Name="MetronomeTool" DataContext="{Binding Metronome}"
                                  OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenMetronomeCommand}" />
+            <Border Width="1" Margin="0,6" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+            <t:TimerToolView x:Name="TimerTool" DataContext="{Binding Timer}"
+                             OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenTimerCommand}" />
           </StackPanel>
         </Border>
 
@@ -172,20 +183,47 @@
 
   <!--
     Das Metronom zum Einstellen: eine Ebene im Hauptfenster (kein eigenes Popup-Fenster, sonst bekommt das Eingabefeld
-    unter Linux keinen Tastaturfokus). Ein Tipp daneben, „Fertig“ oder Esc schließt es. Die Lage unter dem Werkzeug
+    unter Linux keinen Tastaturfokus). Ein Tipp daneben, das Chevron oben rechts oder Esc schließt es. Die Lage unter dem Werkzeug
     setzt MainWindow.PlaceMetronomePanel.
   -->
-  <Border x:Name="Dismiss" Background="Transparent" IsVisible="{Binding IsMetronomeOpen}" />
+  <Panel x:Name="Dismiss" Background="Transparent">
+    <Panel.IsVisible>
+      <MultiBinding Converter="{x:Static BoolConverters.Or}">
+        <Binding Path="IsMetronomeOpen" />
+        <Binding Path="IsTimerOpen" />
+      </MultiBinding>
+    </Panel.IsVisible>
+  </Panel>
   <Border x:Name="MetronomePanel" IsVisible="{Binding IsMetronomeOpen}"
           HorizontalAlignment="Right" VerticalAlignment="Top"
           Padding="20" CornerRadius="8" BorderThickness="1" BoxShadow="0 4 16 0 #60000000"
           Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
           BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-    <StackPanel Spacing="16">
-      <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
+    <StackPanel Spacing="12">
+      <!-- Kopf mit Chevron oben rechts: klappt die Einstellungen wieder ein -->
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="toolTitle" Text="{l:Tr metronome.title}" />
+        <Button Grid.Column="1" Classes="flat tool" Command="{Binding CloseMetronomeCommand}" ToolTip.Tip="{l:Tr layout.collapseTool}">
+          <PathIcon Data="{StaticResource ChevronUpIcon}" />
+        </Button>
+      </Grid>
       <m:MetronomeView DataContext="{Binding Metronome}" />
-      <Button Classes="accent" HorizontalAlignment="Center" MinWidth="140" Height="48" FontSize="16"
-              Content="{l:Tr metronome.done}" Command="{Binding CloseMetronomeCommand}" />
+    </StackPanel>
+  </Border>
+  <!-- Der Übetimer zum Einstellen, genauso -->
+  <Border x:Name="TimerPanel" IsVisible="{Binding IsTimerOpen}"
+          HorizontalAlignment="Right" VerticalAlignment="Top"
+          Padding="20" CornerRadius="8" BorderThickness="1" BoxShadow="0 4 16 0 #60000000"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+    <StackPanel Spacing="12">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="toolTitle" Text="{l:Tr timer.title}" />
+        <Button Grid.Column="1" Classes="flat tool" Command="{Binding CloseTimerCommand}" ToolTip.Tip="{l:Tr layout.collapseTool}">
+          <PathIcon Data="{StaticResource ChevronUpIcon}" />
+        </Button>
+      </Grid>
+      <t:TimerView DataContext="{Binding Timer}" />
     </StackPanel>
   </Border>
   </Panel>
