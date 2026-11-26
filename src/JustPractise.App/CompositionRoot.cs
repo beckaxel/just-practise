@@ -57,6 +57,7 @@ internal static class CompositionRoot
         services.AddSingleton<DeveloperMode>();
         services.AddSingleton<StatusBarViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<LibraryPane>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<MainWindowPlacement>();
         services.AddSingleton(sp =>

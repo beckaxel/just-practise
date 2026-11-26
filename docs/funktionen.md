@@ -38,9 +38,10 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | Taste | Aktion |
 |---|---|
 | `1` bis `4` | Audioplayer, Übetimer, Metronom, Stimmgerät öffnen oder schließen |
-| `Strg+1` bis `Strg+4` | Komponente ein- oder ausklappen |
+| `Strg+1` bis `Strg+4` | Werkzeug im Werkzeugbereich auf- oder zuklappen |
 | `Strg+F` | Suche im Dateibrowser |
 | `Strg+,` | Einstellungen |
+| `F11` | Vollbild an/aus (`Esc` verlässt es ebenfalls) |
 
 **Audioplayer**
 
@@ -105,31 +106,27 @@ Noch zeigt keine Komponente Akkorde an. Die App wird aber jetzt schon darauf vor
 - **Schreibweisen:** einstellbar, z. B. Cmaj7 / CΔ7 / Cj7, Cm7 / C-7 / Cmi7, Cø / Cm7♭5 oder C° / Cdim
 - **Grundtöne:** folgen der gewählten Tonbezeichnung
 
-## Komponenten
+## Aufbau der Oberfläche
 
-Die App besteht aus Komponenten: Audioplayer, Übetimer, Metronom, Stimmgerät und künftig die Notenanzeige. Jede Komponente hat einen eigenen Bereich in der Oberfläche und kann drei Zustände haben:
+Die Grundidee: Man hat verschiedene Werkzeuge zum Üben (Metronom, Stimmgerät, Übetimer) und einen Player für Playalongs. Mit der Bibliothek setzt man den Fokus auf eine Übung bzw. ein Stück; dazu startet man nach Bedarf den Timer, schaltet das Metronom an oder das Stimmgerät ein. Die Oberfläche ist für ein maximiertes Fenster oder das Vollbild ausgelegt: Wer übt, sitzt nicht direkt vor dem Bildschirm, dazwischen ist das Instrument. Alles muss deshalb aus Abstand lesbar und mit dem Finger bedienbar sein, ohne Ablenkung.
 
-- **ausgeklappt:** volle Darstellung und alle Bedienelemente
-- **eingeklappt:** minimalistische Darstellung mit dem Wichtigsten
-- **geschlossen:** nicht sichtbar, für Nutzer, die die Komponente gerade nicht oder noch nicht brauchen
-
-Was die minimalistische Darstellung zeigt, legt jede Komponente selbst fest.
-
-- **Dateibrowser:** Er ist keine Komponente, sondern das feste Grundgerüst der App. Er ist immer sichtbar.
-- **Ein- und ausschalten:** Eine kleine Leiste zeigt ein Symbol pro Komponente. Mit einem Klick oder Tipp öffnet oder schließt man die Komponente. Jede Komponente lässt sich schließen, auch der Audioplayer, z. B. wenn man nur Timer und Metronom nutzt.
-- **Merken:** Der Zustand jeder Komponente wird in den App-Einstellungen gespeichert und beim nächsten Start wiederhergestellt.
+- **Pfadzeile:** die oberste Zeile über die ganze Breite. Sie zeigt, wo die gewählte Stelle in der Bibliothek liegt, z. B. `Musik › Jazz › Standards › Autumn Leaves - Playalong 80.mp3`; liegt die gewählte Datei im Ordner, steht sie am Ende. Ein Tipp auf ein Glied klappt den Weg dorthin auf, scrollt hin und öffnet die Bibliothek, falls sie eingeklappt ist.
+- **Bibliothek:** darunter links, siehe [Dateibrowser](#dateibrowser). Ihre Breite lässt sich am Trenner zum rechten Bereich ziehen; der Trenner hat einen sichtbaren Griff und ist breit genug für den Finger. Ein Knopf neben der Überschrift klappt die Bibliothek auf eine schmale Leiste ein, ein Knopf oben in der Leiste klappt sie mit der letzten Breite wieder aus. Breite und Zustand merkt sich die App pro Rechner.
+- **Werkzeugbereich:** rechts oben, flach. Hier stehen die Werkzeuge nebeneinander, die nicht vom Stück abhängen: zuerst das Metronom, später Übetimer und Stimmgerät. Jedes Werkzeug zeigt dort nur das Nötigste, das Metronom z. B. das Tempo, die Schlaganzeige und Start/Stopp. Ein Tipp darauf klappt es auf: Darunter erscheinen alle Einstellungen (beim Metronom Tempo, Schläge pro Takt und Lautstärke), „Fertig“, `Esc` oder ein Tipp daneben klappt es wieder zu. Solange es allein ist, steht das Metronom rechtsbündig. Die Schläge pro Takt zeigt die Schlaganzeige, eine Taktart steht dort nicht.
+- **Übungsbereich:** rechts unter den Werkzeugen, der Rest des Fensters. Bisher steht dort der Player; später kommen die Notenanzeige (wenn es Noten gibt) und vielleicht ganz andere Arten von Übungen dazu.
+- **Statusleiste:** unten: links das Ausgabegerät und im Entwickler-Modus die verspäteten Audio-Callbacks, rechts die Knöpfe für Vollbild und Einstellungen.
 
 ## Fenster
 
-- **Erster Start:** Das Hauptfenster erscheint mittig auf dem Hauptmonitor und ist immer vollständig sichtbar. Ist der Bildschirm kleiner als die Standardgröße, wird das Fenster passend verkleinert.
+- **Erster Start:** Das Hauptfenster erscheint mittig auf dem Hauptmonitor und ist immer vollständig sichtbar. Ist der Bildschirm kleiner als die Standardgröße, wird das Fenster passend verkleinert. Danach startet es immer so, wie es beim letzten Beenden war (siehe „Merken“).
 - **Merken:** Größe, Position und ob das Fenster maximiert war, merkt sich die App pro Rechner im gerätespezifischen Gedächtnis. War es maximiert, gelten Größe und Position von davor; dorthin kehrt das Fenster zurück, wenn man die Maximierung aufhebt.
 - **Immer sichtbar:** Die gemerkte Lage gilt nur, wenn das Fenster damit ganz auf einem Monitor liegt. Haben sich die Monitore seit dem letzten Lauf geändert, wird es auf den Monitor geschoben, auf dem es noch teilweise liegt, und bei Bedarf verkleinert. Liegt es auf keinem Monitor mehr, erscheint es mittig auf dem Hauptmonitor.
 - **Nur eine Instanz:** Die App läuft nur einmal. Startet man sie ein zweites Mal, holt das das vorhandene Fenster nach vorn, auch wenn es minimiert war, und es öffnet sich kein zweites.
-- **Vollbild:** Die App lässt sich ins Vollbild schalten, z. B. für ein kleines Notebook am Notenständer.
+- **Vollbild:** `F11` oder der Knopf in der Statusleiste schaltet ins Vollbild, `F11`, `Esc` oder der Knopf zurück in den Zustand davor (normal oder maximiert). War die App beim Beenden im Vollbild, startet sie wieder so. Der Bildschirmschoner bleibt im Vollbild aus.
 
 ## Bildschirmschoner
 
-Beim Üben gibt es oft lange keine Eingabe, obwohl man auf die App schaut, z. B. auf den Fortschrittsbalken oder die Schlaganzeige. Solange das Hauptfenster maximiert ist (später auch im Vollbild), gehen deshalb Bildschirmschoner, Abschalten des Bildschirms und automatische Sperre nicht an. In normaler Größe oder minimiert gelten wieder die Einstellungen des Systems.
+Beim Üben gibt es oft lange keine Eingabe, obwohl man auf die App schaut, z. B. auf den Fortschrittsbalken oder die Schlaganzeige. Solange das Hauptfenster maximiert oder im Vollbild ist, gehen deshalb Bildschirmschoner, Abschalten des Bildschirms und automatische Sperre nicht an. In normaler Größe oder minimiert gelten wieder die Einstellungen des Systems.
 
 ## Zielplattformen
 
@@ -156,7 +153,7 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
-- **Bedienung:** Die Zeitleiste geht über die ganze Breite. Darunter stehen in einer Zeile, die bei schmalem Fenster umbricht: zum Anfang, 5 Sekunden zurück, Abspielen/Pause, 5 Sekunden vor, dann Tempo und Lautstärke. Tempo und Lautstärke haben je einen Regler mit Knöpfen − und + davor und dahinter (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und den Wert daneben; ein Symbol statt einer Beschriftung spart Platz.
+- **Bedienung:** Die Zeitleiste geht über die ganze Breite. Darunter stehen „zum Anfang“ und Abspielen/Pause, im halben goldenen Schnitt (19,1 % : 80,9 %). Springen um 5 Sekunden geht mit den Pfeiltasten. Darunter stehen Tempo und Lautstärke untereinander, beschriftet, je mit einem Regler mit Knöpfen − und + (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und dem Wert daneben.
 - **Touch und Lesbarkeit:** Alle Knöpfe sind mindestens 44 Einheiten groß, Werte und Zeiten groß genug, um sie aus etwas Abstand zu lesen.
 - **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur im Entwickler-Modus und nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
@@ -171,9 +168,9 @@ Die App funktioniert wie ein Dateibrowser: Man klappt Ordner auf und öffnet St�
 - **Aufbau:** Der Browser ist ein Baum. Oben stehen die Musikordner, darunter klappt man Unterordner und Stücke an Ort und Stelle auf; jede Ebene ist ein wenig eingerückt. Ein Chevron vor dem Eintrag zeigt, dass es etwas zum Aufklappen gibt; leere Ordner haben keinen. In jedem Ordner stehen erst die Unterordner, dann die Stücke.
 - **Stücke:** Ordner tragen ein Ordnersymbol, Stücke ein Notensymbol (zwei Achtelnoten). Ein Stück mit mehreren Audiodateien ist „virtuell“: Es fasst die Dateien zusammen, lässt sich aufklappen, aber nicht abspielen. Aufgeklappt stehen darunter die vollen Dateinamen mit Endung, z. B. `Autumn Leaves - Playalong 80.mp3`. Ein Stück mit nur einer Datei ist „echt“: Es steht mit seinem Titel da und lässt sich direkt abspielen, ebenso jede Datei unter einem virtuellen Stück. Ein Tipp auf einen Ordner oder ein virtuelles Stück klappt auf oder zu, ein Tipp auf ein echtes Stück lädt es in den Player.
 - **Farben:** Ordnername und -symbol in der Textfarbe des Schemas (weiß im dunklen, schwarz im hellen Schema), virtuelle Stücke leicht bläulich, echte Stücke leicht grünlich.
-- **Pfadzeile:** Über dem Baum zeigt eine Pfadzeile, wo die gewählte Stelle liegt, z. B. `Musik › Jazz › Standards`. Ein Tipp auf ein Glied klappt den Weg zu diesem Ordner auf und scrollt dorthin.
+- **Pfadzeile:** Die oberste Zeile des Fensters zeigt, wo die gewählte Stelle liegt (siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche)).
 - **Bedienung:** Der Browser lässt sich mit dem Finger bedienen und ist aus etwas Abstand lesbar: Zeilen mindestens 44 Einheiten hoch, Schrift 16.
-- **Musikordner verwalten:** Neben der Pfadzeile gibt es Knöpfe, um einen Musikordner hinzuzufügen und den Baum neu einzulesen. Ein neuer Musikordner erscheint gleich aufgeklappt. Beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner über einen Knopf an ihrer Zeile im Baum und in den Einstellungen.
+- **Musikordner verwalten:** Neben der Überschrift der Bibliothek gibt es Knöpfe, um einen Musikordner hinzuzufügen und den Baum neu einzulesen. Ein neuer Musikordner erscheint gleich aufgeklappt. Beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner über einen Knopf an ihrer Zeile im Baum und in den Einstellungen.
 - **Musikordner entfernen:** Vorher fragt die App nach. Die Musikdateien bleiben immer, wo sie sind. Liegen im Ordner Sidecar-Dateien (`.jps`), bietet die Rückfrage an, sie mitzulöschen, mit der Warnung, dass sich Tempo und Lautstärke dann nicht wiederherstellen lassen; standardmäßig bleiben sie. Sidecar-Dateien in einem anderen Musikordner, der darin liegt, bleiben in jedem Fall. Ist eine Datei aus dem Ordner im Player geladen, schließt der Player sie vorher.
 
 ### Stücke und Gruppierung
@@ -233,7 +230,7 @@ Pro Stück gibt es eine Sidecar-Datei. Sie liegt neben den Dateien des Stücks. 
 Die App speichert zwei Arten von Daten getrennt:
 
 - **Einstellungen:** alles, was der Nutzer einstellt, z. B. Timerdauer, letzte und benannte Metronom-Einstellungen, Kammerton
-- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die Musikordner, zuletzt geöffneter Ordner, Zustand der Komponenten (ausgeklappt, eingeklappt, geschlossen), das Eingabegerät des Stimmgeräts und der gewählte Speicherort
+- **Gerätespezifisches Gedächtnis:** was nur auf diesem Rechner Sinn ergibt, z. B. die Musikordner, was in der Bibliothek aufgeklappt und gewählt war, Breite der Bibliothek, Lage des Fensters, das Eingabegerät des Stimmgeräts und der gewählte Speicherort
 
 #### Entwickler-Modus
 
@@ -300,9 +297,9 @@ Jeder Zustand hat eine eigene Farbe. Keine Farbe soll alarmieren, und nichts bli
 | letzte 30 Sekunden | sanfter Hinweis                  |
 | abgelaufen         | deutlich, bleibt bis zum Reset   |
 
-### Eingeklappte Darstellung
+### Im Werkzeugbereich
 
-Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibenden Minuten in der Farbe des Zustands. So bleibt der Ablauf im Blick.
+Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeigt der Timer nur die verbleibenden Minuten in der Farbe des Zustands. So bleibt der Ablauf im Blick.
 
 ## Schritt 3: Metronom
 
@@ -310,29 +307,29 @@ Siehe [Komponenten](#komponenten). Eingeklappt zeigt der Timer nur die verbleibe
 
 - **Tempo:** 30 bis 250 BPM, einstellbar per Regler, per direkter Eingabe und per Tap-Tempo
 - **Tap-Tempo:** Man tippt mehrmals auf eine Schaltfläche oder Taste. Das Tempo ergibt sich aus den letzten Tipps.
-- **Taktart:** frei einstellbar, z. B. auch 7/8 oder 5/4. Gängige Taktarten wie 2/4, 3/4, 4/4 und 6/8 gibt es als Schnellauswahl.
+- **Schläge pro Takt:** 1 bis 16, einstellbar mit − und +; der erste Schlag ist betont.
 - **Betonung:** Jeder Schlag ist entweder betont, normal oder stumm. Antippen schaltet um. Standardmäßig ist die Eins betont.
 - **Unterteilungen:** Achtel, Triolen, Sechzehntel, Quintolen, Sextolen und Swing-Achtel.
 - **Klänge:** mitgelieferte Klangsets, z. B. Klick, Holzblock und Beep. Zusätzlich kann man eigene Audiodateien als Klänge laden.
 - **Lautstärke:** Betonte Schläge, normale Schläge und Unterteilungen haben je einen eigenen Lautstärkeregler. Alle drei sind unabhängig von der Lautstärke des Audioplayers.
 - **Unabhängig vom Player:** Das Metronom hat ein eigenes Tempo und einen eigenen Start/Stopp. Es läuft nicht synchron zum Stück. Eine Kopplung kann später kommen.
-- **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Wird die Taktart kürzer und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
-- **Bezug der BPM:** Ein Schlag ist eine Zählzeit der Taktart (bei 4/4 die Viertel). Wie das bei Achteltakten wie 6/8 aussieht, wird mit den freien Taktarten entschieden.
-- **Bedienung wie im Player:** Tempo und Lautstärke haben dasselbe Bedienelement wie im Player: Regler mit − und + (1 BPM bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und den Wert daneben. Ein Tipp auf den BPM-Wert öffnet die direkte Eingabe, ein Tipp auf die Lautstärke setzt sie auf 0 dB zurück.
-- **Platz:** Das Metronom nutzt die ganze Breite und bleibt flach: Start/Stopp mit Schlaganzeige, Tempo, Taktart und Lautstärke stehen in einer Zeile, die bei schmalem Fenster umbricht. Alle Knöpfe sind mindestens 44 Einheiten groß.
+- **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Werden die Schläge pro Takt weniger und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
+- **Bezug der BPM:** Jeder Schlag ist ein Klick; das Tempo zählt die Schläge pro Minute. Eingestellt werden nur die Schläge pro Takt (1 bis 16), der erste ist automatisch betont. Einen Nenner wie in 6/8 gibt es nicht; die Schlaganzeige zeigt, wie viele Schläge ein Takt hat. Eine Zählung in Gruppen (z. B. 6/8 in zwei) kann später mit den Unterteilungen kommen.
+- **Tempo-Voreinstellungen:** 60, 90 und 120 BPM als Knöpfe über dem Tempo-Regler; die gewählte ist markiert.
+- **Einstellungen:** von oben nach unten: Schläge pro Takt (− und +), Tempo (erst die Voreinstellungen, darunter der Regler mit − und + wie im Player, 1 BPM pro Tipp, und daneben ein Feld zur direkten Eingabe), Lautstärke (0,5 dB pro Tipp, ein Tipp auf den Wert setzt auf 0 dB zurück). Die Regler für Tempo und Lautstärke sind gleich breit und stehen genau untereinander. Darunter mittig „Fertig“. Ein Tipp auf Start/Stopp im Werkzeugbereich klappt die Einstellungen zu und startet bzw. stoppt das Metronom.
 
 ### Speichern
 
-- **Letzte Einstellung:** Tempo, Taktart, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da. Ob das Metronom lief, wird nicht gemerkt; nach dem Start der App steht es.
+- **Letzte Einstellung:** Tempo, Schläge pro Takt, Betonung, Unterteilung, Klang und die drei Lautstärken werden in den [App-Einstellungen](#app-einstellungen) gespeichert. Beim nächsten Start sind sie wieder da. Ob das Metronom lief, wird nicht gemerkt; nach dem Start der App steht es.
 - **Benannte Einstellungen:** Zusätzlich kann man Einstellungen unter einem Namen speichern, z. B. „Etüde 7/8, 92 BPM“, und später wieder aufrufen. Auch sie liegen in den App-Einstellungen, weil sie nicht an ein Stück gebunden sind.
 
 ### Schlaganzeige
 
 Eine Reihe Punkte zeigt die Schläge des Takts, ein Punkt pro Schlag. Der aktuelle Schlag leuchtet auf. Betonte, normale und stumme Schläge sehen unterschiedlich aus. Über die Punkte stellt man auch die Betonung ein.
 
-### Eingeklappte Darstellung
+### Im Werkzeugbereich
 
-Siehe [Komponenten](#komponenten). Eingeklappt zeigt das Metronom das Tempo in BPM, eine Start/Stopp-Schaltfläche und eine verkleinerte Schlaganzeige.
+Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeigt das Metronom das Tempo in BPM, die Schlaganzeige und Start/Stopp. Ein Tipp auf Tempo oder Schlaganzeige klappt die Einstellungen auf.
 
 ## Schritt 4: Stimmgerät
 
@@ -365,9 +362,9 @@ Die Anzeige hilft beim Üben von Dynamik. Sie zeigt, wie laut man gerade spielt.
 
 - **Skala:** relativer Pegel in dB. Ein absoluter Wert wäre nicht sinnvoll, weil er von Mikrofon, Abstand und Raum abhängt.
 - **Aktueller Pegel und Verlauf:** Neben dem aktuellen Pegel zeigt ein Verlauf der letzten Sekunden, wie sich die Lautstärke entwickelt. Daran erkennt man Crescendi, Decrescendi und gleichmäßig gehaltene Töne.
-- **Eingeklappte Darstellung:** ein einfacher Balken für den aktuellen Pegel
-- **Eigene Komponente oder Teil des Stimmgeräts:** Das entscheidet sich beim Entwurf der Oberfläche. Lassen sich Tonhöhe, Pegel und Verlauf nicht leicht erfassbar gemeinsam darstellen, wird die Lautstärkeanzeige eine eigene Komponente. Sie bekommt dann wie alle Komponenten die Zustände ausgeklappt, eingeklappt und geschlossen, ein Symbol in der Leiste und eigene Tastenkürzel. Das Eingabegerät teilt sie sich mit dem Stimmgerät.
+- **Im Werkzeugbereich:** ein einfacher Balken für den aktuellen Pegel
+- **Eigene Komponente oder Teil des Stimmgeräts:** Das entscheidet sich beim Entwurf der Oberfläche. Lassen sich Tonhöhe, Pegel und Verlauf nicht leicht erfassbar gemeinsam darstellen, wird die Lautstärkeanzeige eine eigene Komponente. Sie bekommt dann wie alle Werkzeuge einen Platz im Werkzeugbereich, aufgeklappte Einstellungen und eigene Tastenkürzel. Das Eingabegerät teilt sie sich mit dem Stimmgerät.
 
-### Eingeklappte Darstellung
+### Im Werkzeugbereich
 
-Siehe [Komponenten](#komponenten). Eingeklappt zeigt das Stimmgerät den Tonnamen in einem Rechteck. Daneben zeigt ein Strich die Abweichung: Je weiter der Ton daneben liegt, desto weiter ist der Strich vom Zentrum entfernt.
+Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeigt das Stimmgerät den Tonnamen in einem Rechteck. Daneben zeigt ein Strich die Abweichung: Je weiter der Ton daneben liegt, desto weiter ist der Strich vom Zentrum entfernt.

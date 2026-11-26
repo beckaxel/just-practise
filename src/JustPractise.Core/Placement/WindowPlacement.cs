@@ -25,6 +25,12 @@ public sealed record WindowPlacement
 
     public bool Maximized { get; init; }
 
+    /// <summary>
+    /// War das Fenster im Vollbild; dann startet es wieder so. <see cref="Maximized"/> sagt, wohin es beim Verlassen
+    /// des Vollbilds zurückkehrt.
+    /// </summary>
+    public bool FullScreen { get; init; }
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Unknown { get; init; }
 }

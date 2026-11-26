@@ -22,6 +22,17 @@ public sealed class WindowPlacerTests
     }
 
     [Fact]
+    public void KeepsFullScreenWhenTheScreenIsGone()
+    {
+        var saved = new WindowPlacement { X = -2000, Y = 100, Width = 1200, Height = 800, Maximized = true, FullScreen = true };
+
+        var placement = Placer.Place(saved, [FullHd], FullHd)!;
+
+        Assert.True(placement.FullScreen);
+        Assert.True(placement.Maximized);
+    }
+
+    [Fact]
     public void ShrinksTheFirstWindowToASmallScaledScreen()
     {
         // 1366 × 768 mit 125 %, Taskleiste 48 px: nur 614 Einheiten hoch.
@@ -113,7 +124,7 @@ public sealed class WindowPlacerTests
 
         var json = AppDataFiles.Device.Write(memory);
 
-        Assert.Contains("\"window\": {\n    \"x\": -20,\n    \"y\": 10,\n    \"width\": 1000,\n    \"height\": 700,\n    \"maximized\": true\n  }", json, StringComparison.Ordinal);
+        Assert.Contains("\"window\": {\n    \"x\": -20,\n    \"y\": 10,\n    \"width\": 1000,\n    \"height\": 700,\n    \"maximized\": true,\n    \"fullScreen\": false\n  }", json, StringComparison.Ordinal);
         Assert.Equal(memory.Window, AppDataFiles.Device.Read(json).Value.Window! with { Unknown = null });
     }
 

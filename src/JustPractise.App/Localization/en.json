@@ -21,8 +21,6 @@
     "resetVolume": "Back to 0 dB",
     "loading": "Loading …",
     "error": "This file cannot be opened.",
-    "seekBack": "Back 5 seconds",
-    "seekForward": "Forward 5 seconds",
     "slower": "Slower",
     "faster": "Faster",
     "quieter": "Quieter",
@@ -33,14 +31,18 @@
     "start": "Start",
     "stop": "Stop",
     "tempo": "Tempo",
-    "meter": "Time",
     "volume": "Volume",
     "resetVolume": "Back to 0 dB",
     "slower": "Slower",
     "faster": "Faster",
     "quieter": "Quieter",
     "louder": "Louder",
-    "enterTempo": "Enter tempo"
+    "enterTempo": "Enter tempo",
+    "open": "Adjust the metronome",
+    "done": "Done",
+    "moreBeats": "More beats per bar",
+    "fewerBeats": "Fewer beats per bar",
+    "beats": "Beats per bar"
   },
   "status": {
     "device": "Output: {name}",
@@ -84,5 +86,12 @@
     "cancel": "Cancel",
     "remove": "Remove",
     "removeTip": "Remove music folder from the library"
+  },
+  "layout": {
+    "collapseLibrary": "Collapse library",
+    "expandLibrary": "Expand library",
+    "resize": "Drag to change the width of the library",
+    "fullScreen": "Full screen on/off (F11)",
+    "practice": "Practice"
   }
 }

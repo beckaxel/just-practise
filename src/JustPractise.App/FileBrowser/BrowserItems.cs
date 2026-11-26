@@ -2,11 +2,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace JustPractise.App.FileBrowser;
 
-/// <summary>Ein Glied der Pfadzeile: ein Ordner zwischen Musikordner und der gewählten Stelle.</summary>
+/// <summary>
+/// Ein Glied der Pfadzeile: ein Ordner zwischen Musikordner und der gewählten Stelle, am Ende ggf. die gewählte Datei.
+/// </summary>
 public sealed record BreadcrumbItem(string Name, string Path)
 {
     /// <summary>Das erste Glied, der Musikordner; davor steht kein Trenner.</summary>
     public bool IsFirst { get; init; }
+
+    /// <summary>Die gewählte Datei am Ende des Pfads; <see cref="Path"/> ist dann der Dateipfad.</summary>
+    public PieceFile? File { get; init; }
 }
 
 /// <summary>Eine Audiodatei mit dem Stück, zu dem sie gehört; das Stück bestimmt den Namen der Sidecar-Datei.</summary>

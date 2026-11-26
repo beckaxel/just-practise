@@ -49,6 +49,9 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
     /// <summary>Die Ansicht soll diese Zeile sichtbar machen, z. B. die gewählte Datei nach dem Start.</summary>
     public event EventHandler<LibraryRow>? ScrollRequested;
 
+    /// <summary>In der Pfadzeile wurde ein Glied gewählt; eine eingeklappte Bibliothek soll sich öffnen.</summary>
+    public event EventHandler? RevealRequested;
+
     /// <summary>
     /// Gibt die gewählte Datei frei, bevor ihr Musikordner entfernt wird (der Player schließt sie und schreibt
     /// ausstehende Änderungen), damit danach nichts mehr in den Ordner schreibt.
@@ -116,15 +119,28 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
         SaveState();
     }
 
-    /// <summary>Ein Glied der Pfadzeile: Der Ordner wird aufgeklappt und sichtbar gemacht.</summary>
+    /// <summary>
+    /// Ein Glied der Pfadzeile: Der Weg dorthin wird aufgeklappt und die Zeile sichtbar gemacht; bei der Datei am Ende
+    /// auch ihr Stück. Eine eingeklappte Bibliothek öffnet sich dazu.
+    /// </summary>
     [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task OpenBreadcrumb(BreadcrumbItem crumb)
     {
-        SetLocation(crumb.Path);
-        ExpandPathTo(crumb.Path);
+        RevealRequested?.Invoke(this, EventArgs.Empty);
+        var folder = crumb.File?.Folder ?? crumb.Path;
+        SetLocation(folder);
+        ExpandPathTo(folder);
+        if (crumb.File is { } file)
+        {
+            _expandedPieces.Add(Path.Combine(file.Folder, file.PieceTitle));
+        }
+
         SaveState();
         await RebuildAsync();
-        if (Rows.FirstOrDefault(row => row.IsFolder && SamePath(row.Key, crumb.Path)) is { } target)
+        var target = crumb.File is { } chosen
+            ? Rows.FirstOrDefault(row => row.IsFile && SamePath(row.Key, chosen.Path))
+            : Rows.FirstOrDefault(row => row.IsFolder && SamePath(row.Key, crumb.Path));
+        if (target is not null)
         {
             ScrollRequested?.Invoke(this, target);
         }
@@ -217,6 +233,7 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
     {
         SelectedFile = row.File;
         MarkSelection();
+        Breadcrumbs = BuildBreadcrumbs(MusicFolders, Location, SelectedFile);
     }
 
     private void TogglePiece(LibraryRow row)
@@ -408,7 +425,7 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
         }
 
         Location = path is null ? null : FolderPaths.Normalize(path);
-        Breadcrumbs = BuildBreadcrumbs(MusicFolders, Location);
+        Breadcrumbs = BuildBreadcrumbs(MusicFolders, Location, SelectedFile);
     }
 
     private void SaveState()
@@ -433,7 +450,8 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
 
     private static bool SamePath(string a, string b) => string.Equals(a, b, FolderPaths.Comparison);
 
-    private static List<BreadcrumbItem> BuildBreadcrumbs(IReadOnlyList<string> roots, string? path)
+    /// <summary>Der Weg zum Ordner <paramref name="path"/>; liegt die gewählte Datei darin, steht sie am Ende.</summary>
+    private static List<BreadcrumbItem> BuildBreadcrumbs(IReadOnlyList<string> roots, string? path, PieceFile? selected)
     {
         var crumbs = new List<BreadcrumbItem>();
         if (path is not null && FolderPaths.FindRoot(roots, path) is { } root)
@@ -444,6 +462,11 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
             {
                 current = Path.Combine(current, segment);
                 crumbs.Add(new BreadcrumbItem(segment, current));
+            }
+
+            if (selected is not null && SamePath(FolderPaths.Normalize(selected.Folder), path))
+            {
+                crumbs.Add(new BreadcrumbItem(selected.FileName, selected.Path) { File = selected });
             }
         }
 

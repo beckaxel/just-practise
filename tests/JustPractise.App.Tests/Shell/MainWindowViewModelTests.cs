@@ -39,7 +39,8 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
             new PlayerViewModel(_player),
             new MetronomeViewModel(_metronome, _settings),
             new StatusBarViewModel(new NoDevice(), translator, developer),
-            new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer));
+            new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer),
+            new LibraryPane(_memory));
     }
 
     public async ValueTask DisposeAsync()
@@ -104,6 +105,42 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         }
 
         Assert.True(condition());
+    }
+
+    [Fact]
+    public async Task APathCrumbOpensTheCollapsedLibrary()
+    {
+        _directory.Create(Path.Combine("Musik", "a.mp3"));
+        _memory.Update(memory => memory with { MusicFolders = [_directory.File("Musik")], LastFolder = _directory.File("Musik") });
+        await _shell.Browser.StartAsync();
+        _shell.LibraryPane.ToggleCommand.Execute(null);
+        Assert.True(_shell.LibraryPane.IsCollapsed);
+
+        await _shell.Browser.OpenBreadcrumbCommand.ExecuteAsync(_shell.Browser.Breadcrumbs[0]);
+
+        Assert.False(_shell.LibraryPane.IsCollapsed);
+    }
+
+    [Fact]
+    public void OpensAndClosesTheMetronomeSettings()
+    {
+        _shell.OpenMetronomeCommand.Execute(null);
+        Assert.True(_shell.IsMetronomeOpen);
+
+        _shell.CloseMetronomeCommand.Execute(null);
+        Assert.False(_shell.IsMetronomeOpen);
+    }
+
+    [Fact]
+    public void F11AsksTheWindowToToggleFullScreen()
+    {
+        var requests = 0;
+        _shell.FullScreenToggleRequested += (_, _) => requests++;
+
+        _shell.Execute(ShortcutAction.ToggleFullScreen);
+
+        Assert.Equal(1, requests);
+        Assert.Equal(ShortcutAction.ToggleFullScreen, Shortcut.Match(Avalonia.Input.Key.F11, Avalonia.Input.KeyModifiers.None, null));
     }
 
     private sealed class NoPicker : IFolderPicker

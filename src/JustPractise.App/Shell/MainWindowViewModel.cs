@@ -9,8 +9,8 @@ using JustPractise.App.Shortcuts;
 namespace JustPractise.App.Shell;
 
 /// <summary>
-/// Hält die Bereiche zusammen: Dateibrowser, Player, Metronom, Statusleiste und Einstellungen. Führt außerdem die
-/// Tastenkürzel aus.
+/// Hält die Bereiche zusammen: oben die Werkzeuge (Metronom), links die Bibliothek, rechts der Übungsbereich (Player),
+/// unten die Statusleiste, dazu die Einstellungen. Führt außerdem die Tastenkürzel aus.
 /// </summary>
 public sealed partial class MainWindowViewModel : ObservableObject
 {
@@ -25,8 +25,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
         PlayerViewModel player,
         MetronomeViewModel metronome,
         StatusBarViewModel status,
-        SettingsViewModel settings)
+        SettingsViewModel settings,
+        LibraryPane libraryPane)
     {
+        LibraryPane = libraryPane;
         Browser = browser;
         Player = player;
         Metronome = metronome;
@@ -34,6 +36,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         Settings = settings;
         Browser.PropertyChanged += OnBrowserChanged;
         Browser.ReleaseSelection = Player.CloseAsync;
+        Browser.RevealRequested += (_, _) => LibraryPane.Show();
     }
 
     public FileBrowserViewModel Browser { get; }
@@ -46,8 +49,30 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     public SettingsViewModel Settings { get; }
 
+    /// <summary>Breite und Einklappen der Bibliothek.</summary>
+    public LibraryPane LibraryPane { get; }
+
+    /// <summary>
+    /// Das Metronom ist zum Einstellen aufgeklappt (Tempo, Taktart, Lautstärke). In der Werkzeugleiste steht sonst nur
+    /// das Nötigste: Tempo, Schlaganzeige, Start/Stopp.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsMetronomeOpen { get; set; }
+
     /// <summary>Das Fenster soll die Einstellungen öffnen.</summary>
     public event EventHandler? SettingsRequested;
+
+    /// <summary>Das Fenster soll ins Vollbild wechseln oder es verlassen.</summary>
+    public event EventHandler? FullScreenToggleRequested;
+
+    [RelayCommand]
+    private void OpenMetronome() => IsMetronomeOpen = true;
+
+    [RelayCommand]
+    private void CloseMetronome() => IsMetronomeOpen = false;
+
+    [RelayCommand]
+    private void ToggleFullScreen() => FullScreenToggleRequested?.Invoke(this, EventArgs.Empty);
 
     /// <summary>Hält die Anzeigen aktuell; die Oberfläche ruft das etwa 30-mal pro Sekunde auf.</summary>
     public void Tick()
@@ -106,6 +131,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 break;
             case ShortcutAction.OpenSettings:
                 OpenSettings();
+                break;
+            case ShortcutAction.ToggleFullScreen:
+                ToggleFullScreen();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, null);

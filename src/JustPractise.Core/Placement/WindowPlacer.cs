@@ -66,7 +66,7 @@ public sealed class WindowPlacer(double defaultWidth, double defaultHeight)
         var best = screens.MaxBy(screen => screen.WorkingArea.Overlap(OuterBox(saved, screen.Scaling)));
         if (best.WorkingArea.Overlap(OuterBox(saved, best.Scaling)) == 0)
         {
-            return Center(main, saved.Width, saved.Height, saved.Maximized) with { Unknown = saved.Unknown };
+            return Center(main, saved.Width, saved.Height, saved.Maximized) with { FullScreen = saved.FullScreen, Unknown = saved.Unknown };
         }
 
         var (width, height) = FitSize(best, saved.Width, saved.Height);

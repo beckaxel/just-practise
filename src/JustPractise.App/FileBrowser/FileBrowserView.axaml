@@ -9,9 +9,7 @@
     <!-- Zwei Achtelnoten mit Balken -->
     <StreamGeometry x:Key="NotesIcon">F1 M8.5,4 L20,1 V4.5 L10,7.1 V17.5 H8.5 Z M10,17.5 A3.5,2.8 0 1 1 3,17.5 A3.5,2.8 0 1 1 10,17.5 Z M18.5,2 H20 V15.5 H18.5 Z M20,15.5 A3.5,2.8 0 1 1 13,15.5 A3.5,2.8 0 1 1 20,15.5 Z</StreamGeometry>
     <StreamGeometry x:Key="ChevronIcon">M9,5 L16,12 L9,19 L7.6,17.6 L13.2,12 L7.6,6.4 Z</StreamGeometry>
-    <StreamGeometry x:Key="PlusIcon">M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z</StreamGeometry>
     <StreamGeometry x:Key="RemoveIcon">M6.4,5 L12,10.6 L17.6,5 L19,6.4 L13.4,12 L19,17.6 L17.6,19 L12,13.4 L6.4,19 L5,17.6 L10.6,12 L5,6.4 Z</StreamGeometry>
-    <StreamGeometry x:Key="RefreshIcon">M12,4 A8,8 0 1 0 20,12 H18 A6,6 0 1 1 12,6 V9 L16,5 L12,1 Z</StreamGeometry>
   </UserControl.Resources>
 
   <UserControl.Styles>
@@ -70,44 +68,9 @@
       <Setter Property="Width" Value="18" />
       <Setter Property="Height" Value="18" />
     </Style>
-    <Style Selector="Button.crumb">
-      <Setter Property="MinHeight" Value="36" />
-      <Setter Property="Padding" Value="6,2" />
-      <Setter Property="FontSize" Value="14" />
-    </Style>
   </UserControl.Styles>
 
   <DockPanel>
-    <!-- Pfadzeile zur gewählten Stelle, daneben Hinzufügen und Aktualisieren -->
-    <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
-      <ItemsControl Grid.Column="0" ItemsSource="{Binding Breadcrumbs}" VerticalAlignment="Center">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <WrapPanel />
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="fb:BreadcrumbItem">
-            <StackPanel Orientation="Horizontal">
-              <TextBlock Text="›" Opacity="0.5" VerticalAlignment="Center" Margin="1,0" IsVisible="{Binding !IsFirst}" />
-              <Button Classes="flat crumb" Content="{Binding Name}"
-                      Command="{Binding $parent[UserControl].((fb:FileBrowserViewModel)DataContext).OpenBreadcrumbCommand}"
-                      CommandParameter="{Binding}" />
-            </StackPanel>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-      <Button Grid.Column="1" Classes="flat tool" VerticalAlignment="Top"
-              Command="{Binding AddMusicFolderCommand}"
-              ToolTip.Tip="{l:Tr browser.addFolder}">
-        <PathIcon Data="{StaticResource PlusIcon}" />
-      </Button>
-      <Button Grid.Column="2" Classes="flat tool" VerticalAlignment="Top"
-              Command="{Binding RefreshCommand}"
-              ToolTip.Tip="{l:Tr browser.refresh}">
-        <PathIcon Data="{StaticResource RefreshIcon}" />
-      </Button>
-    </Grid>
 
     <ProgressBar DockPanel.Dock="Top" IsIndeterminate="True" IsVisible="{Binding IsLoading}" MinHeight="2" Height="2" />
 

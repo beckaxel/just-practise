@@ -19,6 +19,7 @@ public enum ShortcutAction
     MetronomeMuchFaster,
     MetronomeMuchSlower,
     OpenSettings,
+    ToggleFullScreen,
 }
 
 /// <summary>
@@ -46,6 +47,11 @@ public static class Shortcut
         if (modifiers == KeyModifiers.Control && key == Key.OemComma)
         {
             return ShortcutAction.OpenSettings;
+        }
+
+        if (modifiers == KeyModifiers.None && key == Key.F11)
+        {
+            return ShortcutAction.ToggleFullScreen;
         }
 
         if (modifiers is not (KeyModifiers.None or KeyModifiers.Shift))

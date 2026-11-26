@@ -5,99 +5,88 @@
              xmlns:l="using:JustPractise.App.Localization"
              x:Class="JustPractise.App.Metronome.MetronomeView"
              x:DataType="m:MetronomeViewModel">
+  <!-- Die Einstellungen des Metronoms, aufgeklappt aus der Werkzeugleiste: Tempo, Taktart, Lautstärke -->
   <UserControl.Styles>
-    <Style Selector="Button.meter">
-      <Setter Property="MinWidth" Value="56" />
-      <Setter Property="Height" Value="44" />
-      <Setter Property="FontSize" Value="16" />
+    <Style Selector="Button.choice">
+      <Setter Property="MinWidth" Value="60" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="FontSize" Value="17" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    <Style Selector="c|StepSlider">
-      <Setter Property="Width" Value="320" />
+    <Style Selector="RepeatButton.step">
+      <Setter Property="Width" Value="48" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-
-    <!-- Schlaganzeige: die Eins ist größer, der aktuelle Schlag leuchtet -->
-    <Style Selector="Ellipse.beat">
-      <Setter Property="Width" Value="16" />
-      <Setter Property="Height" Value="16" />
-      <Setter Property="VerticalAlignment" Value="Center" />
-      <Setter Property="Fill" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
-    </Style>
-    <Style Selector="Ellipse.beat.accent">
-      <Setter Property="Width" Value="24" />
-      <Setter Property="Height" Value="24" />
-    </Style>
-    <Style Selector="Ellipse.beat.current">
-      <Setter Property="Fill" Value="{DynamicResource SystemAccentColor}" />
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,2" />
     </Style>
   </UserControl.Styles>
 
-  <!-- Breit und flach: alles in einer Zeile, die bei schmalem Fenster umbricht -->
-  <WrapPanel ItemSpacing="20" LineSpacing="8">
-    <!-- Start/Stopp mit Schlaganzeige -->
-    <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
-      <Button Classes="accent" MinWidth="96" Height="48" FontSize="16"
-              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-              Command="{Binding StartStopCommand}">
-        <Panel>
-          <TextBlock Text="{l:Tr metronome.start}" IsVisible="{Binding !IsRunning}" />
-          <TextBlock Text="{l:Tr metronome.stop}" IsVisible="{Binding IsRunning}" />
-        </Panel>
-      </Button>
-      <ItemsControl ItemsSource="{Binding Beats}" VerticalAlignment="Center">
+  <StackPanel Spacing="16" Width="560">
+    <!-- Schläge pro Takt; der erste ist automatisch betont -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr metronome.beats}" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <RepeatButton Classes="step" Content="−" Command="{Binding FewerBeatsCommand}" ToolTip.Tip="{l:Tr metronome.fewerBeats}" />
+        <TextBlock Text="{Binding Meter.Beats}" FontSize="22" FontWeight="SemiBold" MinWidth="40"
+                   TextAlignment="Center" VerticalAlignment="Center" />
+        <RepeatButton Classes="step" Content="+" Command="{Binding MoreBeatsCommand}" ToolTip.Tip="{l:Tr metronome.moreBeats}" />
+      </StackPanel>
+    </StackPanel>
+
+    <!-- Tempo: Voreinstellungen, darunter der Regler wie im Player und daneben ein Feld zur direkten Eingabe -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr metronome.tempo}" />
+      <ItemsControl ItemsSource="{Binding TempoPresets}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <StackPanel Orientation="Horizontal" Spacing="10" />
+            <StackPanel Orientation="Horizontal" Spacing="8" />
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="m:BeatDot">
-            <Ellipse Classes="beat" Classes.accent="{Binding IsAccent}" Classes.current="{Binding IsCurrent}" />
+          <DataTemplate x:DataType="m:NumberChoice">
+            <Button Classes="choice" Classes.accent="{Binding IsSelected}" Content="{Binding Label}"
+                    Command="{Binding $parent[UserControl].((m:MetronomeViewModel)DataContext).UseTempoPresetCommand}"
+                    CommandParameter="{Binding}" />
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
-    </StackPanel>
-
-    <!--
-      Tempo wie im Player; ein Tipp auf den Wert öffnet die direkte Eingabe.
-      30 bis 250 wie MetronomeViewModel.MinBpm/MaxBpm (int, hier wird double gebraucht), das außerdem begrenzt.
-    -->
-    <c:StepSlider VerticalAlignment="Center"
-                  Icon="{StaticResource TempoIcon}" Label="{l:Tr metronome.tempo}"
-                  Minimum="30"
-                  Maximum="250"
-                  Step="1" LargeChange="10" ValueWidth="104"
-                  Value="{Binding Bpm}"
-                  ValueText="{Binding Bpm, StringFormat='{}{0} BPM'}"
-                  ValueTip="{l:Tr metronome.enterTempo}"
-                  DecreaseTip="{l:Tr metronome.slower}" IncreaseTip="{l:Tr metronome.faster}">
-      <c:StepSlider.ValueFlyout>
-        <Flyout Placement="Bottom">
-          <NumericUpDown x:DataType="m:MetronomeViewModel" Width="180" FontSize="22"
-                         Minimum="30"
-                         Maximum="250"
-                         Increment="1" FormatString="0" ClipValueToMinMax="True"
-                         Value="{Binding BpmInput}" />
-        </Flyout>
-      </c:StepSlider.ValueFlyout>
-    </c:StepSlider>
-
-    <!-- Taktart -->
-    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" ToolTip.Tip="{l:Tr metronome.meter}">
-      <Button Classes="meter" Classes.accent="{Binding IsThreeFour}" Content="3/4" Command="{Binding UseThreeFourCommand}" />
-      <Button Classes="meter" Classes.accent="{Binding IsFourFour}" Content="4/4" Command="{Binding UseFourFourCommand}" />
+      <!-- 30 bis 250 wie MetronomeViewModel.MinBpm/MaxBpm (int, hier wird double gebraucht), das außerdem begrenzt -->
+      <Grid ColumnDefinitions="*,150" ColumnSpacing="8">
+        <c:StepSlider Minimum="30" Maximum="250" Step="1" LargeChange="10" ShowValue="False"
+                      Value="{Binding Bpm}"
+                      DecreaseTip="{l:Tr metronome.slower}" IncreaseTip="{l:Tr metronome.faster}" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" HorizontalAlignment="Left">
+          <NumericUpDown Width="96" Height="44" FontSize="18" ShowButtonSpinner="False"
+                         HorizontalContentAlignment="Right" VerticalContentAlignment="Center"
+                         Minimum="30" Maximum="250" Increment="1" FormatString="0" ClipValueToMinMax="True"
+                         Value="{Binding BpmInput}" ToolTip.Tip="{l:Tr metronome.enterTempo}" />
+          <TextBlock Text="BPM" FontSize="16" Opacity="0.7" VerticalAlignment="Center" />
+        </StackPanel>
+      </Grid>
     </StackPanel>
 
     <!-- Lautstärke wie im Player; ein Tipp auf den Wert setzt zurück -->
-    <c:StepSlider VerticalAlignment="Center"
-                  Icon="{StaticResource VolumeIcon}" Label="{l:Tr metronome.volume}"
-                  Minimum="{x:Static m:MetronomeViewModel.MinVolumeDb}"
-                  Maximum="{x:Static m:MetronomeViewModel.MaxVolumeDb}"
-                  Step="0.5" LargeChange="3" ValueWidth="92"
-                  Value="{Binding VolumeDb}"
-                  ValueText="{Binding VolumeDb, StringFormat='{}{0:+0.0;−0.0;0.0} dB'}"
-                  ValueCommand="{Binding ResetVolumeCommand}" ValueTip="{l:Tr metronome.resetVolume}"
-                  DecreaseTip="{l:Tr metronome.quieter}" IncreaseTip="{l:Tr metronome.louder}" />
-  </WrapPanel>
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr metronome.volume}" />
+      <!-- Gleicher Aufbau wie beim Tempo, damit beide Regler genau untereinander stehen -->
+      <Grid ColumnDefinitions="*,150" ColumnSpacing="8">
+        <c:StepSlider Minimum="{x:Static m:MetronomeViewModel.MinVolumeDb}"
+                      Maximum="{x:Static m:MetronomeViewModel.MaxVolumeDb}"
+                      Step="0.5" LargeChange="3" ShowValue="False"
+                      Value="{Binding VolumeDb}"
+                      DecreaseTip="{l:Tr metronome.quieter}" IncreaseTip="{l:Tr metronome.louder}" />
+        <Button Grid.Column="1" Classes="flat" HorizontalAlignment="Left" MinWidth="104" MinHeight="44"
+                FontSize="17" FontWeight="SemiBold"
+                Content="{Binding VolumeDb, StringFormat='{}{0:+0.0;−0.0;0.0} dB'}"
+                Command="{Binding ResetVolumeCommand}" ToolTip.Tip="{l:Tr metronome.resetVolume}" />
+      </Grid>
+    </StackPanel>
+  </StackPanel>
 </UserControl>

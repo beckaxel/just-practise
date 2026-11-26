@@ -21,8 +21,6 @@
     "resetVolume": "Zurück auf 0 dB",
     "loading": "Wird geladen …",
     "error": "Diese Datei lässt sich nicht öffnen.",
-    "seekBack": "5 Sekunden zurück",
-    "seekForward": "5 Sekunden vor",
     "slower": "Langsamer",
     "faster": "Schneller",
     "quieter": "Leiser",
@@ -33,14 +31,18 @@
     "start": "Start",
     "stop": "Stopp",
     "tempo": "Tempo",
-    "meter": "Taktart",
     "volume": "Lautstärke",
     "resetVolume": "Zurück auf 0 dB",
     "slower": "Langsamer",
     "faster": "Schneller",
     "quieter": "Leiser",
     "louder": "Lauter",
-    "enterTempo": "Tempo eingeben"
+    "enterTempo": "Tempo eingeben",
+    "open": "Metronom einstellen",
+    "done": "Fertig",
+    "moreBeats": "Mehr Schläge pro Takt",
+    "fewerBeats": "Weniger Schläge pro Takt",
+    "beats": "Schläge pro Takt"
   },
   "status": {
     "device": "Ausgabe: {name}",
@@ -84,5 +86,12 @@
     "cancel": "Abbrechen",
     "remove": "Entfernen",
     "removeTip": "Musikordner aus der Bibliothek entfernen"
+  },
+  "layout": {
+    "collapseLibrary": "Bibliothek einklappen",
+    "expandLibrary": "Bibliothek ausklappen",
+    "resize": "Ziehen, um die Breite der Bibliothek zu ändern",
+    "fullScreen": "Vollbild an/aus (F11)",
+    "practice": "Übung"
   }
 }
