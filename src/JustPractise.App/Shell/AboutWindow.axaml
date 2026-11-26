@@ -1,0 +1,83 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="using:JustPractise.App.Shell"
+        xmlns:l="using:JustPractise.App.Localization"
+        x:Class="JustPractise.App.Shell.AboutWindow"
+        x:DataType="shell:AboutViewModel"
+        Title="{l:Tr about.title}"
+        Icon="/Assets/icon.png"
+        Width="640" Height="720" MinWidth="460" MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <Window.Styles>
+    <Style Selector="TextBlock.heading">
+      <Setter Property="FontSize" Value="17" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,8,0,2" />
+    </Style>
+    <Style Selector="TextBlock.body">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="HyperlinkButton">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="Padding" Value="0,4" />
+      <Setter Property="MinHeight" Value="36" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel Margin="24,20">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,16,0,0">
+      <ToggleButton x:Name="ShowLicenses" MinHeight="44" MinWidth="160" FontSize="15" Content="{l:Tr about.showLicenses}" />
+      <Button Classes="accent" MinHeight="44" MinWidth="110" FontSize="15" Content="{l:Tr about.close}" Click="OnClose" IsCancel="True" />
+    </StackPanel>
+
+    <Panel>
+      <!-- Übersicht -->
+      <ScrollViewer IsVisible="{Binding !#ShowLicenses.IsChecked}">
+        <StackPanel Spacing="6">
+          <StackPanel Orientation="Horizontal" Spacing="16">
+            <Image Source="/Assets/icon.png" Width="64" Height="64" />
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="just practise" FontSize="28" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding VersionText}" FontSize="15" Opacity="0.7" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock Classes="body" Margin="0,8,0,0" Text="{l:Tr about.description}" />
+          <TextBlock Classes="body" Opacity="0.8" Text="{l:Tr about.freeAndOpen}" />
+
+          <TextBlock Classes="heading" Text="{l:Tr about.sourceTitle}" />
+          <HyperlinkButton Content="github.com/beckaxel/just-practise" NavigateUri="{x:Static shell:AboutViewModel.SourceCode}" />
+
+          <!-- Mitmachen; bewusst ohne Spenden-Link: das Projekt nimmt kein Geld -->
+          <TextBlock Classes="heading" Text="{l:Tr about.contributeTitle}" />
+          <TextBlock Classes="body" Text="{l:Tr about.contribute}" />
+          <WrapPanel ItemSpacing="20">
+            <HyperlinkButton Content="{l:Tr about.issues}" NavigateUri="{x:Static shell:AboutViewModel.Issues}" />
+            <HyperlinkButton Content="{l:Tr about.contributing}" NavigateUri="{x:Static shell:AboutViewModel.Contributing}" />
+          </WrapPanel>
+
+          <TextBlock Classes="heading" Text="{l:Tr about.componentsTitle}" />
+          <TextBlock Classes="body" Opacity="0.8" Text="{l:Tr about.components}" />
+          <ItemsControl ItemsSource="{Binding Rows}" Margin="0,4,0,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="shell:ComponentRow">
+                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                  <StackPanel>
+                    <HyperlinkButton Content="{Binding Name}" NavigateUri="{Binding Project}" Padding="0,2" MinHeight="0" />
+                    <TextBlock Text="{Binding Purpose}" FontSize="13" Opacity="0.7" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Text="{Binding License}" FontSize="14" Opacity="0.8" VerticalAlignment="Center" Margin="12,0,0,0" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Die vollständigen Lizenztexte, wie in THIRD-PARTY-NOTICES.txt im Paket -->
+      <ScrollViewer IsVisible="{Binding #ShowLicenses.IsChecked}" HorizontalScrollBarVisibility="Auto">
+        <SelectableTextBlock x:Name="Licenses" FontFamily="monospace" FontSize="13" />
+      </ScrollViewer>
+    </Panel>
+  </DockPanel>
+</Window>

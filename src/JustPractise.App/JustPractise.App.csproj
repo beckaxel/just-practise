@@ -38,6 +38,11 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\icon.png" />
     <EmbeddedResource Include="Localization\*.json" LogicalName="Localization.%(Filename)%(Extension)" />
+    <!-- Lizenztexte: im Fenster „Über just practise“ angezeigt und als Dateien neben der App ausgeliefert -->
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="LICENSE" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.txt" LogicalName="THIRD-PARTY-NOTICES.txt" />
+    <None Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JustPractise.Core\JustPractise.Core.csproj" />

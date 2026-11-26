@@ -5,7 +5,7 @@
         x:Class="JustPractise.App.Shell.SettingsWindow"
         x:DataType="shell:SettingsViewModel"
         Title="{l:Tr settings.title}"
-        Width="520" Height="660" MinWidth="400" MinHeight="520"
+        Width="520" Height="740" MinWidth="400" MinHeight="600"
         WindowStartupLocation="CenterOwner">
   <Window.Styles>
     <Style Selector="TextBlock.heading">
@@ -17,6 +17,12 @@
   <DockPanel Margin="20">
     <Button DockPanel.Dock="Bottom" HorizontalAlignment="Right" MinWidth="96" Margin="0,16,0,0"
             Content="{l:Tr settings.close}" Command="{Binding CloseCommand}" IsDefault="True" IsCancel="True" />
+
+    <!-- Über just practise: Version, Quellcode, Mitmachen, Lizenzen -->
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0" Spacing="6">
+      <TextBlock Classes="heading" Text="{l:Tr about.title}" />
+      <Button Content="{l:Tr about.open}" Command="{Binding OpenAboutCommand}" HorizontalAlignment="Left" />
+    </StackPanel>
 
     <!-- Updates: nur auf Knopfdruck, installiert wird beim nächsten Start -->
     <StackPanel DockPanel.Dock="Bottom" Margin="0,20,0,0" Spacing="6">

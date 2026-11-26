@@ -120,5 +120,36 @@
     "higher": "Higher",
     "input": "Input device",
     "accidentals": "Accidentals"
+  },
+  "about": {
+    "title": "About just practise",
+    "version": "Version {version}",
+    "devVersion": "Development version",
+    "description": "A desktop app for practising with your own recordings: play backing tracks slower or faster without changing the pitch, with a metronome, a tuner and a practice timer.",
+    "freeAndOpen": "Free and open source, MIT license. No cost, no ads, no account.",
+    "sourceTitle": "Source code",
+    "contributeTitle": "Get involved",
+    "contribute": "Found a bug or have an idea? Open an issue. Contributions are welcome, translations too.",
+    "issues": "Open an issue",
+    "contributing": "How to contribute",
+    "componentsTitle": "Open-source components",
+    "components": "just practise is built on these free projects. Thanks to everyone who works on them.",
+    "showLicenses": "Show licenses",
+    "close": "Close",
+    "open": "About just practise",
+    "purpose": {
+      "ui": "User interface",
+      "drawing": "Drawing",
+      "text": "Text shaping",
+      "graphicsWindows": "Graphics on Windows",
+      "font": "Font",
+      "audio": "Audio",
+      "stretch": "Tempo without changing the pitch",
+      "updates": "Updates",
+      "mvvm": "UI structure",
+      "translations": "Translations",
+      "linux": "Linux desktop integration",
+      "runtime": "Runtime"
+    }
   }
 }

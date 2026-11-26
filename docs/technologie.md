@@ -254,6 +254,8 @@ Beispiel für `settings.json` (gekürzt):
 
 ## Auslieferung
 
+- **Lizenzen der Bausteine:** `THIRD-PARTY-NOTICES.txt` im Wurzelordner enthält für jeden mitgelieferten Baustein (NuGet-Pakete samt ihrer nativen Bibliotheken, signalsmith in `native/`, die .NET-Laufzeit) Version, Projektseite, Lizenz und den vollständigen Lizenztext. Die Datei liegt neben der App und wird im Fenster „Über just practise“ angezeigt. Kommt ein Paket dazu oder ändert sich eine Version, wird die Datei angepasst; ein Test prüft, dass jedes Paket aus `Directory.Packages.props` darin steht.
+
 Pakete und Updates laufen über [Velopack](https://velopack.io/). Die App wird `self-contained` gebaut, .NET muss nicht installiert sein.
 
 ### Pakete

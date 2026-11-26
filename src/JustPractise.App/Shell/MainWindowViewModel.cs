@@ -30,8 +30,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
         TunerViewModel tuner,
         StatusBarViewModel status,
         SettingsViewModel settings,
-        LibraryPane libraryPane)
+        LibraryPane libraryPane,
+        AboutViewModel about)
     {
+        About = about;
         LibraryPane = libraryPane;
         Browser = browser;
         Player = player;
@@ -61,6 +63,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     public SettingsViewModel Settings { get; }
 
+    /// <summary>Inhalt von „Über just practise“.</summary>
+    public AboutViewModel About { get; }
+
     /// <summary>Breite und Einklappen der Bibliothek.</summary>
     public LibraryPane LibraryPane { get; }
 
@@ -81,6 +86,12 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     /// <summary>Das Fenster soll die Einstellungen öffnen.</summary>
     public event EventHandler? SettingsRequested;
+
+    /// <summary>Das Fenster soll „Über just practise“ öffnen.</summary>
+    public event EventHandler? AboutRequested;
+
+    [RelayCommand]
+    private void OpenAbout() => AboutRequested?.Invoke(this, EventArgs.Empty);
 
     /// <summary>Das Fenster soll ins Vollbild wechseln oder es verlassen.</summary>
     public event EventHandler? FullScreenToggleRequested;

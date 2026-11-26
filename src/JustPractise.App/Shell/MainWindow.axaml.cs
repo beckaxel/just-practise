@@ -35,6 +35,8 @@ public sealed partial class MainWindow : Window
             if (DataContext is MainWindowViewModel viewModel)
             {
                 viewModel.SettingsRequested += (_, _) => ShowSettings(viewModel);
+                viewModel.AboutRequested += (_, _) => ShowAbout(this);
+                viewModel.Settings.AboutRequested += (_, _) => ShowAbout(_settings ?? (Window)this);
                 viewModel.FullScreenToggleRequested += (_, _) => ToggleFullScreen();
                 AttachLibraryPane(viewModel.LibraryPane);
                 viewModel.PropertyChanged += (_, e) =>
@@ -133,6 +135,15 @@ public sealed partial class MainWindow : Window
         {
             viewModel.Execute(action);
             e.Handled = true;
+        }
+    }
+
+    /// <summary>Öffnet „Über just practise“ über <paramref name="owner"/> (Hauptfenster oder Einstellungen).</summary>
+    private void ShowAbout(Window owner)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            _ = new AboutWindow { DataContext = viewModel.About }.ShowDialog(owner);
         }
     }
 

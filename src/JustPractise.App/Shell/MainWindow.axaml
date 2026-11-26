@@ -15,6 +15,7 @@
         MinWidth="640" MinHeight="480">
   <Window.Resources>
     <StreamGeometry x:Key="SettingsIcon">M19.4,13 C19.5,12.7 19.5,12.3 19.5,12 C19.5,11.7 19.5,11.3 19.4,11 L21.5,9.4 L19.5,5.9 L17,6.9 C16.5,6.5 15.9,6.1 15.3,5.9 L14.9,3.2 H10.9 L10.5,5.9 C9.9,6.1 9.3,6.5 8.8,6.9 L6.3,5.9 L4.3,9.4 L6.4,11 C6.3,11.3 6.3,11.7 6.3,12 C6.3,12.3 6.3,12.7 6.4,13 L4.3,14.6 L6.3,18.1 L8.8,17.1 C9.3,17.5 9.9,17.9 10.5,18.1 L10.9,20.8 H14.9 L15.3,18.1 C15.9,17.9 16.5,17.5 17,17.1 L19.5,18.1 L21.5,14.6 Z M12.9,15 A3,3 0 1 1 12.9,9 A3,3 0 1 1 12.9,15 Z</StreamGeometry>
+    <StreamGeometry x:Key="InfoIcon">M12,2 A10,10 0 1 1 12,22 A10,10 0 1 1 12,2 Z M12,4 A8,8 0 1 0 12,20 A8,8 0 1 0 12,4 Z M11,10 H13 V17 H11 Z M11,7 H13 V9 H11 Z</StreamGeometry>
     <StreamGeometry x:Key="FullScreenIcon">M3,3 H10 V5 H5 V10 H3 Z M14,3 H21 V10 H19 V5 H14 Z M3,14 H5 V19 H10 V21 H3 Z M19,14 H21 V21 H14 V19 H19 Z</StreamGeometry>
     <StreamGeometry x:Key="CollapseIcon">M15.4,5 L8.4,12 L15.4,19 L16.8,17.6 L11.2,12 L16.8,6.4 Z</StreamGeometry>
     <StreamGeometry x:Key="PlusIcon">M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z</StreamGeometry>
@@ -94,7 +95,7 @@
 
   <Panel x:Name="Root">
   <DockPanel>
-    <!-- Statusleiste: Gerät, im Entwickler-Modus verspätete Callbacks, rechts Vollbild und Einstellungen -->
+    <!-- Statusleiste: Gerät, im Entwickler-Modus verspätete Callbacks, rechts Info, Vollbild und Einstellungen -->
     <Border DockPanel.Dock="Bottom" Classes="statusbar">
       <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="16">
         <TextBlock Grid.Column="0" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel"
@@ -103,6 +104,9 @@
         <TextBlock Grid.Column="1" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel"
                    Text="{Binding LateText}" IsVisible="{Binding HasLateCallbacks}" Opacity="0.7" />
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+          <Button Classes="flat tool" Command="{Binding OpenAboutCommand}" ToolTip.Tip="{l:Tr about.title}">
+            <PathIcon Data="{StaticResource InfoIcon}" />
+          </Button>
           <Button Classes="flat tool" Command="{Binding ToggleFullScreenCommand}" ToolTip.Tip="{l:Tr layout.fullScreen}">
             <PathIcon Data="{StaticResource FullScreenIcon}" />
           </Button>
