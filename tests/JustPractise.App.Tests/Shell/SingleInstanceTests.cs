@@ -40,6 +40,18 @@ public sealed class SingleInstanceTests : IDisposable
     }
 
     [Fact]
+    public void StartsWhenThePathIsTooLongForASocket()
+    {
+        var deep = Path.Combine(_directory.Path, new string('x', 120));
+
+        using var first = SingleInstance.Start(deep, TimeSpan.Zero);
+        using var second = SingleInstance.Start(deep, TimeSpan.FromMilliseconds(200));
+
+        Assert.NotNull(first);
+        Assert.NotNull(second); // ohne Socket startet eine weitere Instanz nach dem Timeout doch, statt gar nicht
+    }
+
+    [Fact]
     public void ReplacesAStaleSocketFromACrash()
     {
         File.WriteAllText(_directory.File("instance.sock"), "");
