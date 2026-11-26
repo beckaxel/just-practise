@@ -21,6 +21,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
   - Schlaganzeige
   - eigene Lautstärke, unabhängig vom Player
   - Die letzte Einstellung wird gemerkt.
+- **Übetimer:** Countdown von 1 bis 60 Minuten mit Voreinstellungen, ohne Geräusche, Zustände über Farben, im Werkzeugbereich
 - **Rahmen:**
   - Oberfläche auf Deutsch und Englisch
   - Tastenkürzel für Player und Metronom nach der [Standardbelegung](funktionen.md#standardbelegung), noch nicht änderbar
@@ -33,7 +34,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 - Dateibrowser: Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner, Dateiüberwachung (Prüfpunkt 8)
 - Metronom: Tap-Tempo, Betonung pro Schlag, Unterteilungen, Klangsets, benannte Einstellungen
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen
-- Übetimer, Stimmgerät mit Lautstärkeanzeige (Prüfpunkt 5), Touch und Stift (Prüfpunkt 6)
+- Stimmgerät mit Lautstärkeanzeige (Prüfpunkt 5), Touch und Stift (Prüfpunkt 6)
 - macOS und arm64 (Prüfpunkt 10)
 - Schnellerer Start unter Windows: das Audiogerät im Hintergrund öffnen. WASAPI braucht dafür rund 400 ms auf dem UI-Thread, unter Linux sind es 80 ms (Prüfpunkt 9).
 

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using JustPractise.App.Controls;
 using JustPractise.Audio;
 using JustPractise.Core.Metronome;
 using JustPractise.Core.Settings;
@@ -17,17 +18,6 @@ public sealed partial class BeatDot(int index) : ObservableObject
 
     [ObservableProperty]
     public partial bool IsCurrent { get; set; }
-}
-
-/// <summary>Eine Tempo-Voreinstellung; <see cref="IsSelected"/> markiert die aktuelle.</summary>
-public sealed partial class NumberChoice(int value) : ObservableObject
-{
-    public int Value { get; } = value;
-
-    public string Label => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
-
-    [ObservableProperty]
-    public partial bool IsSelected { get; set; }
 }
 
 /// <summary>

@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:t="using:JustPractise.App.Timer"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Timer.TimerToolView"
+             x:DataType="t:TimerViewModel">
+  <!--
+    Der Übetimer im Werkzeugbereich: ein Balken, der sich wie eine Sanduhr leert, mit den Minuten darin, in der Farbe
+    des Zustands. Ein Tipp auf den Balken öffnet die Einstellungen (OpenCommand), Start/Pause liegt daneben.
+  -->
+  <UserControl.Styles>
+    <Style Selector="Border.fill">
+      <Setter Property="Background" Value="{DynamicResource TimerReadyBrush}" />
+    </Style>
+    <Style Selector="Border.fill.running">
+      <Setter Property="Background" Value="{DynamicResource TimerRunningBrush}" />
+    </Style>
+    <Style Selector="Border.fill.paused">
+      <Setter Property="Background" Value="{DynamicResource TimerPausedBrush}" />
+    </Style>
+    <Style Selector="Border.fill.last">
+      <Setter Property="Background" Value="{DynamicResource TimerLastBrush}" />
+    </Style>
+    <Style Selector="Border.fill.finished">
+      <Setter Property="Background" Value="{DynamicResource TimerFinishedBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Orientation="Horizontal" Spacing="8">
+    <Button Classes="flat" MinHeight="52" Padding="6,4"
+            Command="{Binding $parent[t:TimerToolView].OpenCommand}" ToolTip.Tip="{l:Tr timer.open}">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+      <PathIcon Data="{StaticResource TimerIcon}" Width="22" Height="22" Opacity="0.8" />
+      <Border x:Name="Track" Width="180" Height="40" CornerRadius="6" ClipToBounds="True" UseLayoutRounding="False"
+              Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+        <Panel>
+          <Border x:Name="Fill" Classes="fill" HorizontalAlignment="Left" UseLayoutRounding="False"
+                  Classes.running="{Binding IsRunningPhase}" Classes.paused="{Binding IsPaused}"
+                  Classes.last="{Binding IsLastSeconds}" Classes.finished="{Binding IsFinished}" />
+          <TextBlock Text="{Binding DisplayText}" FontSize="22" FontWeight="SemiBold"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"
+                     Foreground="{DynamicResource TimerTextBrush}" />
+        </Panel>
+      </Border>
+      </StackPanel>
+    </Button>
+    <Button x:Name="StartPauseButton" Classes="accent play" VerticalAlignment="Center"
+            Command="{Binding StartPauseCommand}">
+      <ToolTip.Tip>
+        <Panel>
+          <TextBlock Text="{l:Tr timer.start}" IsVisible="{Binding ShowsPlay}" />
+          <TextBlock Text="{l:Tr timer.pause}" IsVisible="{Binding IsRunning}" />
+          <TextBlock Text="{l:Tr timer.restart}" IsVisible="{Binding IsFinished}" />
+        </Panel>
+      </ToolTip.Tip>
+      <Panel>
+        <PathIcon Data="{StaticResource PlayIcon}" IsVisible="{Binding ShowsPlay}" />
+        <PathIcon Data="{StaticResource PauseIcon}" IsVisible="{Binding IsRunning}" />
+        <PathIcon Data="{StaticResource RestartIcon}" IsVisible="{Binding IsFinished}" />
+      </Panel>
+    </Button>
+  </StackPanel>
+</UserControl>

@@ -5,6 +5,7 @@ using JustPractise.App.FileBrowser;
 using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shortcuts;
+using JustPractise.App.Timer;
 
 namespace JustPractise.App.Shell;
 
@@ -24,6 +25,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         FileBrowserViewModel browser,
         PlayerViewModel player,
         MetronomeViewModel metronome,
+        TimerViewModel timer,
         StatusBarViewModel status,
         SettingsViewModel settings,
         LibraryPane libraryPane)
@@ -32,6 +34,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         Browser = browser;
         Player = player;
         Metronome = metronome;
+        Timer = timer;
         Status = status;
         Settings = settings;
         Browser.PropertyChanged += OnBrowserChanged;
@@ -44,6 +47,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public PlayerViewModel Player { get; }
 
     public MetronomeViewModel Metronome { get; }
+
+    /// <summary>Der Übetimer im Werkzeugbereich.</summary>
+    public TimerViewModel Timer { get; }
 
     public StatusBarViewModel Status { get; }
 
@@ -59,6 +65,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsMetronomeOpen { get; set; }
 
+    /// <summary>Der Timer ist zum Einstellen aufgeklappt (Dauer, Reset).</summary>
+    [ObservableProperty]
+    public partial bool IsTimerOpen { get; set; }
+
     /// <summary>Das Fenster soll die Einstellungen öffnen.</summary>
     public event EventHandler? SettingsRequested;
 
@@ -66,10 +76,33 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public event EventHandler? FullScreenToggleRequested;
 
     [RelayCommand]
-    private void OpenMetronome() => IsMetronomeOpen = true;
+    private void OpenMetronome()
+    {
+        IsTimerOpen = false;
+        IsMetronomeOpen = true;
+    }
 
     [RelayCommand]
     private void CloseMetronome() => IsMetronomeOpen = false;
+
+    [RelayCommand]
+    private void OpenTimer()
+    {
+        IsMetronomeOpen = false;
+        IsTimerOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseTimer() => IsTimerOpen = false;
+
+    /// <summary>Klappt jedes aufgeklappte Werkzeug zu; gibt zurück, ob eines offen war.</summary>
+    public bool CloseTools()
+    {
+        var open = IsMetronomeOpen || IsTimerOpen;
+        IsMetronomeOpen = false;
+        IsTimerOpen = false;
+        return open;
+    }
 
     [RelayCommand]
     private void ToggleFullScreen() => FullScreenToggleRequested?.Invoke(this, EventArgs.Empty);
@@ -79,6 +112,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         Player.Tick();
         Metronome.Tick();
+        Timer.Tick();
         Status.Tick();
     }
 
@@ -134,6 +168,18 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 break;
             case ShortcutAction.ToggleFullScreen:
                 ToggleFullScreen();
+                break;
+            case ShortcutAction.TimerStartPause:
+                Timer.StartPause();
+                break;
+            case ShortcutAction.TimerReset:
+                Timer.Reset();
+                break;
+            case ShortcutAction.TimerLonger:
+                Timer.ChangeMinutes(1);
+                break;
+            case ShortcutAction.TimerShorter:
+                Timer.ChangeMinutes(-1);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, null);

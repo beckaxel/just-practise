@@ -39,10 +39,10 @@
     "louder": "Louder",
     "enterTempo": "Enter tempo",
     "open": "Adjust the metronome",
-    "done": "Done",
     "moreBeats": "More beats per bar",
     "fewerBeats": "Fewer beats per bar",
-    "beats": "Beats per bar"
+    "beats": "Beats per bar",
+    "startStop": "Start/stop (M)"
   },
   "status": {
     "device": "Output: {name}",
@@ -92,6 +92,17 @@
     "expandLibrary": "Expand library",
     "resize": "Drag to change the width of the library",
     "fullScreen": "Full screen on/off (F11)",
-    "practice": "Practice"
+    "practice": "Practice",
+    "collapseTool": "Collapse"
+  },
+  "timer": {
+    "title": "Practice timer",
+    "open": "Adjust the timer",
+    "start": "Start",
+    "pause": "Pause",
+    "duration": "Duration",
+    "shorter": "Shorter",
+    "longer": "Longer",
+    "restart": "Restart"
   }
 }

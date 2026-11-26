@@ -1,0 +1,51 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:t="using:JustPractise.App.Timer"
+             xmlns:c="using:JustPractise.App.Controls"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Timer.TimerView"
+             x:DataType="t:TimerViewModel">
+  <!-- Die Einstellungen des Timers, aufgeklappt aus dem Werkzeugbereich: die aktuellen Minuten, eine Änderung gilt sofort -->
+  <UserControl.Styles>
+    <Style Selector="Button.choice">
+      <Setter Property="MinWidth" Value="60" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="FontSize" Value="17" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Spacing="16" Width="560">
+    <!-- Minuten: Voreinstellungen, darunter der Regler wie bei Metronom und Player; er zeigt die aktuellen Minuten -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr timer.duration}" />
+      <ItemsControl ItemsSource="{Binding Presets}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="8" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="c:NumberChoice">
+            <Button Classes="choice" Classes.accent="{Binding IsSelected}" Content="{Binding Label}"
+                    Command="{Binding $parent[UserControl].((t:TimerViewModel)DataContext).UsePresetCommand}"
+                    CommandParameter="{Binding}" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <!-- 1 bis 60 wie TimerViewModel.MinMinutes/MaxMinutes (int, hier wird double gebraucht), das außerdem begrenzt -->
+      <Grid ColumnDefinitions="*,150" ColumnSpacing="8">
+        <c:StepSlider Minimum="1" Maximum="60" Step="1" LargeChange="5" ShowValue="False"
+                      Value="{Binding CurrentMinutes}"
+                      DecreaseTip="{l:Tr timer.shorter}" IncreaseTip="{l:Tr timer.longer}" />
+        <TextBlock Grid.Column="1" Text="{Binding CurrentMinutes, StringFormat='{}{0} min'}" FontSize="17" FontWeight="SemiBold"
+                   VerticalAlignment="Center" Margin="8,0,0,0" />
+      </Grid>
+    </StackPanel>
+
+  </StackPanel>
+</UserControl>

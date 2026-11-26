@@ -112,7 +112,7 @@ Die Grundidee: Man hat verschiedene Werkzeuge zum Üben (Metronom, Stimmgerät, 
 
 - **Pfadzeile:** die oberste Zeile über die ganze Breite. Sie zeigt, wo die gewählte Stelle in der Bibliothek liegt, z. B. `Musik › Jazz › Standards › Autumn Leaves - Playalong 80.mp3`; liegt die gewählte Datei im Ordner, steht sie am Ende. Ein Tipp auf ein Glied klappt den Weg dorthin auf, scrollt hin und öffnet die Bibliothek, falls sie eingeklappt ist.
 - **Bibliothek:** darunter links, siehe [Dateibrowser](#dateibrowser). Ihre Breite lässt sich am Trenner zum rechten Bereich ziehen; der Trenner hat einen sichtbaren Griff und ist breit genug für den Finger. Ein Knopf neben der Überschrift klappt die Bibliothek auf eine schmale Leiste ein, ein Knopf oben in der Leiste klappt sie mit der letzten Breite wieder aus. Breite und Zustand merkt sich die App pro Rechner.
-- **Werkzeugbereich:** rechts oben, flach. Hier stehen die Werkzeuge nebeneinander, die nicht vom Stück abhängen: zuerst das Metronom, später Übetimer und Stimmgerät. Jedes Werkzeug zeigt dort nur das Nötigste, das Metronom z. B. das Tempo, die Schlaganzeige und Start/Stopp. Ein Tipp darauf klappt es auf: Darunter erscheinen alle Einstellungen (beim Metronom Tempo, Schläge pro Takt und Lautstärke), „Fertig“, `Esc` oder ein Tipp daneben klappt es wieder zu. Solange es allein ist, steht das Metronom rechtsbündig. Die Schläge pro Takt zeigt die Schlaganzeige, eine Taktart steht dort nicht.
+- **Werkzeugbereich:** rechts oben, flach. Hier stehen die Werkzeuge nebeneinander, die nicht vom Stück abhängen: das Metronom und rechts daneben der Übetimer, später das Stimmgerät. Jedes Werkzeug zeigt dort nur das Nötigste, das Metronom z. B. das Tempo, die Schlaganzeige und ▶/⏸. Ein Tipp darauf klappt es auf: Darunter erscheinen alle Einstellungen (beim Metronom Tempo, Schläge pro Takt und Lautstärke), Ein Chevron oben rechts, `Esc` oder ein Tipp daneben klappt es wieder zu. Jede Änderung gilt sofort. Die Werkzeuge stehen rechtsbündig, durch einen Strich getrennt. Die Schläge pro Takt zeigt die Schlaganzeige, eine Taktart steht dort nicht.
 - **Übungsbereich:** rechts unter den Werkzeugen, der Rest des Fensters. Bisher steht dort der Player; später kommen die Notenanzeige (wenn es Noten gibt) und vielleicht ganz andere Arten von Übungen dazu.
 - **Statusleiste:** unten: links das Ausgabegerät und im Entwickler-Modus die verspäteten Audio-Callbacks, rechts die Knöpfe für Vollbild und Einstellungen.
 
@@ -276,13 +276,13 @@ Der Timer soll beim Üben begleiten, nicht antreiben.
 ### Funktionsumfang
 
 - **Einstellen:** die Dauer in ganzen Minuten, von 1 bis 60
-- **Standarddauer:** beim ersten Start 10 Minuten, danach die zuletzt eingestellte Dauer. Sie wird in den App-Einstellungen gespeichert.
-- **Bedienung:**
-  - **Start:** startet den Timer oder setzt ihn nach einer Pause fort
-  - **Pause:** hält den Timer an
-  - **Reset:** setzt den Timer auf die eingestellte Dauer zurück
+- **Standarddauer:** beim ersten Start 10 Minuten, danach die zuletzt gesetzten Minuten. Sie wird in den App-Einstellungen gespeichert.
+- **Voreinstellungen:** 5, 10, 15, 20 und 30 Minuten als Knöpfe über dem Regler (− und +, 1 Minute pro Tipp).
+- **Dauer ändern:** jederzeit, auch während der Timer läuft. Der Regler in den aufgeklappten Einstellungen zeigt die aktuellen Minuten (wie der Balken, aufgerundet); eine Änderung gilt sofort, ohne Rückfrage. Der Timer läuft von dort aus weiter, ein pausierter bleibt pausiert, ein abgelaufener steht wieder bereit. So lässt er sich beliebig verkürzen oder verlängern. Die gesetzten Minuten gelten auch für den nächsten Start und werden gespeichert. `Umschalt+↑/↓` ändert um eine Minute, genauso.
+- **Ablauf:** Der Balken leert sich stufenlos, ohne sichtbare Sprünge, wie der Sand einer Sanduhr.
+- **Bedienung:** ein Knopf mit Symbol: ▶ startet den Timer oder setzt ihn nach einer Pause fort, ⏸ hält ihn an. Ist er abgelaufen, zeigt der Knopf ↻ und startet ihn mit der zuletzt eingestellten Dauer neu.
 - **Anzeige:** die verbleibenden Minuten, immer aufgerundet. Direkt nach dem Start von 25 Minuten steht also weiter „25“. In den letzten 30 Sekunden wird in 10-Sekunden-Schritten angezeigt: 30, 20, 10.
-- **Ende:** Wie bei einer Sanduhr ist der Timer bei 0 abgelaufen und bleibt stehen. Es gibt kein Weiterzählen.
+- **Ende:** Wie bei einer Sanduhr ist der Timer bei 0 abgelaufen und bleibt stehen, bis man ihn neu startet. Es gibt kein Weiterzählen.
 - **Tastenkürzel:** siehe [Tastenkürzel](#tastenkürzel)
 
 ### Zustände
@@ -291,15 +291,15 @@ Jeder Zustand hat eine eigene Farbe. Keine Farbe soll alarmieren, und nichts bli
 
 | Zustand            | Darstellung                      |
 |--------------------|----------------------------------|
-| bereit             | neutral                          |
-| läuft              | ruhige Farbe                     |
-| pausiert           | gedämpft                         |
-| letzte 30 Sekunden | sanfter Hinweis                  |
-| abgelaufen         | deutlich, bleibt bis zum Reset   |
+| bereit             | neutral grau                     |
+| läuft              | ruhiges Türkis                   |
+| pausiert           | gedämpftes Grau                  |
+| letzte 30 Sekunden | sanftes Bernstein                |
+| abgelaufen         | kräftiges Grün als „geschafft“, voller Balken, bleibt bis zum Neustart (↻) oder Reset (`Umschalt+T`) |
 
 ### Im Werkzeugbereich
 
-Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeigt der Timer nur die verbleibenden Minuten in der Farbe des Zustands. So bleibt der Ablauf im Blick.
+Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich steht der Timer rechts vom Metronom: eine Sanduhr als Symbol, ein Balken in der Farbe des Zustands, der sich wie eine Sanduhr leert, mit den verbleibenden Minuten darin (in den letzten 30 Sekunden „30 s“, „20 s“, „10 s“), und daneben ▶/⏸ (abgelaufen ↻). Ein Tipp auf den Balken klappt die Einstellungen auf; dort gibt es die Minuten (Voreinstellungen und Regler).
 
 ## Schritt 3: Metronom
 
@@ -316,7 +316,7 @@ Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeig
 - **Ändern während des Laufs:** Ein neues Tempo gilt ab dem letzten Schlag, der nächste kommt also im neuen Abstand. Liegt dieser Zeitpunkt schon zurück, kommt er sofort. Die Zählung im Takt läuft weiter. Werden die Schläge pro Takt weniger und passt der nächste Schlag nicht mehr hinein, beginnt ein neuer Takt mit der Eins. Start beginnt immer mit der Eins.
 - **Bezug der BPM:** Jeder Schlag ist ein Klick; das Tempo zählt die Schläge pro Minute. Eingestellt werden nur die Schläge pro Takt (1 bis 16), der erste ist automatisch betont. Einen Nenner wie in 6/8 gibt es nicht; die Schlaganzeige zeigt, wie viele Schläge ein Takt hat. Eine Zählung in Gruppen (z. B. 6/8 in zwei) kann später mit den Unterteilungen kommen.
 - **Tempo-Voreinstellungen:** 60, 90 und 120 BPM als Knöpfe über dem Tempo-Regler; die gewählte ist markiert.
-- **Einstellungen:** von oben nach unten: Schläge pro Takt (− und +), Tempo (erst die Voreinstellungen, darunter der Regler mit − und + wie im Player, 1 BPM pro Tipp, und daneben ein Feld zur direkten Eingabe), Lautstärke (0,5 dB pro Tipp, ein Tipp auf den Wert setzt auf 0 dB zurück). Die Regler für Tempo und Lautstärke sind gleich breit und stehen genau untereinander. Darunter mittig „Fertig“. Ein Tipp auf Start/Stopp im Werkzeugbereich klappt die Einstellungen zu und startet bzw. stoppt das Metronom.
+- **Einstellungen:** von oben nach unten: Schläge pro Takt (− und +), Tempo (erst die Voreinstellungen, darunter der Regler mit − und + wie im Player, 1 BPM pro Tipp, und daneben ein Feld zur direkten Eingabe), Lautstärke (0,5 dB pro Tipp, ein Tipp auf den Wert setzt auf 0 dB zurück). Die Regler für Tempo und Lautstärke sind gleich breit und stehen genau untereinander. Ein Tipp auf ▶/⏸ im Werkzeugbereich klappt die Einstellungen zu und startet bzw. stoppt das Metronom.
 
 ### Speichern
 

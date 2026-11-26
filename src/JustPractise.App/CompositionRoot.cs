@@ -4,6 +4,7 @@ using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shell;
 using JustPractise.App.Shell.ScreenSaver;
+using JustPractise.App.Timer;
 using JustPractise.App.Updates;
 using JustPractise.Audio;
 using JustPractise.Audio.Engine;
@@ -51,6 +52,7 @@ internal static class CompositionRoot
         services.AddSingleton<PlayerViewModel>();
         services.AddSingleton<IMetronome, AudioMetronome>();
         services.AddSingleton<MetronomeViewModel>();
+        services.AddSingleton<TimerViewModel>();
 
         services.AddSingleton<IUpdateService, VelopackUpdateService>();
         services.AddSingleton<UpdatesViewModel>();

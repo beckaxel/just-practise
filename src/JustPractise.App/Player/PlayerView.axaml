@@ -6,8 +6,6 @@
              x:Class="JustPractise.App.Player.PlayerView"
              x:DataType="p:PlayerViewModel">
   <UserControl.Resources>
-    <StreamGeometry x:Key="PlayIcon">M8,5 L19,12 L8,19 Z</StreamGeometry>
-    <StreamGeometry x:Key="PauseIcon">M6,5 H10 V19 H6 Z M14,5 H18 V19 H14 Z</StreamGeometry>
     <StreamGeometry x:Key="ToStartIcon">M6,5 H8 V19 H6 Z M19,5 L9,12 L19,19 Z</StreamGeometry>
   </UserControl.Resources>
 

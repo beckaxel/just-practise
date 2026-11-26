@@ -20,6 +20,10 @@ public enum ShortcutAction
     MetronomeMuchSlower,
     OpenSettings,
     ToggleFullScreen,
+    TimerStartPause,
+    TimerReset,
+    TimerLonger,
+    TimerShorter,
 }
 
 /// <summary>
@@ -63,6 +67,9 @@ public static class Shortcut
         {
             Key.OemPlus or Key.Add => shift ? ShortcutAction.MetronomeMuchFaster : ShortcutAction.MetronomeFaster,
             Key.OemMinus or Key.Subtract => shift ? ShortcutAction.MetronomeMuchSlower : ShortcutAction.MetronomeSlower,
+            Key.T when shift => ShortcutAction.TimerReset,
+            Key.Up when shift => ShortcutAction.TimerLonger,
+            Key.Down when shift => ShortcutAction.TimerShorter,
             _ when shift => null,
             Key.Space => ShortcutAction.PlayPause,
             Key.Home => ShortcutAction.ToStart,
@@ -71,6 +78,7 @@ public static class Shortcut
             Key.Up => ShortcutAction.VolumeUp,
             Key.Down => ShortcutAction.VolumeDown,
             Key.M => ShortcutAction.MetronomeStartStop,
+            Key.T => ShortcutAction.TimerStartPause,
             _ => null,
         };
     }
