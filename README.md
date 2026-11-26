@@ -1,6 +1,6 @@
 # just practise
 
-A desktop app that helps musicians practise with their own recordings: browse your music folders, play tracks at 50–150 % tempo without changing the pitch, and keep time with a metronome. Free and open source, offline, no account, no ads.
+A desktop app that helps musicians practise with their own recordings: browse your music folders, play tracks at 50–150 % tempo without changing the pitch, keep time with a metronome, tune your instrument and time your practice. Free and open source, offline, no account, no ads.
 
 **Website:** https://beckaxel.github.io/just-practise/
 
