@@ -405,6 +405,15 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Offen:** Bau in der CI für alle Plattformen, einschließlich macOS und arm64 (zusammen mit Prüfpunkt 10).
 4. **AAC:** Decodieren über dynamisch geladenes FFmpeg unter Linux, Windows und macOS, LGPL-konform. Unter Linux die System-Bibliotheken nutzen oder mitliefern? Wie groß wird das Paket?
 5. **Mikrofon:** Wahl des Eingabegeräts, Latenz und stabile Tonhöhenerkennung
+
+   **Ergebnis (Debian, November 2026): McLeod-Verfahren (MPM) in C#, Fenster 4096 Samples bei 48 kHz, 25 Messungen pro Sekunde.** Geprüft mit `prototypes/TunerCheck`: Es liest das Eingabegerät über SoundFlow (mono, 48 kHz, 10 ms Puffer) in einen Ringpuffer (`InputRing`), ein eigener Thread misst alle 40 ms das letzte Fenster (`PitchDetector`). `--selftest` prüft ohne Gerät mit erzeugten Tönen.
+   - **Verfahren:** normierte Autokorrelation (NSDF) über eine eigene Radix-2-FFT, dann der erste Gipfel, der mindestens 93 % des höchsten erreicht (gegen Oktavfehler), parabolisch interpoliert. Unterhalb von −60 dBFS gilt das Signal als Stille, unter einer Klarheit von 0,85 als kein Ton. Erkannt werden 25 bis 4500 Hz; das Fenster von 85 ms fasst auch beim E1 (41 Hz) gut drei Perioden.
+   - **Erzeugte Töne:** von E1 bis C7 auf weniger als 0,15 Cent genau, auch mit Obertönen, die stärker sind als der Grundton, und mit leichtem Rauschen; reines Rauschen ergibt keinen Ton.
+   - **Rechenzeit:** 2,4–6 ms pro Messung (Debug-Build), also höchstens 15 % eines Kerns bei 25 Messungen pro Sekunde; beim Messen wird nichts angelegt, in 90 s lief keine Speicherbereinigung.
+   - **Altsaxophon über das eingebaute Laptop-Mikrofon:** 1946 Messungen in 90 s, Töne von F3 bis Fis5 (klingend) richtig erkannt, kein einziger Oktavsprung und kein Ausreißer auf einen anderen Ton. Bei gehaltenem Ton streuen die Messungen um 0,7–2 Cent; größere Streuung (5–12 Cent) gab es nur beim Ansetzen und beim bewusst verstimmten Spielen. Gehaltene Töne wurden fast immer zu 100 % erkannt.
+   - **Pegel:** Das Laptop-Mikrofon regelt kräftig nach (Raum ohne Ton etwa −42 dBFS, gespielt bis knapp 0 dBFS). Für das Stimmgerät spielt das keine Rolle; für die spätere Lautstärkeanzeige zählen deshalb nur relative Pegel, wie im Konzept vorgesehen.
+   - **Reaktionszeit:** Fenster (85 ms), Messabstand (bis 40 ms) und Puffer (20 ms) ergeben etwa 0,1 bis 0,15 s bis zur Anzeige. Für die Nadel in der App kommt eine leichte Glättung dazu, damit sie ruhig steht, aber Tonwechseln sofort folgt.
+   - **Offen:** dieselbe Prüfung unter Windows (WASAPI, Mikrofon-Array mit Audioverbesserungen) und mit einem externen Mikrofon oder Audio-Interface.
 6. **Touch und Stift:** Avalonia unter Wayland und X11 sowie unter Windows, einschließlich Druckstärke
 7. **Speicher bei langen Stücken:** ganz decodieren (10 Minuten Stereo ≈ 200 MB) oder in Teilen streamen?
 
