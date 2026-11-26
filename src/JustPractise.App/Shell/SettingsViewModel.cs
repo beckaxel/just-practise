@@ -57,6 +57,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     /// <summary>Fordert das Schließen des Fensters an.</summary>
     public event EventHandler? CloseRequested;
 
+    /// <summary>„Über just practise“ soll sich über dem Einstellungsfenster öffnen.</summary>
+    public event EventHandler? AboutRequested;
+
+    [RelayCommand]
+    private void OpenAbout() => AboutRequested?.Invoke(this, EventArgs.Empty);
+
     [RelayCommand]
     private void Close() => CloseRequested?.Invoke(this, EventArgs.Empty);
 

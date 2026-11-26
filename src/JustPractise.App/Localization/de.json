@@ -120,5 +120,36 @@
     "higher": "Höher",
     "input": "Eingabegerät",
     "accidentals": "Vorzeichen"
+  },
+  "about": {
+    "title": "Über just practise",
+    "version": "Version {version}",
+    "devVersion": "Entwicklungsversion",
+    "description": "Eine Desktop-App, mit der du mit deinen eigenen Aufnahmen übst: Playalongs langsamer oder schneller abspielen, ohne dass sich die Tonhöhe ändert, dazu Metronom, Stimmgerät und Übetimer.",
+    "freeAndOpen": "Frei und quelloffen, MIT-Lizenz. Kostenlos, ohne Werbung, ohne Konto.",
+    "sourceTitle": "Quellcode",
+    "contributeTitle": "Mitmachen",
+    "contribute": "Fehler gefunden oder eine Idee? Schreib ein Issue. Beiträge sind willkommen, auch Übersetzungen.",
+    "issues": "Issue schreiben",
+    "contributing": "Wie man beiträgt",
+    "componentsTitle": "Verwendete Open-Source-Bausteine",
+    "components": "just practise baut auf diesen freien Projekten auf. Danke an alle, die daran mitarbeiten.",
+    "showLicenses": "Lizenzen anzeigen",
+    "close": "Schließen",
+    "open": "Über just practise",
+    "purpose": {
+      "ui": "Oberfläche",
+      "drawing": "Zeichnen",
+      "text": "Schriftsatz",
+      "graphicsWindows": "Grafik unter Windows",
+      "font": "Schrift",
+      "audio": "Audio",
+      "stretch": "Tempo ohne Änderung der Tonhöhe",
+      "updates": "Updates",
+      "mvvm": "Aufbau der Oberfläche",
+      "translations": "Übersetzungen",
+      "linux": "Einbindung in den Linux-Desktop",
+      "runtime": "Laufzeitumgebung"
+    }
   }
 }

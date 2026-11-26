@@ -45,7 +45,8 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
             new TunerViewModel(new PitchTracker(new NoInput(), TimeProvider.System), _settings, _memory, translator, TimeProvider.System),
             new StatusBarViewModel(new NoDevice(), translator, developer),
             new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer),
-            new LibraryPane(_memory));
+            new LibraryPane(_memory),
+            new AboutViewModel(translator));
     }
 
     public async ValueTask DisposeAsync()
@@ -168,6 +169,19 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
         _shell.OpenTunerCommand.Execute(null);
         Assert.False(_shell.IsTimerOpen);
         Assert.True(_shell.IsTunerOpen);
+    }
+
+    [Fact]
+    public void AsksTheWindowToShowAbout()
+    {
+        var requests = 0;
+        _shell.AboutRequested += (_, _) => requests++;
+        _shell.Settings.AboutRequested += (_, _) => requests++;
+
+        _shell.OpenAboutCommand.Execute(null);
+        _shell.Settings.OpenAboutCommand.Execute(null);
+
+        Assert.Equal(2, requests);
     }
 
     [Fact]

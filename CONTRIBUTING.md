@@ -115,6 +115,10 @@ The project follows GitHub Flow: `main` is always releasable and only changes th
 - `.github/workflows/pages.yml` publishes the website in `site/` to GitHub Pages for changes to `site/` on `main` and for each published release. `{{version}}` in the pages becomes the tag of the newest published release, so the download links need no edit.
 - `.github/dependabot.yml` checks the GitHub Actions used in the workflows once a month and opens pull requests for new versions.
 
+## Third-party licenses
+
+`THIRD-PARTY-NOTICES.txt` holds the full license text of every component shipped with the app; it is installed next to the app and shown under "About just practise". When you add a package or change a version, update that file too. A test checks that every package in `Directory.Packages.props` is listed.
+
 ## Project structure and conventions
 
 - `src/JustPractise.Core`: domain logic without dependencies
