@@ -104,5 +104,21 @@
     "shorter": "Shorter",
     "longer": "Longer",
     "restart": "Restart"
+  },
+  "tuner": {
+    "title": "Tuner",
+    "open": "Adjust the tuner",
+    "toggle": "Tuner on/off (S); only then the microphone is open",
+    "defaultDevice": "Default device",
+    "inKey": "in {key}",
+    "unavailable": "No microphone found",
+    "unavailableHint": "The input device could not be opened. Check that a microphone is connected and allowed for apps, or choose another one below.",
+    "transposition": "Transposition",
+    "reference": "Concert pitch",
+    "resetReference": "Back to 440 Hz",
+    "lower": "Lower",
+    "higher": "Higher",
+    "input": "Input device",
+    "accidentals": "Accidentals"
   }
 }

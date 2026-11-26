@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tu="using:JustPractise.App.Tuner"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Tuner.TunerToolView"
+             x:DataType="tu:TunerViewModel">
+  <!--
+    Das Stimmgerät im Werkzeugbereich: der Ton in einem Balken, der von der Mitte aus nach rechts wächst, wenn der Ton
+    zu hoch ist, und nach links, wenn er zu tief ist. Sauber (höchstens 5 Cent) ist der Balken grün. Ein Tipp darauf
+    öffnet die Einstellungen (OpenCommand); daneben schaltet ein Knopf das Mikrofon an und aus.
+  -->
+  <UserControl.Styles>
+    <Style Selector="Border.fill">
+      <Setter Property="Background" Value="{DynamicResource TunerOffBrush}" />
+    </Style>
+    <Style Selector="Border.fill.inTune">
+      <Setter Property="Background" Value="{DynamicResource TunerInTuneBrush}" />
+    </Style>
+    <Style Selector="TextBlock.off">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Orientation="Horizontal" Spacing="8">
+    <Button Classes="flat" MinHeight="52" Padding="6,4"
+            Command="{Binding $parent[tu:TunerToolView].OpenCommand}" ToolTip.Tip="{l:Tr tuner.open}">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <PathIcon Data="{StaticResource TuningForkIcon}" Width="22" Height="22" Opacity="0.8" />
+        <StackPanel Spacing="4" VerticalAlignment="Center">
+        <Border x:Name="Track" Width="200" Height="36" CornerRadius="6" ClipToBounds="True" UseLayoutRounding="False"
+                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+          <Panel>
+            <Grid ColumnDefinitions="*,*">
+              <Border x:Name="Flat" Grid.Column="0" Classes="fill" Classes.inTune="{Binding IsInTune}"
+                      HorizontalAlignment="Right" Width="0" UseLayoutRounding="False" />
+              <Border x:Name="Sharp" Grid.Column="1" Classes="fill" Classes.inTune="{Binding IsInTune}"
+                      HorizontalAlignment="Left" Width="0" UseLayoutRounding="False" />
+            </Grid>
+            <!-- Die Mitte: hier ist der Ton sauber -->
+            <Border Width="2" HorizontalAlignment="Center" Opacity="0.5"
+                    Background="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+            <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <TextBlock Text="{Binding NoteName}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"
+                         Classes.off="{Binding !IsOn}" />
+              <TextBlock Text="{Binding Hint}" FontSize="13" Opacity="0.75" VerticalAlignment="Bottom" Margin="0,0,0,4"
+                         IsVisible="{Binding HasHint}" />
+            </StackPanel>
+          </Panel>
+        </Border>
+        <!-- Der Pegel am Eingang: schmal, steigt sofort, fällt langsam -->
+        <Border x:Name="LevelTrack" Height="6" CornerRadius="3" ClipToBounds="True" UseLayoutRounding="False"
+                Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+          <Border x:Name="LevelFill" HorizontalAlignment="Left" Width="0" CornerRadius="3" UseLayoutRounding="False"
+                  Background="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        </Border>
+        </StackPanel>
+      </StackPanel>
+    </Button>
+    <Button x:Name="ToggleButton" Classes="play" Classes.accent="{Binding IsOn}" VerticalAlignment="Center"
+            Command="{Binding ToggleCommand}">
+      <ToolTip.Tip>
+        <Panel>
+          <TextBlock Text="{l:Tr tuner.toggle}" IsVisible="{Binding !IsUnavailable}" />
+          <TextBlock Text="{l:Tr tuner.unavailable}" IsVisible="{Binding IsUnavailable}" />
+        </Panel>
+      </ToolTip.Tip>
+      <PathIcon Data="{StaticResource MicrophoneIcon}" />
+    </Button>
+  </StackPanel>
+</UserControl>

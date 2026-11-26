@@ -6,6 +6,7 @@ using JustPractise.App.Metronome;
 using JustPractise.App.Player;
 using JustPractise.App.Shortcuts;
 using JustPractise.App.Timer;
+using JustPractise.App.Tuner;
 
 namespace JustPractise.App.Shell;
 
@@ -26,6 +27,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         PlayerViewModel player,
         MetronomeViewModel metronome,
         TimerViewModel timer,
+        TunerViewModel tuner,
         StatusBarViewModel status,
         SettingsViewModel settings,
         LibraryPane libraryPane)
@@ -35,6 +37,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         Player = player;
         Metronome = metronome;
         Timer = timer;
+        Tuner = tuner;
         Status = status;
         Settings = settings;
         Browser.PropertyChanged += OnBrowserChanged;
@@ -51,6 +54,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     /// <summary>Der Übetimer im Werkzeugbereich.</summary>
     public TimerViewModel Timer { get; }
 
+    /// <summary>Das Stimmgerät im Werkzeugbereich.</summary>
+    public TunerViewModel Tuner { get; }
+
     public StatusBarViewModel Status { get; }
 
     public SettingsViewModel Settings { get; }
@@ -65,9 +71,13 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsMetronomeOpen { get; set; }
 
-    /// <summary>Der Timer ist zum Einstellen aufgeklappt (Dauer, Reset).</summary>
+    /// <summary>Der Timer ist zum Einstellen aufgeklappt.</summary>
     [ObservableProperty]
     public partial bool IsTimerOpen { get; set; }
+
+    /// <summary>Das Stimmgerät ist zum Einstellen aufgeklappt.</summary>
+    [ObservableProperty]
+    public partial bool IsTunerOpen { get; set; }
 
     /// <summary>Das Fenster soll die Einstellungen öffnen.</summary>
     public event EventHandler? SettingsRequested;
@@ -78,7 +88,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenMetronome()
     {
-        IsTimerOpen = false;
+        CloseTools();
         IsMetronomeOpen = true;
     }
 
@@ -88,19 +98,31 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void OpenTimer()
     {
-        IsMetronomeOpen = false;
+        CloseTools();
         IsTimerOpen = true;
     }
 
     [RelayCommand]
     private void CloseTimer() => IsTimerOpen = false;
 
+    [RelayCommand]
+    private void OpenTuner()
+    {
+        CloseTools();
+        Tuner.RefreshDevices();
+        IsTunerOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseTuner() => IsTunerOpen = false;
+
     /// <summary>Klappt jedes aufgeklappte Werkzeug zu; gibt zurück, ob eines offen war.</summary>
     public bool CloseTools()
     {
-        var open = IsMetronomeOpen || IsTimerOpen;
+        var open = IsMetronomeOpen || IsTimerOpen || IsTunerOpen;
         IsMetronomeOpen = false;
         IsTimerOpen = false;
+        IsTunerOpen = false;
         return open;
     }
 
@@ -113,6 +135,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         Player.Tick();
         Metronome.Tick();
         Timer.Tick();
+        Tuner.Tick();
         Status.Tick();
     }
 
@@ -180,6 +203,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 break;
             case ShortcutAction.TimerShorter:
                 Timer.ChangeMinutes(-1);
+                break;
+            case ShortcutAction.TunerToggle:
+                Tuner.Toggle();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, null);

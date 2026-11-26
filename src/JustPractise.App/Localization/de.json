@@ -104,5 +104,21 @@
     "shorter": "Kürzer",
     "longer": "Länger",
     "restart": "Neu starten"
+  },
+  "tuner": {
+    "title": "Stimmgerät",
+    "open": "Stimmgerät einstellen",
+    "toggle": "Stimmgerät an/aus (S), nur dann ist das Mikrofon offen",
+    "defaultDevice": "Standardgerät",
+    "inKey": "in {key}",
+    "unavailable": "Kein Mikrofon gefunden",
+    "unavailableHint": "Das Eingabegerät ließ sich nicht öffnen. Prüfe, ob ein Mikrofon angeschlossen und für Apps freigegeben ist, oder wähle unten ein anderes.",
+    "transposition": "Stimmung",
+    "reference": "Kammerton",
+    "resetReference": "Zurück auf 440 Hz",
+    "lower": "Tiefer",
+    "higher": "Höher",
+    "input": "Eingabegerät",
+    "accidentals": "Vorzeichen"
   }
 }

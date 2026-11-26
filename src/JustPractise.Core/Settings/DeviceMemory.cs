@@ -22,6 +22,9 @@ public sealed record DeviceMemory
     /// </summary>
     public string? LastFolder { get; init; }
 
+    /// <summary>Das Eingabegerät des Stimmgeräts (Name); <c>null</c> für das Standardgerät.</summary>
+    public string? InputDevice { get; init; }
+
     /// <summary>Der Entwickler-Modus zeigt Angaben für die Fehlersuche, z. B. verspätete Audio-Callbacks.</summary>
     public DeveloperSettings Developer { get; init; } = DeveloperSettings.Default;
 

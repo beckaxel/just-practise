@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:tu="using:JustPractise.App.Tuner"
+             xmlns:c="using:JustPractise.App.Controls"
+             xmlns:l="using:JustPractise.App.Localization"
+             x:Class="JustPractise.App.Tuner.TunerView"
+             x:DataType="tu:TunerViewModel">
+  <!-- Die Einstellungen des Stimmgeräts: Stimmung, Kammerton, Eingabegerät, Vorzeichen. Jede Änderung gilt sofort. -->
+  <UserControl.Styles>
+    <Style Selector="Button.choice">
+      <Setter Property="MinWidth" Value="60" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="FontSize" Value="17" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Opacity" Value="0.7" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+  </UserControl.Styles>
+
+  <StackPanel Spacing="16" Width="560">
+    <TextBlock Text="{l:Tr tuner.unavailableHint}" IsVisible="{Binding IsUnavailable}" TextWrapping="Wrap"
+               FontSize="15" Foreground="{DynamicResource SystemErrorTextColor}" />
+
+    <!-- Stimmung des Instruments: der Ton erscheint, wie er in seinen Noten steht -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr tuner.transposition}" />
+      <ItemsControl ItemsSource="{Binding Transpositions}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="8" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="tu:TranspositionChoice">
+            <Button Classes="choice" Classes.accent="{Binding IsSelected}" Content="{Binding Label}"
+                    Command="{Binding $parent[UserControl].((tu:TunerViewModel)DataContext).UseTranspositionCommand}"
+                    CommandParameter="{Binding}" />
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <!-- Kammerton wie die Regler von Metronom und Player; ein Tipp auf den Wert setzt auf 440 Hz zurück -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr tuner.reference}" />
+      <Grid ColumnDefinitions="*,150" ColumnSpacing="8">
+        <c:StepSlider Minimum="{x:Static tu:TunerViewModel.MinReferenceHz}"
+                      Maximum="{x:Static tu:TunerViewModel.MaxReferenceHz}"
+                      Step="1" LargeChange="5" ShowValue="False"
+                      Value="{Binding ReferenceHz}"
+                      DecreaseTip="{l:Tr tuner.lower}" IncreaseTip="{l:Tr tuner.higher}" />
+        <Button Grid.Column="1" Classes="flat" HorizontalAlignment="Left" MinWidth="104" MinHeight="44"
+                FontSize="17" FontWeight="SemiBold" Content="{Binding ReferenceText}"
+                Command="{Binding ResetReferenceCommand}" ToolTip.Tip="{l:Tr tuner.resetReference}" />
+      </Grid>
+    </StackPanel>
+
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr tuner.input}" />
+      <ComboBox ItemsSource="{Binding InputDevices}" SelectedItem="{Binding InputDevice}"
+                MinHeight="44" FontSize="16" HorizontalAlignment="Stretch" />
+    </StackPanel>
+
+    <StackPanel Spacing="6">
+      <TextBlock Classes="label" Text="{l:Tr tuner.accidentals}" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Classes="choice" Classes.accent="{Binding UsesSharps}" Content="♯" Command="{Binding UseSharpsCommand}" />
+        <Button Classes="choice" Classes.accent="{Binding UsesFlats}" Content="♭" Command="{Binding UseFlatsCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

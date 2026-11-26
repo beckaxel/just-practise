@@ -9,7 +9,7 @@ public sealed class TunedNoteTests
     [InlineData(261.6256, 60, "C", 4)]
     [InlineData(41.2034, 28, "E", 1)]
     [InlineData(4186.009, 108, "C", 8)]
-    [InlineData(233.0819, 58, "Ais", 3)]
+    [InlineData(233.0819, 58, "A♯", 3)]
     public void FindsTheNearestNoteAndOctave(double frequency, int midi, string german, int octave)
     {
         var note = TunedNote.FromFrequency(frequency);
@@ -46,13 +46,14 @@ public sealed class TunedNoteTests
         var bFlat = new TunedNote(70, 0);
         var b = new TunedNote(71, 0);
 
-        Assert.Equal("Ais", bFlat.Name(NoteNaming.German, Accidentals.Sharp));
+        Assert.Equal("A♯", bFlat.Name(NoteNaming.German, Accidentals.Sharp));
         Assert.Equal("B", bFlat.Name(NoteNaming.German, Accidentals.Flat));
         Assert.Equal("H", b.Name(NoteNaming.German, Accidentals.Flat));
         Assert.Equal("A♯", bFlat.Name(NoteNaming.English, Accidentals.Sharp));
         Assert.Equal("B♭", bFlat.Name(NoteNaming.English, Accidentals.Flat));
         Assert.Equal("B", b.Name(NoteNaming.English, Accidentals.Sharp));
-        Assert.Equal("Es", new TunedNote(63, 0).Name(NoteNaming.German, Accidentals.Flat));
+        Assert.Equal("E♭", new TunedNote(63, 0).Name(NoteNaming.German, Accidentals.Flat));
+        Assert.Equal("C♯", new TunedNote(61, 0).Name(NoteNaming.German, Accidentals.Sharp));
     }
 
     [Theory]
@@ -60,7 +61,7 @@ public sealed class TunedNoteTests
     [InlineData(2, "D")] // in B: klingendes C steht als D in den Noten
     [InlineData(9, "A")] // in Es
     [InlineData(7, "G")] // in F
-    [InlineData(3, "Dis")] // in A
+    [InlineData(3, "D♯")] // in A
     public void ShowsTheWrittenNoteOfATransposingInstrument(int semitones, string written)
     {
         var sounding = TunedNote.FromFrequency(261.6256 * Math.Pow(2, 5 / 1200.0));

@@ -24,6 +24,7 @@ public enum ShortcutAction
     TimerReset,
     TimerLonger,
     TimerShorter,
+    TunerToggle,
 }
 
 /// <summary>
@@ -79,6 +80,7 @@ public static class Shortcut
             Key.Down => ShortcutAction.VolumeDown,
             Key.M => ShortcutAction.MetronomeStartStop,
             Key.T => ShortcutAction.TimerStartPause,
+            Key.S => ShortcutAction.TunerToggle,
             _ => null,
         };
     }

@@ -5,7 +5,7 @@ namespace JustPractise.Core.Tuner;
 /// <summary>Wie Tonnamen geschrieben werden (siehe funktionen.md, „Tonbezeichnungen“).</summary>
 public enum NoteNaming
 {
-    /// <summary>C D E F G A H, B für das englische B♭, Cis, Es usw.</summary>
+    /// <summary>C D E F G A H, B für das englische B♭, Vorzeichen in Kurzform: C♯, E♭.</summary>
     German,
 
     /// <summary>C D E F G A B, mit ♯ und ♭.</summary>
@@ -26,8 +26,8 @@ public enum Accidentals
 /// <param name="Cents">Abweichung von −50 bis +50 Cent; positiv heißt zu hoch</param>
 public readonly record struct TunedNote(int Midi, double Cents)
 {
-    private static readonly string[] GermanSharp = ["C", "Cis", "D", "Dis", "E", "F", "Fis", "G", "Gis", "A", "Ais", "H"];
-    private static readonly string[] GermanFlat = ["C", "Des", "D", "Es", "E", "F", "Ges", "G", "As", "A", "B", "H"];
+    private static readonly string[] GermanSharp = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "H"];
+    private static readonly string[] GermanFlat = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B", "H"];
     private static readonly string[] EnglishSharp = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
     private static readonly string[] EnglishFlat = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
 
@@ -36,9 +36,7 @@ public readonly record struct TunedNote(int Midi, double Cents)
     /// </summary>
     public static TunedNote FromFrequency(double frequency, double referenceHz = 440)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frequency);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(referenceHz);
-        var exact = 69 + (12 * Math.Log2(frequency / referenceHz));
+        var exact = ExactMidi(frequency, referenceHz);
         var midi = (int)Math.Round(exact, MidpointRounding.AwayFromZero);
         return new TunedNote(midi, (exact - midi) * 100);
     }
@@ -53,7 +51,17 @@ public readonly record struct TunedNote(int Midi, double Cents)
     /// <summary>Oktave in wissenschaftlicher Schreibweise: A4 = 440 Hz, C4 = eingestrichenes C.</summary>
     public int Octave => (int)Math.Floor(Midi / 12.0) - 1;
 
-    /// <summary>Der Tonname ohne Oktave, z. B. „Fis“ oder „F♯“.</summary>
+    /// <summary>
+    /// Die genaue Tonhöhe als MIDI-Zahl mit Nachkommastellen (69 = A4 beim Kammerton); 0,01 entspricht einem Cent.
+    /// </summary>
+    public static double ExactMidi(double frequency, double referenceHz = 440)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frequency);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(referenceHz);
+        return 69 + (12 * Math.Log2(frequency / referenceHz));
+    }
+
+    /// <summary>Der Tonname ohne Oktave, z. B. „F♯“, im Englischen „B♭“ statt des deutschen „B“.</summary>
     public string Name(NoteNaming naming, Accidentals accidentals)
     {
         var index = ((Midi % 12) + 12) % 12;
