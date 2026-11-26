@@ -72,6 +72,7 @@
         <pre><code>./just-practise.AppImage</code></pre>
       </li>
     </ol>
+    <p>On its first start, just practise adds itself to your start menu, so you can also pin it to the taskbar. If you move the AppImage, start it once from its new place and the menu entry follows.</p>
     <h3>If it does not start</h3>
     <p>AppImages need FUSE 2. Most desktop distributions have it; if not, install it:</p>
     <table>
@@ -111,7 +112,8 @@
     <h2 id="uninstall">Uninstall</h2>
     <ul>
       <li><strong>Windows with the installer:</strong> Settings › Apps › Installed apps › just practise › Uninstall.</li>
-      <li><strong>Windows portable and Linux:</strong> delete the file.</li>
+      <li><strong>Windows portable:</strong> delete the file.</li>
+      <li><strong>Linux:</strong> delete the AppImage, the menu entry <code>~/.local/share/applications/just-practise.desktop</code> and its icon <code>~/.local/share/icons/hicolor/512x512/apps/just-practise-*.png</code>.</li>
     </ul>
     <p>To remove everything, also delete the settings folder listed above and, if you like, the <code>.jps</code> files in your music folders.</p>
   </main>
