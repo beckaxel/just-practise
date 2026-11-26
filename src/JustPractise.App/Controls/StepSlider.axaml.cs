@@ -1,16 +1,14 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 
 namespace JustPractise.App.Controls;
 
 /// <summary>
 /// Ein einstellbarer Wert: [−] Regler [+] und daneben der Wert. Gleich in Player und Metronom, damit sich Tempo und
-/// Lautstärke überall gleich bedienen lassen, auch mit dem Finger: Die Knöpfe ändern um <see cref="Step"/> und
+/// Lautstärke überall gleich bedienen lassen, auch mit dem Finger; die Beschriftung steht daneben: Die Knöpfe ändern um <see cref="Step"/> und
 /// wiederholen, solange man sie hält; der Regler ist für große Sprünge.
 /// </summary>
 public sealed partial class StepSlider : UserControl
@@ -26,10 +24,6 @@ public sealed partial class StepSlider : UserControl
 
     public static readonly StyledProperty<double> LargeChangeProperty = AvaloniaProperty.Register<StepSlider, double>(nameof(LargeChange), 10);
 
-    public static readonly StyledProperty<Geometry?> IconProperty = AvaloniaProperty.Register<StepSlider, Geometry?>(nameof(Icon));
-
-    public static readonly StyledProperty<string?> LabelProperty = AvaloniaProperty.Register<StepSlider, string?>(nameof(Label));
-
     public static readonly StyledProperty<string?> ValueTextProperty = AvaloniaProperty.Register<StepSlider, string?>(nameof(ValueText));
 
     public static readonly StyledProperty<double> ValueWidthProperty = AvaloniaProperty.Register<StepSlider, double>(nameof(ValueWidth), 76);
@@ -38,13 +32,13 @@ public sealed partial class StepSlider : UserControl
 
     public static readonly StyledProperty<string?> ValueTipProperty = AvaloniaProperty.Register<StepSlider, string?>(nameof(ValueTip));
 
-    public static readonly StyledProperty<FlyoutBase?> ValueFlyoutProperty = AvaloniaProperty.Register<StepSlider, FlyoutBase?>(nameof(ValueFlyout));
-
     public static readonly StyledProperty<string?> DecreaseTipProperty = AvaloniaProperty.Register<StepSlider, string?>(nameof(DecreaseTip));
 
     public static readonly StyledProperty<string?> IncreaseTipProperty = AvaloniaProperty.Register<StepSlider, string?>(nameof(IncreaseTip));
 
     private bool _syncing;
+
+    public static readonly StyledProperty<bool> ShowValueProperty = AvaloniaProperty.Register<StepSlider, bool>(nameof(ShowValue), true);
 
     public StepSlider()
     {
@@ -55,13 +49,6 @@ public sealed partial class StepSlider : UserControl
             if (!_syncing)
             {
                 Value = e.NewValue;
-            }
-        };
-        ValueButton.Click += (_, _) =>
-        {
-            if (ValueFlyout is { } flyout)
-            {
-                flyout.ShowAt(ValueButton);
             }
         };
     }
@@ -97,18 +84,11 @@ public sealed partial class StepSlider : UserControl
         set => SetValue(LargeChangeProperty, value);
     }
 
-    /// <summary>Symbol vor dem Regler; spart gegenüber einer Beschriftung Platz.</summary>
-    public Geometry? Icon
+    /// <summary>Ob der Wert daneben steht; aus, wenn daneben ein eigenes Eingabefeld steht.</summary>
+    public bool ShowValue
     {
-        get => GetValue(IconProperty);
-        set => SetValue(IconProperty, value);
-    }
-
-    /// <summary>Name des Werts, als Tooltip des Symbols.</summary>
-    public string? Label
-    {
-        get => GetValue(LabelProperty);
-        set => SetValue(LabelProperty, value);
+        get => GetValue(ShowValueProperty);
+        set => SetValue(ShowValueProperty, value);
     }
 
     /// <summary>Der angezeigte Wert, z. B. „100 %“.</summary>
@@ -135,13 +115,6 @@ public sealed partial class StepSlider : UserControl
     {
         get => GetValue(ValueTipProperty);
         set => SetValue(ValueTipProperty, value);
-    }
-
-    /// <summary>Öffnet sich bei einem Tipp auf den Wert, z. B. zur direkten Eingabe.</summary>
-    public FlyoutBase? ValueFlyout
-    {
-        get => GetValue(ValueFlyoutProperty);
-        set => SetValue(ValueFlyoutProperty, value);
     }
 
     public string? DecreaseTip

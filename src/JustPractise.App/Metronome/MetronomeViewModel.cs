@@ -19,8 +19,20 @@ public sealed partial class BeatDot(int index) : ObservableObject
     public partial bool IsCurrent { get; set; }
 }
 
+/// <summary>Eine Tempo-Voreinstellung; <see cref="IsSelected"/> markiert die aktuelle.</summary>
+public sealed partial class NumberChoice(int value) : ObservableObject
+{
+    public int Value { get; } = value;
+
+    public string Label => Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
+}
+
 /// <summary>
-/// Das Metronom: Tempo, Taktart (3/4 oder 4/4), Lautstärke, Start/Stopp und Schlaganzeige. Die letzte Einstellung
+/// Das Metronom: Tempo (mit Voreinstellungen), Schläge pro Takt (der erste betont), Lautstärke, Start/Stopp und
+/// Schlaganzeige. Die letzte Einstellung
 /// steht in den App-Einstellungen und ist beim nächsten Start wieder da; ob es lief, wird nicht gemerkt.
 /// </summary>
 /// <remarks>Aufrufe kommen vom UI-Thread. Den Schlag holt <see cref="Tick"/>, das die Oberfläche regelmäßig aufruft.</remarks>
@@ -30,6 +42,13 @@ public sealed partial class MetronomeViewModel : ObservableObject
     public const int MaxBpm = MetronomeSetup.MaxBpm;
     public const double MinVolumeDb = -20;
     public const double MaxVolumeDb = 10;
+
+    /// <summary>Schläge pro Takt; jeder Schlag ist ein Klick, der erste ist betont.</summary>
+    public const int MinBeats = 1;
+    public const int MaxBeats = 16;
+
+    /// <summary>Tempo-Voreinstellungen.</summary>
+    private static readonly int[] PresetBpms = [60, 90, 120];
 
     private readonly IMetronome _metronome;
     private readonly DataFileKeeper<AppSettings> _settings;
@@ -46,7 +65,9 @@ public sealed partial class MetronomeViewModel : ObservableObject
         // Beim Laden soll nichts geschrieben werden, deshalb ist _ready hier noch false.
         var saved = settings.Value.Metronome;
         Bpm = saved.Current.EffectiveBpm;
-        Meter = saved.Current.EffectiveMeter == Core.Metronome.Meter.ThreeFour ? Core.Metronome.Meter.ThreeFour : Core.Metronome.Meter.FourFour;
+        Meter = Normalize(saved.Current.EffectiveMeter);
+        TempoPresets = [.. PresetBpms.Select(bpm => new NumberChoice(bpm))];
+        MarkChoices();
         VolumeDb = Math.Clamp(saved.EffectiveVolumeDb, MinVolumeDb, MaxVolumeDb);
         Beats = CreateBeats(Meter);
         metronome.SetTempo(Bpm);
@@ -80,13 +101,15 @@ public sealed partial class MetronomeViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Die Taktart; eingestellt werden nur die Schläge pro Takt (1 bis 16). Der Nenner bleibt 4 und spielt keine Rolle,
+    /// ein Schlag ist ein Klick.
+    /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsThreeFour), nameof(IsFourFour))]
     public partial Meter Meter { get; private set; }
 
-    public bool IsThreeFour => Meter == Core.Metronome.Meter.ThreeFour;
-
-    public bool IsFourFour => Meter == Core.Metronome.Meter.FourFour;
+    /// <summary>Tempo-Voreinstellungen (60, 90, 120 BPM).</summary>
+    public IReadOnlyList<NumberChoice> TempoPresets { get; }
 
     /// <summary>Lautstärke des Metronoms in dB, unabhängig vom Player.</summary>
     [ObservableProperty]
@@ -117,10 +140,24 @@ public sealed partial class MetronomeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void UseThreeFour() => SetMeter(Core.Metronome.Meter.ThreeFour);
+    private void MoreBeats() => SetMeter(Meter with { Beats = Math.Min(Meter.Beats + 1, MaxBeats) });
 
     [RelayCommand]
-    private void UseFourFour() => SetMeter(Core.Metronome.Meter.FourFour);
+    private void FewerBeats() => SetMeter(Meter with { Beats = Math.Max(Meter.Beats - 1, MinBeats) });
+
+    [RelayCommand]
+    private void UseTempoPreset(NumberChoice choice) => Bpm = choice.Value;
+
+    /// <summary>Nur die Schläge zählen; eine gespeicherte Taktart wie 7/8 wird zu 7 Schlägen (7/4), höchstens 16.</summary>
+    private static Meter Normalize(Meter meter) => new(Math.Clamp(meter.Beats, MinBeats, MaxBeats), 4);
+
+    private void MarkChoices()
+    {
+        foreach (var choice in TempoPresets)
+        {
+            choice.IsSelected = choice.Value == Bpm;
+        }
+    }
 
     [RelayCommand]
     private void ResetVolume() => VolumeDb = 0;
@@ -133,6 +170,7 @@ public sealed partial class MetronomeViewModel : ObservableObject
         }
 
         Meter = meter;
+        MarkChoices();
         Beats = CreateBeats(meter);
         _metronome.SetMeter(meter);
         Save(settings => settings with { Current = settings.Current.WithMeter(meter) });
@@ -154,6 +192,7 @@ public sealed partial class MetronomeViewModel : ObservableObject
             return;
         }
 
+        MarkChoices();
         _metronome.SetTempo(value);
         Save(settings => settings with { Current = settings.Current.WithBpm(value) });
     }

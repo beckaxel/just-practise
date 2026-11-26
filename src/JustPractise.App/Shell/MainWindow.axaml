@@ -11,15 +11,46 @@
         Icon="/Assets/icon.png"
         Width="1000" Height="700"
         MinWidth="640" MinHeight="480">
+  <Window.Resources>
+    <StreamGeometry x:Key="SettingsIcon">M19.4,13 C19.5,12.7 19.5,12.3 19.5,12 C19.5,11.7 19.5,11.3 19.4,11 L21.5,9.4 L19.5,5.9 L17,6.9 C16.5,6.5 15.9,6.1 15.3,5.9 L14.9,3.2 H10.9 L10.5,5.9 C9.9,6.1 9.3,6.5 8.8,6.9 L6.3,5.9 L4.3,9.4 L6.4,11 C6.3,11.3 6.3,11.7 6.3,12 C6.3,12.3 6.3,12.7 6.4,13 L4.3,14.6 L6.3,18.1 L8.8,17.1 C9.3,17.5 9.9,17.9 10.5,18.1 L10.9,20.8 H14.9 L15.3,18.1 C15.9,17.9 16.5,17.5 17,17.1 L19.5,18.1 L21.5,14.6 Z M12.9,15 A3,3 0 1 1 12.9,9 A3,3 0 1 1 12.9,15 Z</StreamGeometry>
+    <StreamGeometry x:Key="FullScreenIcon">M3,3 H10 V5 H5 V10 H3 Z M14,3 H21 V10 H19 V5 H14 Z M3,14 H5 V19 H10 V21 H3 Z M19,14 H21 V21 H14 V19 H19 Z</StreamGeometry>
+    <StreamGeometry x:Key="CollapseIcon">M15.4,5 L8.4,12 L15.4,19 L16.8,17.6 L11.2,12 L16.8,6.4 Z</StreamGeometry>
+    <StreamGeometry x:Key="PlusIcon">M11,4 H13 V11 H20 V13 H13 V20 H11 V13 H4 V11 H11 Z</StreamGeometry>
+    <StreamGeometry x:Key="RefreshIcon">M12,4 A8,8 0 1 0 20,12 H18 A6,6 0 1 1 12,6 V9 L16,5 L12,1 Z</StreamGeometry>
+    <StreamGeometry x:Key="ExpandIcon">M8.6,5 L15.6,12 L8.6,19 L7.2,17.6 L12.8,12 L7.2,6.4 Z</StreamGeometry>
+  </Window.Resources>
+
   <Window.Styles>
     <Style Selector="TextBlock.section">
-      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontSize" Value="14" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="Opacity" Value="0.7" />
-      <Setter Property="Margin" Value="0,0,0,8" />
+      <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style Selector="Border.panel">
       <Setter Property="Padding" Value="16" />
+    </Style>
+    <Style Selector="Border.pathbar">
+      <Setter Property="Padding" Value="12,4" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+    </Style>
+    <Style Selector="Border.toolbar">
+      <Setter Property="Padding" Value="12,6" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Margin" Value="8,8,16,0" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+    </Style>
+    <Style Selector="Button.tool">
+      <Setter Property="Width" Value="48" />
+      <Setter Property="Height" Value="48" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.tool PathIcon">
+      <Setter Property="Width" Value="20" />
+      <Setter Property="Height" Value="20" />
     </Style>
     <Style Selector="Border.statusbar">
       <Setter Property="Padding" Value="12,2" />
@@ -33,52 +64,129 @@
     <Style Selector="TextBlock.warning">
       <Setter Property="Foreground" Value="{DynamicResource SystemErrorTextColor}" />
     </Style>
+
+    <!-- Der Trenner zur Bibliothek: breit genug für den Finger und mit Griff, damit man sieht, dass er sich ziehen lässt -->
+    <Style Selector="GridSplitter#Splitter">
+      <Setter Property="Width" Value="16" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}">
+            <Border Width="4" Height="56" CornerRadius="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Background="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="GridSplitter#Splitter:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+    </Style>
   </Window.Styles>
 
+  <Panel x:Name="Root">
   <DockPanel>
-    <!-- Statusleiste: Gerät, verspätete Callbacks (nur wenn es welche gab), Einstellungen -->
-    <Border DockPanel.Dock="Bottom" Classes="statusbar" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel">
+    <!-- Statusleiste: Gerät, im Entwickler-Modus verspätete Callbacks, rechts Vollbild und Einstellungen -->
+    <Border DockPanel.Dock="Bottom" Classes="statusbar">
       <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="16">
-        <TextBlock Grid.Column="0" Text="{Binding DeviceText}" Classes.warning="{Binding !HasDevice}"
+        <TextBlock Grid.Column="0" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel"
+                   Text="{Binding DeviceText}" Classes.warning="{Binding !HasDevice}"
                    Opacity="0.7" TextTrimming="CharacterEllipsis" />
-        <TextBlock Grid.Column="1" Text="{Binding LateText}" IsVisible="{Binding HasLateCallbacks}" Opacity="0.7" />
-        <Button Grid.Column="2" Classes="flat"
-                Command="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenSettingsCommand}"
-                ToolTip.Tip="{l:Tr settings.open}">
-          <PathIcon Classes="small" Data="M19.4,13 C19.5,12.7 19.5,12.3 19.5,12 C19.5,11.7 19.5,11.3 19.4,11 L21.5,9.4 L19.5,5.9 L17,6.9 C16.5,6.5 15.9,6.1 15.3,5.9 L14.9,3.2 H10.9 L10.5,5.9 C9.9,6.1 9.3,6.5 8.8,6.9 L6.3,5.9 L4.3,9.4 L6.4,11 C6.3,11.3 6.3,11.7 6.3,12 C6.3,12.3 6.3,12.7 6.4,13 L4.3,14.6 L6.3,18.1 L8.8,17.1 C9.3,17.5 9.9,17.9 10.5,18.1 L10.9,20.8 H14.9 L15.3,18.1 C15.9,17.9 16.5,17.5 17,17.1 L19.5,18.1 L21.5,14.6 Z M12.9,15 A3,3 0 1 1 12.9,9 A3,3 0 1 1 12.9,15 Z" />
-        </Button>
+        <TextBlock Grid.Column="1" DataContext="{Binding Status}" x:DataType="shell:StatusBarViewModel"
+                   Text="{Binding LateText}" IsVisible="{Binding HasLateCallbacks}" Opacity="0.7" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+          <Button Classes="flat tool" Command="{Binding ToggleFullScreenCommand}" ToolTip.Tip="{l:Tr layout.fullScreen}">
+            <PathIcon Data="{StaticResource FullScreenIcon}" />
+          </Button>
+          <Button Classes="flat tool" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="{l:Tr settings.open}">
+            <PathIcon Data="{StaticResource SettingsIcon}" />
+          </Button>
+        </StackPanel>
       </Grid>
     </Border>
 
-    <Grid ColumnDefinitions="360,Auto,*">
-      <!-- Dateibrowser: immer sichtbar -->
-      <Border Grid.Column="0" Classes="panel">
-        <DockPanel>
-          <TextBlock DockPanel.Dock="Top" Classes="section" Text="{l:Tr browser.title}" />
-          <fb:FileBrowserView DataContext="{Binding Browser}" />
-        </DockPanel>
-      </Border>
+    <!-- Oberste Zeile über die ganze Breite: wo die gewählte Stelle in der Bibliothek liegt -->
+    <Border DockPanel.Dock="Top" Classes="pathbar" MinHeight="52">
+      <fb:BreadcrumbBar DataContext="{Binding Browser}" />
+    </Border>
 
-      <GridSplitter Grid.Column="1" Width="4" ResizeDirection="Columns" />
+    <!-- Links die Bibliothek (verstellbar, einklappbar), rechts oben die Werkzeuge, darunter der Übungsbereich -->
+    <Grid x:Name="Body" ColumnDefinitions="400,Auto,*">
+      <Panel Grid.Column="0">
+        <!-- Ausgeklappt -->
+        <Border Classes="panel" Padding="16,8,8,16" IsVisible="{Binding !LibraryPane.IsCollapsed}">
+          <DockPanel>
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,4">
+              <TextBlock Classes="section" Text="{l:Tr browser.title}" />
+              <Button Grid.Column="1" Classes="flat tool" Command="{Binding Browser.AddMusicFolderCommand}"
+                      ToolTip.Tip="{l:Tr browser.addFolder}">
+                <PathIcon Data="{StaticResource PlusIcon}" />
+              </Button>
+              <Button Grid.Column="2" Classes="flat tool" Command="{Binding Browser.RefreshCommand}"
+                      ToolTip.Tip="{l:Tr browser.refresh}">
+                <PathIcon Data="{StaticResource RefreshIcon}" />
+              </Button>
+              <Button Grid.Column="3" Classes="flat tool" Command="{Binding LibraryPane.ToggleCommand}"
+                      ToolTip.Tip="{l:Tr layout.collapseLibrary}">
+                <PathIcon Data="{StaticResource CollapseIcon}" />
+              </Button>
+            </Grid>
+            <fb:FileBrowserView DataContext="{Binding Browser}" />
+          </DockPanel>
+        </Border>
+        <!-- Eingeklappt: schmale Leiste mit einem Knopf zum Ausklappen -->
+        <Border Padding="4,8" IsVisible="{Binding LibraryPane.IsCollapsed}"
+                Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}">
+          <Button Classes="flat tool" VerticalAlignment="Top" HorizontalAlignment="Center"
+                  Command="{Binding LibraryPane.ToggleCommand}" ToolTip.Tip="{l:Tr layout.expandLibrary}">
+            <PathIcon Data="{StaticResource ExpandIcon}" />
+          </Button>
+        </Border>
+      </Panel>
 
-      <!-- Player und Metronom untereinander; bei kleinem Fenster scrollbar statt abgeschnitten -->
-      <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Disabled">
-      <Grid RowDefinitions="Auto,Auto,Auto">
-        <Border Grid.Row="0" Classes="panel">
-          <StackPanel>
-            <TextBlock Classes="section" Text="{l:Tr player.title}" />
+      <GridSplitter Grid.Column="1" x:Name="Splitter" ResizeDirection="Columns"
+                    IsVisible="{Binding !LibraryPane.IsCollapsed}" ToolTip.Tip="{l:Tr layout.resize}" />
+
+      <DockPanel Grid.Column="2">
+        <!--
+          Werkzeugbereich: Werkzeuge, die nicht vom Stück abhängen, nebeneinander (bisher das Metronom, später Timer und
+          Stimmgerät). Jedes zeigt nur das Nötigste; ein Tipp klappt seine Einstellungen auf.
+        -->
+        <Border DockPanel.Dock="Top" Classes="toolbar">
+          <!-- Rechtsbündig, solange das Metronom allein ist -->
+          <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
+            <m:MetronomeToolView x:Name="MetronomeTool" DataContext="{Binding Metronome}"
+                                 OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenMetronomeCommand}" />
+          </StackPanel>
+        </Border>
+
+        <!-- Übungsbereich: bisher der Player, später auch Noten und andere Übungen -->
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+          <Border Classes="panel" Padding="24,16">
             <p:PlayerView DataContext="{Binding Player}" />
-          </StackPanel>
-        </Border>
-        <Separator Grid.Row="1" Margin="16,0" />
-        <Border Grid.Row="2" Classes="panel">
-          <StackPanel>
-            <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
-            <m:MetronomeView DataContext="{Binding Metronome}" />
-          </StackPanel>
-        </Border>
-      </Grid>
-      </ScrollViewer>
+          </Border>
+        </ScrollViewer>
+      </DockPanel>
     </Grid>
+
   </DockPanel>
+
+  <!--
+    Das Metronom zum Einstellen: eine Ebene im Hauptfenster (kein eigenes Popup-Fenster, sonst bekommt das Eingabefeld
+    unter Linux keinen Tastaturfokus). Ein Tipp daneben, „Fertig“ oder Esc schließt es. Die Lage unter dem Werkzeug
+    setzt MainWindow.PlaceMetronomePanel.
+  -->
+  <Border x:Name="Dismiss" Background="Transparent" IsVisible="{Binding IsMetronomeOpen}" />
+  <Border x:Name="MetronomePanel" IsVisible="{Binding IsMetronomeOpen}"
+          HorizontalAlignment="Right" VerticalAlignment="Top"
+          Padding="20" CornerRadius="8" BorderThickness="1" BoxShadow="0 4 16 0 #60000000"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+    <StackPanel Spacing="16">
+      <TextBlock Classes="section" Text="{l:Tr metronome.title}" />
+      <m:MetronomeView DataContext="{Binding Metronome}" />
+      <Button Classes="accent" HorizontalAlignment="Center" MinWidth="140" Height="48" FontSize="16"
+              Content="{l:Tr metronome.done}" Command="{Binding CloseMetronomeCommand}" />
+    </StackPanel>
+  </Border>
+  </Panel>
 </Window>

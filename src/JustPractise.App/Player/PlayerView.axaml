@@ -13,38 +13,40 @@
 
   <UserControl.Styles>
     <Style Selector="Button.transport">
-      <Setter Property="Width" Value="48" />
-      <Setter Property="Height" Value="48" />
+      <Setter Property="Width" Value="68" />
+      <Setter Property="Height" Value="68" />
       <Setter Property="Padding" Value="0" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
-      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontSize" Value="17" />
     </Style>
     <Style Selector="Button.transport PathIcon">
-      <Setter Property="Width" Value="20" />
-      <Setter Property="Height" Value="20" />
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
     </Style>
     <Style Selector="Button.transport.main">
-      <Setter Property="Width" Value="60" />
-      <Setter Property="Height" Value="56" />
+      <Setter Property="Width" Value="84" />
+      <Setter Property="Height" Value="68" />
     </Style>
     <Style Selector="Button.transport.main PathIcon">
-      <Setter Property="Width" Value="26" />
-      <Setter Property="Height" Value="26" />
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Height" Value="32" />
     </Style>
-    <Style Selector="c|StepSlider">
-      <Setter Property="Width" Value="320" />
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="17" />
+      <Setter Property="Opacity" Value="0.75" />
+      <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
   </UserControl.Styles>
 
   <Panel>
-    <TextBlock Text="{l:Tr player.empty}" Opacity="0.6" FontSize="16" IsVisible="{Binding !HasFile}" />
+    <TextBlock Text="{l:Tr player.empty}" Opacity="0.6" FontSize="18" IsVisible="{Binding !HasFile}" />
 
-    <StackPanel IsVisible="{Binding HasFile}" Spacing="8">
+    <StackPanel IsVisible="{Binding HasFile}" Spacing="14">
       <!-- Stück und Datei -->
       <StackPanel>
-        <TextBlock Text="{Binding File.PieceTitle, FallbackValue=''}" FontSize="22" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-        <TextBlock Text="{Binding File.FileName, FallbackValue=''}" FontSize="15" Opacity="0.65" TextTrimming="CharacterEllipsis" />
+        <TextBlock Text="{Binding File.PieceTitle, FallbackValue=''}" FontSize="30" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+        <TextBlock Text="{Binding File.FileName, FallbackValue=''}" FontSize="17" Opacity="0.65" TextTrimming="CharacterEllipsis" />
       </StackPanel>
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.loading}" IsVisible="{Binding IsLoading}" />
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.error}" IsVisible="{Binding HasError}" />
@@ -53,47 +55,48 @@
       <StackPanel IsEnabled="{Binding IsReady}">
         <Slider Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds}" />
         <Grid ColumnDefinitions="*,*">
-          <TextBlock Grid.Column="0" Text="{Binding PositionText}" FontSize="16" Opacity="0.8" />
-          <TextBlock Grid.Column="1" Text="{Binding DurationText}" FontSize="16" Opacity="0.8" HorizontalAlignment="Right" />
+          <TextBlock Grid.Column="0" Text="{Binding PositionText}" FontSize="20" Opacity="0.8" />
+          <TextBlock Grid.Column="1" Text="{Binding DurationText}" FontSize="20" Opacity="0.8" HorizontalAlignment="Right" />
         </Grid>
       </StackPanel>
 
-      <!-- Bedienung in einer Zeile; wird das Fenster schmal, bricht sie um -->
-      <WrapPanel IsEnabled="{Binding IsReady}" ItemSpacing="20" LineSpacing="8">
-        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+      <!-- Zum Anfang und Abspielen, im halben goldenen Schnitt (19,1 % : 80,9 %) -->
+      <Grid ColumnDefinitions="191*,Auto,809*" IsEnabled="{Binding IsReady}">
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
           <Button Classes="transport" Command="{Binding ToStartCommand}" ToolTip.Tip="{l:Tr player.toStart}">
             <PathIcon Data="{StaticResource ToStartIcon}" />
           </Button>
-          <Button Classes="transport" Content="−5 s" Command="{Binding SeekBackCommand}" ToolTip.Tip="{l:Tr player.seekBack}" />
           <Button Classes="transport main accent" Command="{Binding PlayPauseCommand}" ToolTip.Tip="{l:Tr player.playPause}">
             <Panel>
               <PathIcon Data="{StaticResource PlayIcon}" IsVisible="{Binding !IsPlaying}" />
               <PathIcon Data="{StaticResource PauseIcon}" IsVisible="{Binding IsPlaying}" />
             </Panel>
           </Button>
-          <Button Classes="transport" Content="+5 s" Command="{Binding SeekForwardCommand}" ToolTip.Tip="{l:Tr player.seekForward}" />
         </StackPanel>
+      </Grid>
 
-        <!-- Tempo und Lautstärke; ein Tipp auf den Wert setzt zurück -->
-        <c:StepSlider VerticalAlignment="Center"
-                      Icon="{StaticResource TempoIcon}" Label="{l:Tr player.tempo}"
+      <!-- Tempo und Lautstärke untereinander, mit Beschriftung; ein Tipp auf den Wert setzt zurück -->
+      <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="8" IsEnabled="{Binding IsReady}">
+        <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="{l:Tr player.tempo}" />
+        <c:StepSlider Grid.Row="0" Grid.Column="1"
                       Minimum="{x:Static p:PlayerViewModel.MinTempoPercent}"
                       Maximum="{x:Static p:PlayerViewModel.MaxTempoPercent}"
-                      Step="1" LargeChange="5"
+                      Step="1" LargeChange="5" ValueWidth="104"
                       Value="{Binding TempoPercent}"
                       ValueText="{Binding TempoPercent, StringFormat='{}{0:0} %'}"
                       ValueCommand="{Binding ResetTempoCommand}" ValueTip="{l:Tr player.resetTempo}"
                       DecreaseTip="{l:Tr player.slower}" IncreaseTip="{l:Tr player.faster}" />
-        <c:StepSlider VerticalAlignment="Center"
-                      Icon="{StaticResource VolumeIcon}" Label="{l:Tr player.volume}"
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Classes="label" Text="{l:Tr player.volume}" />
+        <c:StepSlider Grid.Row="1" Grid.Column="1"
                       Minimum="{x:Static p:PlayerViewModel.MinVolumeDb}"
                       Maximum="{x:Static p:PlayerViewModel.MaxVolumeDb}"
-                      Step="0.5" LargeChange="3" ValueWidth="92"
+                      Step="0.5" LargeChange="3" ValueWidth="104"
                       Value="{Binding VolumeDb}"
                       ValueText="{Binding VolumeDb, StringFormat='{}{0:+0.0;−0.0;0.0} dB'}"
                       ValueCommand="{Binding ResetVolumeCommand}" ValueTip="{l:Tr player.resetVolume}"
                       DecreaseTip="{l:Tr player.quieter}" IncreaseTip="{l:Tr player.louder}" />
-      </WrapPanel>
+      </Grid>
     </StackPanel>
   </Panel>
 </UserControl>

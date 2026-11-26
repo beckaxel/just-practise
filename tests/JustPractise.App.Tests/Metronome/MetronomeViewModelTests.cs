@@ -53,7 +53,8 @@ public sealed class MetronomeViewModelTests : IAsyncDisposable
         await settings.FlushAsync();
 
         Assert.Equal(120, viewModel.Bpm);
-        Assert.True(viewModel.IsFourFour);
+        Assert.Equal(Meter.FourFour, viewModel.Meter);
+        Assert.True(viewModel.TempoPresets.Single(choice => choice.Value == 120).IsSelected);
         Assert.Equal(0, viewModel.VolumeDb);
         Assert.Equal(4, viewModel.Beats.Count);
         Assert.Equal((120, Meter.FourFour, 0.0), (_metronome.Bpm, _metronome.Meter, _metronome.VolumeDb));
@@ -67,7 +68,7 @@ public sealed class MetronomeViewModelTests : IAsyncDisposable
         var viewModel = new MetronomeViewModel(_metronome, Settings(Saved(92, Meter.ThreeFour, -4)));
 
         Assert.Equal(92, viewModel.Bpm);
-        Assert.True(viewModel.IsThreeFour);
+        Assert.Equal(Meter.ThreeFour, viewModel.Meter);
         Assert.Equal(-4, viewModel.VolumeDb);
         Assert.Equal(3, viewModel.Beats.Count);
         Assert.Equal((92, Meter.ThreeFour, -4.0), (_metronome.Bpm, _metronome.Meter, _metronome.VolumeDb));
@@ -80,7 +81,7 @@ public sealed class MetronomeViewModelTests : IAsyncDisposable
         var viewModel = new MetronomeViewModel(_metronome, settings);
 
         viewModel.Bpm = 100;
-        viewModel.UseThreeFourCommand.Execute(null);
+        viewModel.FewerBeatsCommand.Execute(null);
         viewModel.VolumeDb = -6;
         await settings.FlushAsync();
 
@@ -151,11 +152,74 @@ public sealed class MetronomeViewModelTests : IAsyncDisposable
     {
         var viewModel = new MetronomeViewModel(_metronome, Settings());
 
-        viewModel.UseThreeFourCommand.Execute(null);
+        viewModel.FewerBeatsCommand.Execute(null);
 
-        Assert.True(viewModel.IsThreeFour);
-        Assert.False(viewModel.IsFourFour);
+        Assert.Equal(Meter.ThreeFour, viewModel.Meter);
         Assert.Equal([true, false, false], viewModel.Beats.Select(beat => beat.IsAccent));
+    }
+
+    [Fact]
+    public async Task SetsTheBeatsPerBarAndRemembersThem()
+    {
+        var settings = Settings();
+        var viewModel = new MetronomeViewModel(_metronome, settings);
+
+        for (var i = 0; i < 3; i++)
+        {
+            viewModel.MoreBeatsCommand.Execute(null);
+        }
+
+        Assert.Equal(7, viewModel.Meter.Beats);
+        Assert.Equal(7, _metronome.Meter.Beats);
+        Assert.Equal(7, viewModel.Beats.Count);
+        Assert.Equal([true, false, false, false, false, false, false], viewModel.Beats.Select(beat => beat.IsAccent));
+        await settings.FlushAsync();
+        Assert.Equal(7, new MetronomeViewModel(new FakeMetronome(), Settings()).Meter.Beats);
+    }
+
+    [Fact]
+    public void TakesOnlyTheBeatsOfASavedMeter()
+    {
+        var viewModel = new MetronomeViewModel(_metronome, Settings(Saved(120, new Meter(6, 8), 0)));
+
+        Assert.Equal(new Meter(6, 4), viewModel.Meter);
+        Assert.Equal(6, viewModel.Beats.Count);
+    }
+
+    [Fact]
+    public void KeepsTheBeatsPerBarWithinOneToSixteen()
+    {
+        var viewModel = new MetronomeViewModel(_metronome, Settings(Saved(120, new Meter(2, 4), 0)));
+
+        for (var i = 0; i < 5; i++)
+        {
+            viewModel.FewerBeatsCommand.Execute(null);
+        }
+
+        Assert.Equal(new Meter(1, 4), viewModel.Meter);
+        for (var i = 0; i < 30; i++)
+        {
+            viewModel.MoreBeatsCommand.Execute(null);
+        }
+
+        Assert.Equal(new Meter(16, 4), viewModel.Meter);
+    }
+
+    [Fact]
+    public void ChoosesATempoPreset()
+    {
+        var viewModel = new MetronomeViewModel(_metronome, Settings());
+
+        viewModel.UseTempoPresetCommand.Execute(viewModel.TempoPresets.Single(choice => choice.Value == 60));
+
+        Assert.Equal(60, viewModel.Bpm);
+        Assert.Equal(60, _metronome.Bpm);
+        Assert.Equal([60, 90, 120], viewModel.TempoPresets.Select(choice => choice.Value));
+        Assert.True(viewModel.TempoPresets[0].IsSelected);
+        Assert.False(viewModel.TempoPresets[2].IsSelected);
+
+        viewModel.Bpm = 61;
+        Assert.DoesNotContain(viewModel.TempoPresets, choice => choice.IsSelected);
     }
 
     [Fact]

@@ -208,7 +208,7 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
         Assert.Equal(Music("Jazz", "Blues - Playalong.mp3"), next.SelectedFile?.Path);
         Assert.Same(Row(next, "Blues - Playalong.mp3"), scrolledTo);
         Assert.Equal(Music("Jazz"), next.Location);
-        Assert.Equal(["Musik", "Jazz"], next.Breadcrumbs.Select(crumb => crumb.Name));
+        Assert.Equal(["Musik", "Jazz", "Blues - Playalong.mp3"], next.Breadcrumbs.Select(crumb => crumb.Name));
     }
 
     [Fact]
@@ -250,6 +250,39 @@ public sealed class FileBrowserViewModelTests : IAsyncDisposable
 
         await browser.ActivateCommand.ExecuteAsync(Row(browser, "x"));
         Assert.Equal(Music("Jazz", "Latin"), browser.Location);
+    }
+
+    [Fact]
+    public async Task ThePathEndsWithTheSelectedFileAndLeadsBackToIt()
+    {
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues - Demo.mp3"));
+        _directory.Create(Path.Combine("Musik", "Jazz", "Blues - Playalong.mp3"));
+        var browser = await StartAsync(Memory(new DeviceMemory { MusicFolders = [MusicPath], Library = new LibraryState { ExpandedFolders = [MusicPath, Music("Jazz")] } }));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Blues - Playalong.mp3"));
+        Assert.Equal(["Musik", "Jazz", "Blues - Playalong.mp3"], browser.Breadcrumbs.Select(crumb => crumb.Name));
+        Assert.NotNull(browser.Breadcrumbs[2].File);
+
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        Assert.Equal(["Musik"], browser.Breadcrumbs.Select(crumb => crumb.Name)); // die Datei liegt nicht in „Musik“
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz"));
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Jazz")); // Jazz wieder zu, die Datei ist versteckt
+        await browser.ActivateCommand.ExecuteAsync(Row(browser, "Musik"));
+        Assert.Equal(["0 Folder Musik +"], Tree(browser));
+
+        var revealed = 0;
+        LibraryRow? scrolledTo = null;
+        browser.RevealRequested += (_, _) => revealed++;
+        browser.ScrollRequested += (_, row) => scrolledTo = row;
+        await browser.OpenBreadcrumbCommand.ExecuteAsync(new BreadcrumbItem("Blues - Playalong.mp3", Music("Jazz", "Blues - Playalong.mp3"))
+        {
+            File = new PieceFile(Music("Jazz"), "Blues", "Blues - Playalong.mp3"),
+        });
+
+        Assert.Equal(1, revealed);
+        Assert.Same(Row(browser, "Blues - Playalong.mp3"), scrolledTo);
+        Assert.True(Row(browser, "Blues - Playalong.mp3").IsSelected);
     }
 
     [Fact]

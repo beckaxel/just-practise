@@ -21,6 +21,7 @@ internal sealed class MainWindowPlacement(DataFileKeeper<DeviceMemory> memory)
     private readonly WindowPlacer _placer = new(defaultWidth: 1000, defaultHeight: 700);
     private WindowPlacement? _normal;
     private bool _maximized;
+    private bool _fullScreen;
 
     /// <summary>Vor dem ersten Anzeigen aufrufen.</summary>
     public void Attach(Window window)
@@ -64,8 +65,14 @@ internal sealed class MainWindowPlacement(DataFileKeeper<DeviceMemory> memory)
             window.WindowState = WindowState.Maximized;
         }
 
-        _normal = placement with { Maximized = false };
+        if (placement.FullScreen)
+        {
+            window.WindowState = WindowState.FullScreen;
+        }
+
+        _normal = placement with { Maximized = false, FullScreen = false };
         _maximized = placement.Maximized;
+        _fullScreen = placement.FullScreen;
     }
 
     private void Remember(Window window)
@@ -81,12 +88,18 @@ internal sealed class MainWindowPlacement(DataFileKeeper<DeviceMemory> memory)
                     Height = Math.Round(window.ClientSize.Height, 2),
                 };
                 _maximized = false;
+                _fullScreen = false;
                 break;
             case WindowState.Maximized:
                 _maximized = true;
+                _fullScreen = false;
+                break;
+            case WindowState.FullScreen:
+                // Größe und Maximiert bleiben vom Zustand davor; dorthin geht es beim Verlassen des Vollbilds.
+                _fullScreen = true;
                 break;
             default:
-                // Minimiert oder Vollbild: Es bleibt der Zustand davor.
+                // Minimiert: Es bleibt der Zustand davor.
                 break;
         }
     }
@@ -101,7 +114,7 @@ internal sealed class MainWindowPlacement(DataFileKeeper<DeviceMemory> memory)
 
         memory.Update(value =>
         {
-            var placement = normal with { Maximized = _maximized, Unknown = value.Window?.Unknown };
+            var placement = normal with { Maximized = _maximized, FullScreen = _fullScreen, Unknown = value.Window?.Unknown };
             return value.Window == placement ? value : value with { Window = placement };
         });
     }

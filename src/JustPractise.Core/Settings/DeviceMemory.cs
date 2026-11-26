@@ -28,6 +28,9 @@ public sealed record DeviceMemory
     /// <summary>Was in der Bibliothek aufgeklappt und gewählt war.</summary>
     public LibraryState Library { get; init; } = LibraryState.Default;
 
+    /// <summary>Aufteilung des Hauptfensters, z. B. die Breite der Bibliothek.</summary>
+    public LayoutState Layout { get; init; } = LayoutState.Default;
+
     /// <summary>Lage des Hauptfensters beim letzten Beenden; <c>null</c> vor dem ersten Beenden.</summary>
     public WindowPlacement? Window { get; init; }
 
@@ -69,4 +72,22 @@ public sealed record LibraryState : IDataSection
     [JsonIgnore]
     public bool IsDefault =>
         ExpandedFolders.Count == 0 && ExpandedPieces.Count == 0 && SelectedFile is null && Unknown is not { Count: > 0 };
+}
+
+/// <summary>Die Aufteilung des Hauptfensters.</summary>
+public sealed record LayoutState : IDataSection
+{
+    public static LayoutState Default { get; } = new();
+
+    /// <summary>Breite der Bibliothek in geräteunabhängigen Einheiten; <c>null</c> für die Standardbreite.</summary>
+    public double? LibraryWidth { get; init; }
+
+    /// <summary>Die Bibliothek ist auf eine schmale Leiste eingeklappt; ausgeklappt hat sie wieder <see cref="LibraryWidth"/>.</summary>
+    public bool LibraryCollapsed { get; init; }
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Unknown { get; init; }
+
+    [JsonIgnore]
+    public bool IsDefault => LibraryWidth is null && !LibraryCollapsed && Unknown is not { Count: > 0 };
 }

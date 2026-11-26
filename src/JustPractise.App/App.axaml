@@ -4,9 +4,8 @@
              RequestedThemeVariant="Default">
   <Application.Resources>
     <ResourceDictionary>
-      <!-- Gemeinsame Symbole für Tempo und Lautstärke in Player und Metronom -->
+      <!-- Symbol des Metronoms im Werkzeugbereich -->
       <StreamGeometry x:Key="TempoIcon">M9,2 H15 L20,22 H4 Z M10.5,4 H13.5 L17.3,20 H6.7 Z M11.2,18 L15.5,6.5 L16.6,7 L12.6,18.5 Z</StreamGeometry>
-      <StreamGeometry x:Key="VolumeIcon">M3,9 H7 L12,4 V20 L7,15 H3 Z M14,8.5 A5,5 0 0 1 14,15.5 L15.2,16.7 A6.7,6.7 0 0 0 15.2,7.3 Z M16.5,5.5 A9,9 0 0 1 16.5,18.5 L17.7,19.7 A10.7,10.7 0 0 0 17.7,4.3 Z</StreamGeometry>
 
       <!--
         Farben der Bibliothek: Ordner in der Textfarbe des Schemas (weiß bzw. schwarz), virtuelle Stücke leicht
@@ -31,6 +30,11 @@
     <FluentTheme />
 
     <!-- Gemeinsame Stile aller Bereiche -->
+    <!-- Text in Knöpfen immer mittig, auch wenn der Knopf für den Finger größer ist als die Schrift -->
+    <Style Selector="Button, RepeatButton, ToggleButton">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
     <Style Selector="Button.flat, ToggleButton.flat">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="Padding" Value="4" />
