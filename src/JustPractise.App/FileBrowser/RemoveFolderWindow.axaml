@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="using:JustPractise.App.Localization"
+        x:Class="JustPractise.App.FileBrowser.RemoveFolderWindow"
+        Title="{l:Tr removeFolder.title}"
+        Width="480" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="24" Spacing="16">
+    <TextBlock x:Name="Question" FontSize="16" TextWrapping="Wrap" />
+    <TextBlock Text="{l:Tr removeFolder.filesStay}" FontSize="15" Opacity="0.75" TextWrapping="Wrap" />
+
+    <!-- Nur wenn es Sidecar-Dateien gibt: anbieten, sie mitzulöschen, mit Warnung -->
+    <StackPanel x:Name="SidecarPanel" Spacing="6">
+      <CheckBox x:Name="DeleteSidecars" FontSize="15" MinHeight="44">
+        <TextBlock x:Name="DeleteSidecarsText" TextWrapping="Wrap" />
+      </CheckBox>
+      <TextBlock Text="{l:Tr removeFolder.warning}" FontSize="14" TextWrapping="Wrap"
+                 Foreground="{DynamicResource SystemErrorTextColor}" IsVisible="{Binding #DeleteSidecars.IsChecked}" />
+    </StackPanel>
+
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+      <Button Content="{l:Tr removeFolder.cancel}" MinWidth="110" MinHeight="44" IsCancel="True" Click="OnCancel" />
+      <Button Classes="accent" Content="{l:Tr removeFolder.remove}" MinWidth="110" MinHeight="44" Click="OnRemove" />
+    </StackPanel>
+  </StackPanel>
+</Window>

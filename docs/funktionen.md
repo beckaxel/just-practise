@@ -173,7 +173,8 @@ Die App funktioniert wie ein Dateibrowser: Man klappt Ordner auf und öffnet St�
 - **Farben:** Ordnername und -symbol in der Textfarbe des Schemas (weiß im dunklen, schwarz im hellen Schema), virtuelle Stücke leicht bläulich, echte Stücke leicht grünlich.
 - **Pfadzeile:** Über dem Baum zeigt eine Pfadzeile, wo die gewählte Stelle liegt, z. B. `Musik › Jazz › Standards`. Ein Tipp auf ein Glied klappt den Weg zu diesem Ordner auf und scrollt dorthin.
 - **Bedienung:** Der Browser lässt sich mit dem Finger bedienen und ist aus etwas Abstand lesbar: Zeilen mindestens 44 Einheiten hoch, Schrift 16.
-- **Musikordner verwalten:** Neben der Pfadzeile gibt es Knöpfe, um einen Musikordner hinzuzufügen und den Baum neu einzulesen. Ein neuer Musikordner erscheint gleich aufgeklappt. Beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner in den Einstellungen.
+- **Musikordner verwalten:** Neben der Pfadzeile gibt es Knöpfe, um einen Musikordner hinzuzufügen und den Baum neu einzulesen. Ein neuer Musikordner erscheint gleich aufgeklappt. Beim ersten Start steht dort stattdessen ein Hinweis mit dem Knopf „Musikordner wählen“. Entfernen lassen sich Musikordner über einen Knopf an ihrer Zeile im Baum und in den Einstellungen.
+- **Musikordner entfernen:** Vorher fragt die App nach. Die Musikdateien bleiben immer, wo sie sind. Liegen im Ordner Sidecar-Dateien (`.jps`), bietet die Rückfrage an, sie mitzulöschen, mit der Warnung, dass sich Tempo und Lautstärke dann nicht wiederherstellen lassen; standardmäßig bleiben sie. Sidecar-Dateien in einem anderen Musikordner, der darin liegt, bleiben in jedem Fall. Ist eine Datei aus dem Ordner im Player geladen, schließt der Player sie vorher.
 
 ### Stücke und Gruppierung
 

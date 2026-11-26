@@ -36,6 +36,7 @@ internal static class CompositionRoot
 
         services.AddSingleton(sp => new DataFileKeeper<DeviceMemory>(sp.GetRequiredService<AppDataLocation>().Device()));
         services.AddSingleton<IFolderPicker, StorageFolderPicker>();
+        services.AddSingleton<IRemoveFolderDialog, RemoveFolderDialog>();
         services.AddSingleton<FileBrowserViewModel>();
 
         // Ohne Ausgabegerät läuft die App ohne Ton weiter; die Statusleiste sagt es.

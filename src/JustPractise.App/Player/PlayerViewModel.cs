@@ -127,6 +127,27 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Schließt die Datei, z. B. wenn ihr Musikordner entfernt wird: hält an, entlädt sie und wartet, bis ausstehende
+    /// Änderungen an der Sidecar-Datei geschrieben sind. Danach schreibt der Player nichts mehr dorthin.
+    /// </summary>
+    public async Task CloseAsync()
+    {
+        ++_version;
+        var sidecar = _sidecar;
+        _sidecar = null;
+        player.Unload();
+        File = null;
+        IsLoading = false;
+        HasError = false;
+        IsPlaying = false;
+        ShowPosition(TimeSpan.Zero, TimeSpan.Zero);
+        if (sidecar is not null)
+        {
+            await sidecar.FlushAsync();
+        }
+    }
+
     /// <summary>Wartet, bis Änderungen an der Sidecar-Datei geschrieben sind, z. B. beim Beenden.</summary>
     public Task FlushAsync() => _sidecar?.FlushAsync() ?? Task.CompletedTask;
 

@@ -74,5 +74,15 @@
     "restart": "Restart now",
     "noConnection": "No connection to the internet.",
     "failed": "Checking for updates did not work. Please try again later."
+  },
+  "removeFolder": {
+    "title": "Remove music folder",
+    "question": "Remove “{name}” from the library?",
+    "filesStay": "Your music files stay where they are; the folder is only taken out of the library.",
+    "deleteSidecars": "{count, plural, one {Also delete the # .jps file in it} other {Also delete the # .jps files in it}} (tempo and volume per file)",
+    "warning": "Careful: deleted .jps files cannot be restored. If you add the folder again later, tempo and volume are back at their defaults.",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "removeTip": "Remove music folder from the library"
   }
 }

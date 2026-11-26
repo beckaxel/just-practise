@@ -183,6 +183,21 @@ public sealed class PlayerViewModelTests : IAsyncDisposable
     }
 
     [Fact]
+    public async Task ClosesTheFileAndWritesNothingAfterwards()
+    {
+        await _viewModel.OpenAsync(File());
+        _viewModel.TempoPercent = 80;
+
+        await _viewModel.CloseAsync();
+        _viewModel.TempoPercent = 90;
+        await _viewModel.FlushAsync();
+
+        Assert.False(_viewModel.HasFile);
+        Assert.Contains("unload", _player.Calls);
+        Assert.Contains("\"tempo\": 0.8", System.IO.File.ReadAllText(SidecarPath), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task TheSeekButtonsJumpFiveSeconds()
     {
         await _viewModel.OpenAsync(File());

@@ -15,7 +15,8 @@ namespace JustPractise.App.FileBrowser;
 /// Ordner werden im Hintergrund gelesen, weil Cloud-Ordner blockieren können. Wird der Baum währenddessen neu
 /// aufgebaut, verfällt das ältere Ergebnis. Aufrufe kommen vom UI-Thread.
 /// </remarks>
-public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> memory, IFolderPicker picker) : ObservableObject
+public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> memory, IFolderPicker picker, IRemoveFolderDialog removeDialog)
+    : ObservableObject
 {
     private static readonly StringComparer PathComparer =
         FolderPaths.Comparison == StringComparison.Ordinal ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
@@ -47,6 +48,12 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
 
     /// <summary>Die Ansicht soll diese Zeile sichtbar machen, z. B. die gewählte Datei nach dem Start.</summary>
     public event EventHandler<LibraryRow>? ScrollRequested;
+
+    /// <summary>
+    /// Gibt die gewählte Datei frei, bevor ihr Musikordner entfernt wird (der Player schließt sie und schreibt
+    /// ausstehende Änderungen), damit danach nichts mehr in den Ordner schreibt.
+    /// </summary>
+    public Func<Task>? ReleaseSelection { get; set; }
 
     /// <summary>Die gewählten Musikordner.</summary>
     public IReadOnlyList<string> MusicFolders => memory.Value.MusicFolders;
@@ -153,17 +160,45 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
         }
     }
 
-    /// <summary>Nimmt einen Musikordner aus der Liste; die Dateien bleiben, wo sie sind.</summary>
+    /// <summary>
+    /// Nimmt einen Musikordner nach Rückfrage aus der Bibliothek; die Musikdateien bleiben, wo sie sind. Auf Wunsch
+    /// werden die Sidecar-Dateien darin gelöscht, außer in anderen Musikordnern, die darin liegen.
+    /// </summary>
     [RelayCommand]
     private async Task RemoveMusicFolder(string path)
     {
+        if (MusicFolders.FirstOrDefault(folder => FolderPaths.AreSame(folder, path)) is not { } root)
+        {
+            return;
+        }
+
+        var others = MusicFolders.Where(folder => !FolderPaths.AreSame(folder, root)).ToList();
+        IReadOnlyList<string> sidecars = await Task.Run(() => Directory.Exists(root) ? SidecarCleanup.Find(root, others) : []);
+        var choice = await removeDialog.AskAsync(FolderPaths.DisplayName(root), sidecars.Count);
+        if (choice == RemoveFolderChoice.Cancel)
+        {
+            return;
+        }
+
+        if (SelectedFile is { } selected && FolderPaths.FindRoot([root], selected.Path) is not null)
+        {
+            if (ReleaseSelection is { } release)
+            {
+                await release();
+            }
+
+            SelectedFile = null;
+        }
+
         memory.Update(value => value with
         {
-            MusicFolders = [.. value.MusicFolders.Where(folder => !FolderPaths.AreSame(folder, path))],
+            MusicFolders = [.. value.MusicFolders.Where(folder => !FolderPaths.AreSame(folder, root))],
         });
         OnPropertyChanged(nameof(MusicFolders));
         OnPropertyChanged(nameof(HasMusicFolders));
 
+        _expandedFolders.RemoveWhere(folder => FolderPaths.FindRoot([root], folder) is not null && FolderPaths.FindRoot(MusicFolders, folder) is null);
+        _expandedPieces.RemoveWhere(piece => FolderPaths.FindRoot([root], piece) is not null && FolderPaths.FindRoot(MusicFolders, piece) is null);
         if (Location is not null && FolderPaths.FindRoot(MusicFolders, Location) is null)
         {
             SetLocation(null);
@@ -171,6 +206,11 @@ public sealed partial class FileBrowserViewModel(DataFileKeeper<DeviceMemory> me
 
         SaveState();
         await RebuildAsync();
+
+        if (choice == RemoveFolderChoice.RemoveWithSidecars)
+        {
+            await Task.Run(() => SidecarCleanup.Delete(sidecars));
+        }
     }
 
     private void Select(LibraryRow row)
