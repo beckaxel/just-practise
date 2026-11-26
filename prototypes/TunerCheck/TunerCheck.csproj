@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 5: Mikrofon, Eingabegerät, Latenz und Tonhöhenerkennung. Steht bewusst nicht in der Solution. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.TunerCheck</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/JustPractise.Core/JustPractise.Core.csproj" />
+    <ProjectReference Include="../../src/JustPractise.Audio/JustPractise.Audio.csproj" />
+  </ItemGroup>
+
+</Project>
