@@ -19,6 +19,8 @@ public sealed record AppSettings
 
     public TimerSettings Timer { get; init; } = TimerSettings.Default;
 
+    public TunerSettings Tuner { get; init; } = TunerSettings.Default;
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Unknown { get; init; }
 }
@@ -30,11 +32,22 @@ public sealed record LanguageSettings : IDataSection
     /// <summary>Sprache der Oberfläche, z. B. <c>de</c>. <c>null</c> folgt dem System.</summary>
     public string? Ui { get; init; }
 
+    /// <summary>
+    /// Vorzeichen der Tonnamen: <c>flat</c> für b (Es, B♭); sonst Kreuz (Dis, A♯), wie in der MIDI-Spezifikation.
+    /// </summary>
+    public string? Accidentals { get; init; }
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Unknown { get; init; }
 
     [JsonIgnore]
-    public bool IsDefault => Ui is null && Unknown is not { Count: > 0 };
+    public Tuner.Accidentals EffectiveAccidentals => Accidentals == "flat" ? Tuner.Accidentals.Flat : Tuner.Accidentals.Sharp;
+
+    [JsonIgnore]
+    public bool IsDefault => Ui is null && Accidentals is null && Unknown is not { Count: > 0 };
+
+    public LanguageSettings WithAccidentals(Tuner.Accidentals accidentals) =>
+        this with { Accidentals = accidentals == Tuner.Accidentals.Flat ? "flat" : null };
 }
 
 public sealed record MetronomeSettings : IDataSection
@@ -125,4 +138,44 @@ public sealed record TimerSettings : IDataSection
         var clamped = Math.Clamp(minutes, MinMinutes, MaxMinutes);
         return this with { Minutes = clamped == DefaultMinutes ? null : clamped };
     }
+}
+
+/// <summary>Das Stimmgerät: Kammerton und Stimmung des Instruments.</summary>
+public sealed record TunerSettings : IDataSection
+{
+    public const double DefaultReferenceHz = 440;
+    public const double MinReferenceHz = 415;
+    public const double MaxReferenceHz = 466;
+
+    public static TunerSettings Default { get; } = new();
+
+    /// <summary>Kammerton (A4) in Hz, 415 bis 466; ohne Angabe 440.</summary>
+    public double? ReferenceHz { get; init; }
+
+    /// <summary>
+    /// Stimmung als Halbtöne, die der notierte Ton über dem klingenden liegt: 2 für B, 9 für Es, 7 für F, 3 für A;
+    /// ohne Angabe 0 (C, klingend).
+    /// </summary>
+    public int? TransposeSemitones { get; init; }
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Unknown { get; init; }
+
+    [JsonIgnore]
+    public double EffectiveReferenceHz => Math.Clamp(ReferenceHz ?? DefaultReferenceHz, MinReferenceHz, MaxReferenceHz);
+
+    [JsonIgnore]
+    public int EffectiveTransposeSemitones => Math.Clamp(TransposeSemitones ?? 0, -24, 24);
+
+    [JsonIgnore]
+    public bool IsDefault => ReferenceHz is null && TransposeSemitones is null && Unknown is not { Count: > 0 };
+
+    public TunerSettings WithReferenceHz(double hz)
+    {
+        var clamped = Math.Clamp(Math.Round(hz, 1), MinReferenceHz, MaxReferenceHz);
+        return this with { ReferenceHz = clamped == DefaultReferenceHz ? null : clamped };
+    }
+
+    public TunerSettings WithTransposeSemitones(int semitones) =>
+        this with { TransposeSemitones = semitones == 0 ? null : semitones };
 }

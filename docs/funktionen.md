@@ -92,11 +92,11 @@ Sprache der Oberfläche, Tonbezeichnungen und Akkordsymbole sind drei getrennte 
 
 ### Tonbezeichnungen
 
-- **Deutsch:** C D E F G A H, B für das englische B♭, Formen wie Cis und Es
+- **Deutsch:** C D E F G A H, B für das englische B♭, Vorzeichen in Kurzform wie C♯ und E♭ (nicht Cis und Es)
 - **Englisch:** C D E F G A B, mit C♯ und B♭
 - **Solmisation mit festem Do:** Do Re Mi Fa Sol La Si
-- **Vorzeichen:** wahlweise Kreuz oder b. Das betrifft z. B. das Stimmgerät: Cis oder Des.
-- **Standard:** passend zur Sprache der Oberfläche, also Deutsch oder Englisch. Man kann es unabhängig davon umstellen.
+- **Vorzeichen:** wahlweise Kreuz oder b. Das betrifft z. B. das Stimmgerät: C♯ oder D♭. Standard ist Kreuz, wie in der MIDI-Spezifikation; umstellen lässt es sich in den Einstellungen des Stimmgeräts.
+- **Standard:** passend zur Sprache der Oberfläche, also Deutsch oder Englisch. Später lässt es sich unabhängig davon umstellen.
 - Tonbezeichnungen, die von der Tonart abhängen (bewegtes Do, Nashville Number System), gibt es nicht. Sie passen nicht zu einem chromatischen Stimmgerät.
 
 ### Akkordsymbole
@@ -112,7 +112,7 @@ Die Grundidee: Man hat verschiedene Werkzeuge zum Üben (Metronom, Stimmgerät, 
 
 - **Pfadzeile:** die oberste Zeile über die ganze Breite. Sie zeigt, wo die gewählte Stelle in der Bibliothek liegt, z. B. `Musik › Jazz › Standards › Autumn Leaves - Playalong 80.mp3`; liegt die gewählte Datei im Ordner, steht sie am Ende. Ein Tipp auf ein Glied klappt den Weg dorthin auf, scrollt hin und öffnet die Bibliothek, falls sie eingeklappt ist.
 - **Bibliothek:** darunter links, siehe [Dateibrowser](#dateibrowser). Ihre Breite lässt sich am Trenner zum rechten Bereich ziehen; der Trenner hat einen sichtbaren Griff und ist breit genug für den Finger. Ein Knopf neben der Überschrift klappt die Bibliothek auf eine schmale Leiste ein, ein Knopf oben in der Leiste klappt sie mit der letzten Breite wieder aus. Breite und Zustand merkt sich die App pro Rechner.
-- **Werkzeugbereich:** rechts oben, flach. Hier stehen die Werkzeuge nebeneinander, die nicht vom Stück abhängen: das Metronom und rechts daneben der Übetimer, später das Stimmgerät. Jedes Werkzeug zeigt dort nur das Nötigste, das Metronom z. B. das Tempo, die Schlaganzeige und ▶/⏸. Ein Tipp darauf klappt es auf: Darunter erscheinen alle Einstellungen (beim Metronom Tempo, Schläge pro Takt und Lautstärke), Ein Chevron oben rechts, `Esc` oder ein Tipp daneben klappt es wieder zu. Jede Änderung gilt sofort. Die Werkzeuge stehen rechtsbündig, durch einen Strich getrennt. Die Schläge pro Takt zeigt die Schlaganzeige, eine Taktart steht dort nicht.
+- **Werkzeugbereich:** rechts oben, flach. Hier stehen die Werkzeuge nebeneinander, die nicht vom Stück abhängen: das Stimmgerät, das Metronom und der Übetimer. Jedes Werkzeug zeigt dort nur das Nötigste, das Metronom z. B. das Tempo, die Schlaganzeige und ▶/⏸. Ein Tipp darauf klappt es auf: Darunter erscheinen alle Einstellungen (beim Metronom Tempo, Schläge pro Takt und Lautstärke), Ein Chevron oben rechts, `Esc` oder ein Tipp daneben klappt es wieder zu. Jede Änderung gilt sofort. Die Werkzeuge stehen rechtsbündig, durch einen Strich getrennt. Die Schläge pro Takt zeigt die Schlaganzeige, eine Taktart steht dort nicht.
 - **Übungsbereich:** rechts unter den Werkzeugen, der Rest des Fensters. Bisher steht dort der Player; später kommen die Notenanzeige (wenn es Noten gibt) und vielleicht ganz andere Arten von Übungen dazu.
 - **Statusleiste:** unten: links das Ausgabegerät und im Entwickler-Modus die verspäteten Audio-Callbacks, rechts die Knöpfe für Vollbild und Einstellungen.
 
@@ -367,4 +367,8 @@ Die Anzeige hilft beim Üben von Dynamik. Sie zeigt, wie laut man gerade spielt.
 
 ### Im Werkzeugbereich
 
-Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Im Werkzeugbereich zeigt das Stimmgerät den Tonnamen in einem Rechteck. Daneben zeigt ein Strich die Abweichung: Je weiter der Ton daneben liegt, desto weiter ist der Strich vom Zentrum entfernt.
+Siehe [Aufbau der Oberfläche](#aufbau-der-oberfläche). Das Stimmgerät steht im Werkzeugbereich ganz links, vor dem Metronom: eine Stimmgabel als Symbol, ein Balken mit dem Ton darin, wie er in den Noten des Instruments steht (bei transponierender Stimmung mit dem Hinweis, z. B. „in E♭“), und ein Knopf mit Mikrofon zum Ein- und Ausschalten (Taste `S`). Der Balken wächst von der Mitte nach rechts, wenn der Ton zu hoch ist, und nach links, wenn er zu tief ist; 50 Cent füllen eine Hälfte. Bis 5 Cent Abweichung ist er grün, sonst ruhiges Bernstein. Die Anzeige ist geglättet, damit sie ruhig steht. Liegt ein Ton nahe der Grenze zwischen zwei Halbtönen, springt sie nicht hin und her: Ein anderer Ton gilt erst, wenn die Messung mehr als 65 Cent vom angezeigten entfernt ist oder zweimal hintereinander kommt; ein deutlich gespielter neuer Ton erscheint sofort. Bricht der Ton kurz ab (Atem, Zungenstoß), bleibt der letzte noch 0,4 s stehen. Unter dem Balken zeigt ein schmaler Balken den Pegel am Eingang (−60 dBFS bis voll); er steigt sofort und fällt langsam.
+
+- **Mikrofon:** nur offen, solange das Stimmgerät eingeschaltet ist; beim Start der App ist es aus. Lässt sich kein Eingabegerät öffnen, sagt das ein Hinweis.
+- **Aufgeklappt** (Tipp auf den Balken) stehen nur die Einstellungen: Stimmung (C, B, E♭, F, A), Kammerton (415 bis 466 Hz mit − und +, ein Tipp auf den Wert setzt auf 440 Hz zurück), Eingabegerät (Standardgerät oder ein bestimmtes) und Vorzeichen (♯ oder ♭). Jede Änderung gilt sofort.
+- **Erste Version:** chromatisch mit Balken, Stimmung als Schnellauswahl, Kammerton, Eingabegerät, Vorzeichen. Später: Nadel und Cent als Text in einer größeren Ansicht, eigene Instrumente mit Namen, freie Verschiebung in Halbtönen, Lautstärkeanzeige, Tonbezeichnung unabhängig von der Sprache.

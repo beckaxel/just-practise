@@ -6,6 +6,8 @@ using JustPractise.App.Player;
 using JustPractise.App.Shell;
 using JustPractise.App.Tests.Updates;
 using JustPractise.App.Timer;
+using JustPractise.App.Tuner;
+using JustPractise.Audio.Tuner;
 using JustPractise.App.Updates;
 using JustPractise.App.Shortcuts;
 using JustPractise.App.Tests.Metronome;
@@ -40,6 +42,7 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
             new PlayerViewModel(_player),
             new MetronomeViewModel(_metronome, _settings),
             new TimerViewModel(TimeProvider.System, _settings),
+            new TunerViewModel(new PitchTracker(new NoInput(), TimeProvider.System), _settings, _memory, translator, TimeProvider.System),
             new StatusBarViewModel(new NoDevice(), translator, developer),
             new SettingsViewModel(translator, _settings, browser, new UpdatesViewModel(new FakeUpdateService(), translator), developer),
             new LibraryPane(_memory));
@@ -154,6 +157,20 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
     }
 
     [Fact]
+    public void STogglesTheTunerAndOnlyOneToolIsOpen()
+    {
+        Assert.Equal(ShortcutAction.TunerToggle, Shortcut.Match(Avalonia.Input.Key.S, Avalonia.Input.KeyModifiers.None, "s"));
+
+        _shell.Execute(ShortcutAction.TunerToggle);
+        Assert.True(_shell.Tuner.IsUnavailable); // im Test gibt es kein Mikrofon
+
+        _shell.OpenTimerCommand.Execute(null);
+        _shell.OpenTunerCommand.Execute(null);
+        Assert.False(_shell.IsTimerOpen);
+        Assert.True(_shell.IsTunerOpen);
+    }
+
+    [Fact]
     public void OpensAndClosesTheMetronomeSettings()
     {
         _shell.OpenMetronomeCommand.Execute(null);
@@ -173,6 +190,19 @@ public sealed class MainWindowViewModelTests : IAsyncDisposable
 
         Assert.Equal(1, requests);
         Assert.Equal(ShortcutAction.ToggleFullScreen, Shortcut.Match(Avalonia.Input.Key.F11, Avalonia.Input.KeyModifiers.None, null));
+    }
+
+    private sealed class NoInput : IAudioInput
+    {
+        public int SampleRate => 48000;
+
+        public IReadOnlyList<string> DeviceNames() => [];
+
+        public bool Open(string? deviceName, InputRing ring) => false;
+
+        public void Close()
+        {
+        }
     }
 
     private sealed class NoPicker : IFolderPicker

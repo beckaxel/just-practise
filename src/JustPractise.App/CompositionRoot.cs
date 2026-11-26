@@ -5,6 +5,8 @@ using JustPractise.App.Player;
 using JustPractise.App.Shell;
 using JustPractise.App.Shell.ScreenSaver;
 using JustPractise.App.Timer;
+using JustPractise.App.Tuner;
+using JustPractise.Audio.Tuner;
 using JustPractise.App.Updates;
 using JustPractise.Audio;
 using JustPractise.Audio.Engine;
@@ -41,12 +43,18 @@ internal static class CompositionRoot
         services.AddSingleton<FileBrowserViewModel>();
 
         // Ohne Ausgabegerät läuft die App ohne Ton weiter; die Statusleiste sagt es.
+        services.AddSingleton<SoundFlowOutput>();
         services.AddSingleton(sp =>
         {
-            var device = new SoundFlowOutput();
+            var device = sp.GetRequiredService<SoundFlowOutput>();
             var output = new FallbackOutput(device, new SilentOutput());
             return new AudioSession(output, new FileDecoder(device.Engine), sp.GetRequiredService<TimeProvider>());
         });
+
+        // Das Eingabegerät des Stimmgeräts nutzt dieselbe Engine; offen ist es nur, solange das Stimmgerät an ist.
+        services.AddSingleton<IAudioInput>(sp => new SoundFlowInput(sp.GetRequiredService<SoundFlowOutput>().Engine));
+        services.AddSingleton<PitchTracker>();
+        services.AddSingleton<TunerViewModel>();
         services.AddSingleton<IAudioDevice>(sp => sp.GetRequiredService<AudioSession>());
         services.AddSingleton<IPlayer, AudioPlayer>();
         services.AddSingleton<PlayerViewModel>();

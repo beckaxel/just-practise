@@ -47,6 +47,10 @@ public sealed partial class MainWindow : Window
                     {
                         PlaceToolPanel(TimerPanel, TimerTool);
                     }
+                    else if (e.PropertyName == nameof(MainWindowViewModel.IsTunerOpen) && viewModel.IsTunerOpen)
+                    {
+                        PlaceToolPanel(TunerPanel, TunerTool);
+                    }
                 };
                 Dismiss.PointerPressed += (_, e) =>
                 {
@@ -60,6 +64,10 @@ public sealed partial class MainWindow : Window
                     else if (Hits(TimerTool.StartPause, e))
                     {
                         viewModel.Timer.StartPause();
+                    }
+                    else if (Hits(TunerTool.Toggle, e))
+                    {
+                        viewModel.Tuner.Toggle();
                     }
 
                     e.Handled = true;

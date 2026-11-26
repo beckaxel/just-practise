@@ -6,6 +6,7 @@
         xmlns:p="using:JustPractise.App.Player"
         xmlns:m="using:JustPractise.App.Metronome"
         xmlns:t="using:JustPractise.App.Timer"
+        xmlns:tu="using:JustPractise.App.Tuner"
         x:Class="JustPractise.App.Shell.MainWindow"
         x:DataType="shell:MainWindowViewModel"
         Title="{l:Tr app.title}"
@@ -160,8 +161,11 @@
           Stimmgerät). Jedes zeigt nur das Nötigste; ein Tipp klappt seine Einstellungen auf.
         -->
         <Border DockPanel.Dock="Top" Classes="toolbar">
-          <!-- Rechtsbündig: Metronom, rechts daneben der Übetimer -->
+          <!-- Rechtsbündig: Stimmgerät, Metronom, Übetimer -->
           <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
+            <tu:TunerToolView x:Name="TunerTool" DataContext="{Binding Tuner}"
+                              OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenTunerCommand}" />
+            <Border Width="1" Margin="0,6" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
             <m:MetronomeToolView x:Name="MetronomeTool" DataContext="{Binding Metronome}"
                                  OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenMetronomeCommand}" />
             <Border Width="1" Margin="0,6" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
@@ -191,6 +195,7 @@
       <MultiBinding Converter="{x:Static BoolConverters.Or}">
         <Binding Path="IsMetronomeOpen" />
         <Binding Path="IsTimerOpen" />
+        <Binding Path="IsTunerOpen" />
       </MultiBinding>
     </Panel.IsVisible>
   </Panel>
@@ -208,6 +213,22 @@
         </Button>
       </Grid>
       <m:MetronomeView DataContext="{Binding Metronome}" />
+    </StackPanel>
+  </Border>
+  <!-- Das Stimmgerät zum Einstellen, genauso -->
+  <Border x:Name="TunerPanel" IsVisible="{Binding IsTunerOpen}"
+          HorizontalAlignment="Right" VerticalAlignment="Top"
+          Padding="20" CornerRadius="8" BorderThickness="1" BoxShadow="0 4 16 0 #60000000"
+          Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+          BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+    <StackPanel Spacing="12">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Classes="toolTitle" Text="{l:Tr tuner.title}" />
+        <Button Grid.Column="1" Classes="flat tool" Command="{Binding CloseTunerCommand}" ToolTip.Tip="{l:Tr layout.collapseTool}">
+          <PathIcon Data="{StaticResource ChevronUpIcon}" />
+        </Button>
+      </Grid>
+      <tu:TunerView DataContext="{Binding Tuner}" />
     </StackPanel>
   </Border>
   <!-- Der Übetimer zum Einstellen, genauso -->
