@@ -161,17 +161,18 @@
           Stimmgerät). Jedes zeigt nur das Nötigste; ein Tipp klappt seine Einstellungen auf.
         -->
         <Border DockPanel.Dock="Top" Classes="toolbar">
-          <!-- Rechtsbündig: Stimmgerät, Metronom, Übetimer -->
-          <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
+          <!--
+            Rechtsbündig: Stimmgerät, Metronom, Übetimer. Ist das Fenster zu schmal für alle nebeneinander, bricht der
+            Bereich in eine weitere Zeile um, statt Werkzeuge abzuschneiden.
+          -->
+          <WrapPanel ItemsAlignment="End" ItemSpacing="28" LineSpacing="6">
             <tu:TunerToolView x:Name="TunerTool" DataContext="{Binding Tuner}"
                               OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenTunerCommand}" />
-            <Border Width="1" Margin="0,6" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
             <m:MetronomeToolView x:Name="MetronomeTool" DataContext="{Binding Metronome}"
                                  OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenMetronomeCommand}" />
-            <Border Width="1" Margin="0,6" Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
             <t:TimerToolView x:Name="TimerTool" DataContext="{Binding Timer}"
                              OpenCommand="{Binding $parent[Window].((shell:MainWindowViewModel)DataContext).OpenTimerCommand}" />
-          </StackPanel>
+          </WrapPanel>
         </Border>
 
         <!-- Übungsbereich: bisher der Player, später auch Noten und andere Übungen -->
