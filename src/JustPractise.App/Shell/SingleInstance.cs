@@ -92,9 +92,10 @@ public sealed partial class SingleInstance : IDisposable
             listener.Bind(new UnixDomainSocketEndPoint(socketPath));
             listener.Listen();
         }
-        catch (SocketException)
+        catch (Exception exception) when (exception is SocketException or ArgumentOutOfRangeException)
         {
             // Ohne Socket läuft die App trotzdem; eine zweite Instanz startet dann nach dem Timeout selbst.
+            // ArgumentOutOfRangeException: Der Pfad ist zu lang für einen Socket (unter Linux höchstens 108 Zeichen).
             listener.Dispose();
             return new SingleInstance(lockFile, listener: null);
         }
@@ -170,7 +171,7 @@ public sealed partial class SingleInstance : IDisposable
             socket.Send([ActivateMessage]);
             return true;
         }
-        catch (SocketException)
+        catch (Exception exception) when (exception is SocketException or ArgumentOutOfRangeException)
         {
             return false;
         }
