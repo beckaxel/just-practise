@@ -1,6 +1,11 @@
 # Roadmap zum Release Candidate
 
-Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittweise auszubauen. Die erste Version enthält deshalb nur einen kleinen Teil des [Funktionskonzepts](funktionen.md). Die Technik dafür ist in den Prüfpunkten 1, 2, 3 und 7 der [Technologie](technologie.md#prüfpunkte-für-den-prototyp) geklärt.
+Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittweise auszubauen. Die erste Version enthält deshalb nur einen kleinen Teil des [Funktionskonzepts](funktionen.md).
+
+## Stand (November 2026)
+
+- **Erste Version umgesetzt:** Alle Meilensteine sind erledigt, die Release Candidates 0.1.0-rc.1 bis rc.5 sind veröffentlicht. M4A/AAC ist danach dazugekommen und erscheint mit dem nächsten Release Candidate.
+- **Alle Prüfpunkte abgeschlossen:** Die [Prüfpunkte 1 bis 10](technologie.md#prüfpunkte-für-den-prototyp) sind unter Debian und Windows geprüft. Mangels Gerät ungeprüft und der Community überlassen bleiben: macOS, ein Stift unter Linux und der Start auf einem ARM-Gerät.
 
 ## Umfang der ersten Version
 
@@ -29,18 +34,24 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
   - Zähler für verspätete Callbacks (siehe Prüfpunkt 1), nur im Entwickler-Modus
 - **Pakete:** Windows und Linux, jeweils x64
 
+Über den ursprünglichen Umfang hinaus sind dazugekommen: die Bibliothek als Baum (Ordner entfernen, wahlweise samt Sidecar-Dateien), das Layout mit Pfadzeile, einklappbarer Bibliothek, Werkzeugbereich und Übungsbereich, Bedienung per Touch, Vollbild, gemerkte Fensterlage, kein Bildschirmschoner bei maximiertem Fenster, nur eine laufende Instanz, Desktop-Eintrag unter Linux, Updates über Velopack und „Über just practise“ mit den Lizenzen.
+
 ## Später
 
 - Player: Wellenform, A-B-Loop
-- Dateibrowser: Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner, Dateiüberwachung (Prüfpunkt 8)
+- Dateibrowser: Dateiüberwachung (geklärt in Prüfpunkt 8, Umsetzung siehe [Datenhaltung](technologie.md#dateizugriff)), Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner
 - Metronom: Tap-Tempo, Betonung pro Schlag, Unterteilungen, Klangsets, benannte Einstellungen
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen
-- Stimmgerät: Nadel und Cent in einer größeren Ansicht, eigene Instrumente, freie Halbtonverschiebung, Lautstärkeanzeige; Tonbezeichnung unabhängig von der Sprache
-- Touch und Stift (Prüfpunkt 6)
-- macOS und arm64 (Prüfpunkt 10)
+- Stimmgerät: Nadel und Cent in einer größeren Ansicht, eigene Instrumente, freie Halbtonverschiebung, Verlauf der Lautstärke (der Balken für den aktuellen Pegel ist schon da); Tonbezeichnung unabhängig von der Sprache, auch Solmisation
+- Pakete für arm64 und macOS: Die CI baut und testet die nativen Bibliotheken dort schon (Prüfpunkt 10); ob die App startet und spielt, prüft mangels Gerät die Community.
 - Schnellerer Start unter Windows: das Audiogerät im Hintergrund öffnen. WASAPI braucht dafür rund 400 ms auf dem UI-Thread, unter Linux sind es 80 ms (Prüfpunkt 9).
+- Audio-Thread unter Windows bei MMCSS anmelden, erst nach einer Messung (siehe [Offene Punkte](technologie.md#offene-punkte))
+
+Touch ist mit der ersten Version erledigt (Prüfpunkt 6). Der Stift wird erst mit der [Notenanzeige](funktionen.md#zukünftige-funktion-notenanzeige) gebraucht, für Anmerkungen.
 
 ## Meilensteine
+
+Alle fünf Meilensteine der ersten Version sind erledigt.
 
 1. **Core:** Gruppierungslogik, Modelle für Sidecar, Einstellungen und das gerätespezifische Gedächtnis, Taktlogik des Metronoms. Alles mit Tests.
 2. **Storage:** Ordner durchlaufen sowie Sidecar-Dateien und Einstellungen atomar lesen und schreiben.
