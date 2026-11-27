@@ -485,7 +485,10 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Native AOT** wurde nicht gemessen. JSON wird per Reflection gelesen, und auch DI und MessageFormat müssten dafür umgebaut werden. Es kommt erst wieder in Frage, falls der Start mit ReadyToRun auf schwächeren Rechnern zu langsam ist.
 10. **arm64:** Bringen Audio-Engine und FFmpeg native Bibliotheken für arm64 unter allen drei Plattformen mit? Läuft das AppImage unter Debian ohne zusätzliche Pakete (FUSE)?
 
-    **Zwischenstand (Debian 13, November 2026):** Das AppImage von Velopack 1.2.161 (x64) startet, mit Icon und Desktop-Eintrag. Auf dem Testrechner ist `libfuse2t64` installiert; ob es auch ohne startet, ist noch offen. Ohne FUSE lässt es sich mit `--appimage-extract-and-run` starten.
+    **Zwischenstand (Debian 13, November 2026):** Das AppImage von Velopack 1.2.161 (x64) startet, mit Icon und Desktop-Eintrag. Ohne FUSE lässt es sich mit `--appimage-extract-and-run` starten.
+    - **Kein `libfuse2` nötig:** Das AppImage von 0.1.0-rc.5 nutzt die neue Laufzeit [type2-runtime](https://github.com/AppImage/type2-runtime) (Commit 3d17002). Sie ist statisch gebaut (keine einzige gemeinsame Bibliothek) und bringt libfuse 3, squashfuse, zstd und zlib selbst mit. Sie braucht nur das Programm `fusermount` oder `fusermount3` im PATH, also das Paket `fuse3`. Das ist auf Desktop-Systemen praktisch immer da, unter Debian 13 etwa als Abhängigkeit von `xdg-desktop-portal` und `flatpak`. Fehlt es, meldet das AppImage „No suitable fusermount binary found“ und startet mit `--appimage-extract-and-run` trotzdem. Geprüft durch Untersuchen der Datei, ohne frisches System.
+    - **Lizenzen der Laufzeit:** Die Laufzeit nennt ihre Bestandteile (MIT, musl, libfuse unter LGPL 2, squashfuse, zstd, zlib) samt Quellcode selbst (`--appimage-help`); sie kommt mit Velopack ins Paket.
+    - **arm64:** Die CI baut und testet seit Prüfpunkt 4 auch auf Linux, Windows und macOS mit arm64 (macOS nur Apple Silicon): `jpstretch`, FFmpeg und `jpaac` bauen dort, die Audio-Tests laden sie und laufen durch. Ob die App auf einem ARM-Gerät startet und spielt, ist mangels Gerät ungeprüft; Pakete gibt es vorerst nur für x64.
 
 ## Offene Punkte
 
