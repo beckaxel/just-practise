@@ -80,8 +80,8 @@ Line($"- {NativeMethods.Text(NativeMethods.FfmpegVersion())}");
 Line($"- {Environment.OSVersion}, .NET {Environment.Version}, {Environment.ProcessorCount} Kerne");
 Line($"- Bibliotheken neben dem Programm: {LibrarySizes()}");
 Line();
-Line("| Datei | Codec | Rate | Kanäle | Länge laut Datei | decodiert | Öffnen | erste 5 s | Decodieren gesamt | × Echtzeit | Spitze | RMS | über 1,0 | NaN |");
-Line("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+Line("| Datei | Codec | Rate | Kanäle | Länge laut Datei | decodiert | Öffnen | erste 5 s | Decodieren gesamt | Schleife: Zeit / CPU | × Echtzeit | Spitze | RMS | über 1,0 | NaN |");
+Line("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
 
 var failed = 0;
 var envelopes = new List<(string File, Envelope Envelope)>();
@@ -170,6 +170,11 @@ static (DecodeResult Result, Envelope Envelope) Decode(string path, string? wavD
 
     long frames = 0;
     var decodeTicks = 0L; // nur die Zeit in jp_aac_read, ohne die Statistik in C#
+    // CPU-Zeit und Wanduhrzeit der ganzen Schleife (mit Statistik). CPU weit unter der Wanduhrzeit heißt: wartet aufs Lesen.
+    // Einmal über die ganze Schleife gemessen, weil Windows die CPU-Zeit nur in Schritten von 15,6 ms zählt.
+    using var process = Process.GetCurrentProcess();
+    var cpuStart = process.TotalProcessorTime;
+    var loopStart = Stopwatch.GetTimestamp();
     TimeSpan? firstFiveSeconds = null;
     float peak = 0;
     double sumSquares = 0;
@@ -218,11 +223,13 @@ static (DecodeResult Result, Envelope Envelope) Decode(string path, string? wavD
     }
 
     total.Stop();
+    process.Refresh();
+    var loop = (Wall: Stopwatch.GetElapsedTime(loopStart), Cpu: process.TotalProcessorTime - cpuStart);
     var rms = frames > 0 ? Math.Sqrt(sumSquares / (frames * channels)) : 0;
     var codec = NativeMethods.Text(NativeMethods.Codec(aac));
     var profile = NativeMethods.Text(NativeMethods.Profile(aac));
     var result = new DecodeResult(Path.GetFileName(path), profile.Length > 0 ? $"{codec} {profile}" : codec, rate, channels,
-        NativeMethods.Length(aac), frames, openTime, firstFiveSeconds, openTime + Stopwatch.GetElapsedTime(0, decodeTicks), peak, rms, overOne, nan);
+        NativeMethods.Length(aac), frames, openTime, firstFiveSeconds, openTime + Stopwatch.GetElapsedTime(0, decodeTicks), loop, peak, rms, overOne, nan);
     return (result, envelope);
 }
 
@@ -250,6 +257,7 @@ internal sealed record DecodeResult(
     TimeSpan Open,
     TimeSpan? FirstFiveSeconds,
     TimeSpan Total,
+    (TimeSpan Wall, TimeSpan Cpu) Loop,
     float Peak,
     double Rms,
     long OverOne,
@@ -261,7 +269,7 @@ internal sealed record DecodeResult(
         var expected = ExpectedFrames >= 0 ? string.Create(culture, $"{ExpectedFrames} ({(double)ExpectedFrames / Rate:0.00} s)") : "?";
         var first = FirstFiveSeconds is { } time ? $"{time.TotalMilliseconds:0} ms" : "–";
         return string.Create(culture,
-            $"| {Name} | {Codec} | {Rate} | {Channels} | {expected} | {Frames} ({seconds:0.00} s) | {Open.TotalMilliseconds:0} ms | {first} | {Total.TotalMilliseconds:0} ms | {seconds / Total.TotalSeconds:0} | {Decibel(Peak):0.0} dB | {Decibel(Rms):0.0} dB | {OverOne} | {Nan} |");
+            $"| {Name} | {Codec} | {Rate} | {Channels} | {expected} | {Frames} ({seconds:0.00} s) | {Open.TotalMilliseconds:0} ms | {first} | {Total.TotalMilliseconds:0} ms | {Loop.Wall.TotalMilliseconds:0} / {Loop.Cpu.TotalMilliseconds:0} ms | {seconds / Total.TotalSeconds:0} | {Decibel(Peak):0.0} dB | {Decibel(Rms):0.0} dB | {OverOne} | {Nan} |");
     }
 
     private static double Decibel(double value) => value > 0 ? 20 * Math.Log10(value) : double.NegativeInfinity;
