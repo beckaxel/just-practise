@@ -163,7 +163,7 @@ just-practise/
 - **Nie vom UI-Thread:** Die Klassen in Storage blockieren, weil Dateien in Cloud-Ordnern erst geladen werden müssen (siehe Prüfpunkt 2). Die App ruft sie im Hintergrund auf.
 - **Erst lesen, dann schreiben:** Eine Datendatei wird nur geschrieben, wenn sie beim letzten Lesen fehlte oder lesbar war. Eine Datei, die sich nicht lesen lässt (z. B. Cloud-Laufwerk nicht eingebunden), gilt wie eine beschädigte und wird nicht überschrieben.
 - Änderungen im Dateisystem erkennt die App über `FileSystemWatcher`, ein rekursiver Watcher je Bibliotheksordner (Prüfpunkt 8). Ein Ereignis markiert nur den betroffenen Ordner; nach kurzer Ruhe (einige hundert ms) liest die App ihn neu ein. Bei einem Ordner-Ereignis liest sie auch den Ordner selbst samt Unterordnern neu.
-- Lässt sich ein Ordner nicht überwachen (z. B. Netzlaufwerk, oder unter Linux ist die Grenze von inotify erreicht), überwacht die App nur den geöffneten Ordner und fragt dessen Änderungszeitpunkt ab.
+- Lässt sich ein Ordner nicht überwachen (unter Linux ist z. B. die Grenze von inotify erreicht), überwacht die App nur den geöffneten Ordner und fragt dessen Änderungszeitpunkt ab. Netzlaufwerke werden nicht eigens unterstützt (Prüfpunkt 8).
 
 ### Regeln für alle Dateien
 
@@ -466,7 +466,8 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Atomares Speichern** (temporäre Datei schreiben, über das Ziel umbenennen) meldet unter Windows zusätzlich ein `Deleted` für das Ziel. Ein einzelnes Ereignis sagt also nichts Endgültiges; erst das Neueinlesen nach der Ruhe zeigt den Stand.
    - **OneDrive unter Windows:** Änderungen aus der Cloud kommen als gewöhnliche Ereignisse an. Umbenennen kommt als `Renamed`, Verschieben zwischen Ordnern als `Deleted` und `Created`, Ersetzen als Folge von gut zehn Ereignissen in wenigen Millisekunden mit einer temporären Datei `~RF….TMP`. Es kamen auch Umbenennungen an, die nur die Unicode-Form änderten (NFD → NFC, „Frühling“ mit getrenntem Umlaut), darunter eine `.jps`. Namen werden deshalb vor jedem Vergleich nach NFC normalisiert, wie es die Gruppierung schon tut.
    - **Dateien nur online (Windows):** Eine Datei, die nur als Platzhalter vorliegt und in der Cloud geändert wird, meldet sich mit `Changed`; die App braucht für OneDrive also kein Abfragen. Auch „Speicherplatz freigeben“ (`Changed`), Öffnen (`Changed`) und „Immer auf diesem Gerät behalten“ (dasselbe Ersetzen-Muster wie beim Herunterladen) lösen Ereignisse aus. Der Ordner wird dann einmal unnötig neu eingelesen; das ist billig, weil Einlesen nichts herunterlädt.
-   - **Offen:** dieselbe Prüfung von Cloud-Änderungen mit dem Linux-Client; Netzlaufwerke (SMB).
+   - **Netzlaufwerke (SMB) werden nicht eigens unterstützt:** Die App liest einen Ordner auf einem NAS wie jeden anderen. Ob Änderungen von anderen Rechnern automatisch erscheinen, ist dort nicht zugesichert (unter Linux meldet inotify sie in der Regel gar nicht); im Zweifel den Ordner neu öffnen. Geprüft wurde das nicht.
+   - **Offen:** dieselbe Prüfung von Cloud-Änderungen mit dem Linux-Client.
 9. **Startzeit und Paketgröße:** mit und ohne Native AOT bzw. ReadyToRun
 
    **Ergebnis (Debian und Windows 11, November 2026): ReadyToRun, ohne Native AOT.** Gemessen mit `tools/startup.cs`: Es veröffentlicht die App self-contained mit und ohne ReadyToRun und startet beide Varianten abwechselnd je elfmal. Ist die Umgebungsvariable `JUST_PRACTISE_STARTUP_PROBE` gesetzt, schreibt die App die Zeit seit Prozessstart an mehreren Messpunkten in eine Datei und beendet sich nach dem ersten gezeichneten Bild (`Shell/StartupProbe.cs`). Sie öffnet dabei das Audiogerät, spielt aber nichts ab.
