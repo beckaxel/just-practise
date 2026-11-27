@@ -23,7 +23,6 @@ internal sealed class DrawingCanvas : Control, IDisposable
     private readonly Action<string> _status;
     private readonly Dictionary<PointerType, (long Start, int Points)> _rateWindow = [];
     private RenderTargetBitmap? _bitmap;
-    private double _scaling = 1;
     private double _lastUpdateMs;
 
     public DrawingCanvas(PointerStats stats, Action<string> status)
@@ -65,24 +64,24 @@ internal sealed class DrawingCanvas : Control, IDisposable
         }
     }
 
-    // Legt das Bild in Pixelgröße an (bei Größenänderung neu) und malt dann einmal alle bisherigen Striche hinein.
+    // Legt das Bild an (bei Größenänderung neu) und malt dann einmal alle bisherigen Striche hinein. Ein Pixel des Bilds
+    // ist ein logischer Punkt wie die Zeigerkoordinaten; Avalonia skaliert es beim Anzeigen. Mit Bildschirmpixeln lagen die
+    // Striche bei Windows-Skalierung (z. B. 150 %) um diesen Faktor neben dem Stift.
     private void EnsureBitmap()
     {
-        var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
-        var size = PixelSize.FromSize(Bounds.Size, scaling);
+        var size = PixelSize.FromSize(Bounds.Size, 1);
         if (size.Width <= 0 || size.Height <= 0)
         {
             return;
         }
 
-        if (_bitmap is not null && _bitmap.PixelSize == size && _scaling == scaling)
+        if (_bitmap is not null && _bitmap.PixelSize == size)
         {
             return;
         }
 
         _bitmap?.Dispose();
-        _scaling = scaling;
-        _bitmap = new RenderTargetBitmap(size, new Vector(96 * scaling, 96 * scaling));
+        _bitmap = new RenderTargetBitmap(size, new Vector(96, 96));
         using var context = _bitmap.CreateDrawingContext();
         foreach (var stroke in _strokes)
         {
