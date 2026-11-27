@@ -83,3 +83,6 @@ decodecheck-out/
 
 # Ausgabe von prototypes/AacCheck
 aaccheck-out/
+
+# Ausgabe von prototypes/WatchCheck
+watchcheck-out/
