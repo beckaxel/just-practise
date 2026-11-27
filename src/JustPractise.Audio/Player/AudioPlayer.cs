@@ -1,4 +1,5 @@
 using JustPractise.Audio.Graph;
+using JustPractise.Core.Waveform;
 
 namespace JustPractise.Audio.Player;
 
@@ -31,7 +32,8 @@ public sealed class AudioPlayer(AudioSession session) : IPlayer
                 mine && info.IsPlaying,
                 TimeSpan.FromSeconds((double)(mine ? info.Position : 0) / rate),
                 track.Audio.Duration,
-                track.Audio.IsComplete);
+                track.Audio.IsComplete,
+                track.Waveform.IsCompletedSuccessfully ? track.Waveform.Result : null);
         }
     }
 
@@ -66,7 +68,7 @@ public sealed class AudioPlayer(AudioSession session) : IPlayer
         var token = loading.Token;
         var opened = new TaskCompletionSource<DecodedAudio>(TaskCreationOptions.RunContinuationsAsynchronously);
         DecodedAudio? audio = null;
-        var decoding = Task.Run(
+        var decoding = Task.Run<WaveformPeaks?>(
             () =>
             {
                 try
@@ -80,6 +82,9 @@ public sealed class AudioPlayer(AudioSession session) : IPlayer
                             opened.TrySetResult(decoded);
                         },
                         token);
+
+                    // Im selben Task, damit die Blöcke erst danach freigegeben werden (siehe AudioSession.Retire).
+                    return audio is null ? null : WaveformReader.Read(audio, token);
                 }
                 finally
                 {
@@ -104,7 +109,7 @@ public sealed class AudioPlayer(AudioSession session) : IPlayer
                     token.ThrowIfCancellationRequested();
                     var id = Interlocked.Increment(ref _nextId);
                     var stretch = new StretchVoice(decoded.Channels, decoded.SampleRate, session.SampleRate);
-                    return new LoadedTrack(id, decoded, stretch) { Decoding = decoding };
+                    return new LoadedTrack(id, decoded, stretch) { Decoding = decoding, Waveform = decoding };
                 },
                 token);
             token.ThrowIfCancellationRequested();

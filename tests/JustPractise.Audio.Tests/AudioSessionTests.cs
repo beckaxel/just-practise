@@ -100,6 +100,26 @@ public sealed class AudioSessionTests : IDisposable
     }
 
     [Fact]
+    public async Task ComputesTheWaveformOnceTheFileIsDecoded()
+    {
+        await _player.LoadAsync(Wav("a.wav", 48000, 2), Token);
+        while (_player.State.Waveform is null)
+        {
+            await Task.Delay(5, Token);
+        }
+
+        var waveform = _player.State.Waveform;
+        var min = new float[4];
+        var max = new float[4];
+        waveform.Envelope(0, 24000, min, max);
+
+        // Frame n hat links (n % 1000) / 32768, rechts 100/32768 mehr: Jede halbe Sekunde reicht von 0 bis 1099/32768.
+        Assert.Equal(96000, waveform.Frames);
+        Assert.All(min, value => Assert.Equal(0f, value, 4));
+        Assert.All(max, value => Assert.Equal(1099 / 32768f, value, 4));
+    }
+
+    [Fact]
     public async Task PlaysAndReportsThePosition()
     {
         await _player.LoadAsync(Wav("a.wav", 48000, 2), Token);
