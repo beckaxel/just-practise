@@ -24,7 +24,10 @@
     "slower": "Slower",
     "faster": "Faster",
     "quieter": "Quieter",
-    "louder": "Louder"
+    "louder": "Louder",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "zoomAll": "Show the whole piece"
   },
   "metronome": {
     "title": "Metronome",

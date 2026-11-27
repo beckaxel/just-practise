@@ -7,6 +7,10 @@
              x:DataType="p:PlayerViewModel">
   <UserControl.Resources>
     <StreamGeometry x:Key="ToStartIcon">M6,5 H8 V19 H6 Z M19,5 L9,12 L19,19 Z</StreamGeometry>
+    <!-- Lupe mit − bzw. +, Pfeile zwischen zwei Rändern für das ganze Stück -->
+    <StreamGeometry x:Key="ZoomOutIcon">F0 M10,2 A7,7 0 1 1 10,16 A7,7 0 1 1 10,2 Z M10,4 A5,5 0 1 0 10,14 A5,5 0 1 0 10,4 Z M14.6,14 L16,12.6 L22,18.6 L20.6,20 Z M7,8 H13 V10 H7 Z</StreamGeometry>
+    <StreamGeometry x:Key="ZoomInIcon">F0 M10,2 A7,7 0 1 1 10,16 A7,7 0 1 1 10,2 Z M10,4 A5,5 0 1 0 10,14 A5,5 0 1 0 10,4 Z M14.6,14 L16,12.6 L22,18.6 L20.6,20 Z M9,6 H11 V8 H13 V10 H11 V12 H9 V10 H7 V8 H9 Z</StreamGeometry>
+    <StreamGeometry x:Key="ZoomAllIcon">M2,5 H4 V19 H2 Z M20,5 H22 V19 H20 Z M6,12 L10,8 V11 H14 V8 L18,12 L14,16 V13 H10 V16 Z</StreamGeometry>
   </UserControl.Resources>
 
   <UserControl.Styles>
@@ -30,6 +34,24 @@
       <Setter Property="Width" Value="32" />
       <Setter Property="Height" Value="32" />
     </Style>
+    <Style Selector="Button.zoom">
+      <Setter Property="Width" Value="52" />
+      <Setter Property="Height" Value="52" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.zoom PathIcon">
+      <Setter Property="Width" Value="22" />
+      <Setter Property="Height" Value="22" />
+    </Style>
+    <Style Selector="p|WaveformControl">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+      <Setter Property="WaveBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <Setter Property="PlayedBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+      <Setter Property="PositionBrush" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+      <Setter Property="WindowBrush" Value="{DynamicResource WaveformWindowBrush}" />
+    </Style>
     <Style Selector="TextBlock.label">
       <Setter Property="FontSize" Value="17" />
       <Setter Property="Opacity" Value="0.75" />
@@ -49,12 +71,29 @@
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.loading}" IsVisible="{Binding IsLoading}" />
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.error}" IsVisible="{Binding HasError}" />
 
-      <!-- Zeitleiste über die ganze Breite: ein Tipp springt an die Stelle -->
-      <StackPanel IsEnabled="{Binding IsReady}">
-        <Slider Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds}" />
-        <Grid ColumnDefinitions="*,*">
-          <TextBlock Grid.Column="0" Text="{Binding PositionText}" FontSize="20" Opacity="0.8" />
-          <TextBlock Grid.Column="1" Text="{Binding DurationText}" FontSize="20" Opacity="0.8" HorizontalAlignment="Right" />
+      <!--
+        Wellenform über die ganze Breite: oben die Übersicht mit dem Ausschnitt, darunter der Ausschnitt groß. Ein Tipp
+        springt an die Stelle, Ziehen verschiebt, zwei Finger oder Strg+Mausrad zoomen.
+      -->
+      <StackPanel IsEnabled="{Binding IsReady}" Spacing="6">
+        <p:WaveformControl IsOverview="True" Height="36"
+                           Peaks="{Binding Waveform}" Viewport="{Binding Viewport}" Position="{Binding PositionSeconds}" />
+        <p:WaveformControl Height="150"
+                           Peaks="{Binding Waveform}" Viewport="{Binding Viewport}" Position="{Binding PositionSeconds}" />
+        <Grid ColumnDefinitions="*,Auto,*">
+          <TextBlock Grid.Column="0" Text="{Binding PositionText}" FontSize="20" Opacity="0.8" VerticalAlignment="Center" />
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button Classes="zoom" Command="{Binding ZoomOutCommand}" IsEnabled="{Binding !Viewport.IsWhole}" ToolTip.Tip="{l:Tr player.zoomOut}">
+              <PathIcon Data="{StaticResource ZoomOutIcon}" />
+            </Button>
+            <Button Classes="zoom" Command="{Binding ZoomAllCommand}" IsEnabled="{Binding !Viewport.IsWhole}" ToolTip.Tip="{l:Tr player.zoomAll}">
+              <PathIcon Data="{StaticResource ZoomAllIcon}" />
+            </Button>
+            <Button Classes="zoom" Command="{Binding ZoomInCommand}" IsEnabled="{Binding Viewport.CanZoomIn}" ToolTip.Tip="{l:Tr player.zoomIn}">
+              <PathIcon Data="{StaticResource ZoomInIcon}" />
+            </Button>
+          </StackPanel>
+          <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="20" Opacity="0.8" HorizontalAlignment="Right" VerticalAlignment="Center" />
         </Grid>
       </StackPanel>
 

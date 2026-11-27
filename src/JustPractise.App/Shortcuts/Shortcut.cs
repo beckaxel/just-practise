@@ -25,6 +25,9 @@ public enum ShortcutAction
     TimerLonger,
     TimerShorter,
     TunerToggle,
+    ZoomIn,
+    ZoomOut,
+    ZoomAll,
 }
 
 /// <summary>
@@ -52,6 +55,17 @@ public static class Shortcut
         if (modifiers == KeyModifiers.Control && key == Key.OemComma)
         {
             return ShortcutAction.OpenSettings;
+        }
+
+        if (modifiers == KeyModifiers.Control)
+        {
+            return key switch
+            {
+                Key.OemPlus or Key.Add => ShortcutAction.ZoomIn,
+                Key.OemMinus or Key.Subtract => ShortcutAction.ZoomOut,
+                Key.D0 or Key.NumPad0 => ShortcutAction.ZoomAll,
+                _ => null,
+            };
         }
 
         if (modifiers == KeyModifiers.None && key == Key.F11)

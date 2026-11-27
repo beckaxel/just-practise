@@ -4,17 +4,20 @@ using CommunityToolkit.Mvvm.Input;
 using JustPractise.App.FileBrowser;
 using JustPractise.Audio;
 using JustPractise.Core.Pieces;
+using JustPractise.Core.Waveform;
 using JustPractise.Storage;
 
 namespace JustPractise.App.Player;
 
 /// <summary>
 /// Der Player: lädt die im Browser gewählte Datei, spielt sie ab und merkt sich Tempo und Lautstärke pro Datei in der
-/// Sidecar-Datei des Stücks.
+/// Sidecar-Datei des Stücks. Dazu die Wellenform mit ihrem sichtbaren Ausschnitt (Zoom).
 /// </summary>
 /// <remarks>
 /// Aufrufe kommen vom UI-Thread. Den Stand des Audio-Threads holt <see cref="Tick"/>, das die Oberfläche regelmäßig
 /// aufruft. Wählt man schneller neue Dateien, als sie laden, zählt nur die zuletzt gewählte.
+/// Der Ausschnitt folgt der Abspielposition seitenweise. Verschiebt man ihn selbst so, dass sie nicht mehr zu sehen
+/// ist, folgt er erst wieder, wenn sie ihn erreicht oder man selbst springt.
 /// </remarks>
 public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
 {
@@ -26,9 +29,14 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
     /// <summary>Sprung der Pfeiltasten.</summary>
     public const double SeekSeconds = 5;
 
+    /// <summary>Zoom pro Tipp auf − oder + bzw. pro Tastendruck.</summary>
+    public const double ZoomStep = 2;
+
     private int _version;
     private double _positionSeconds;
     private DataFileKeeper<SidecarFile>? _sidecar;
+    private WaveformViewport _viewport;
+    private bool _following = true;
 
     /// <summary>Die gewählte Datei, auch während sie lädt oder wenn sie sich nicht öffnen ließ.</summary>
     [ObservableProperty]
@@ -74,6 +82,25 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         }
     }
 
+    /// <summary>Die Spitzen der Wellenform, <c>null</c>, solange sie noch berechnet werden.</summary>
+    [ObservableProperty]
+    public partial WaveformPeaks? Waveform { get; private set; }
+
+    /// <summary>
+    /// Der sichtbare Ausschnitt der Wellenform. Setzt die Oberfläche ihn (Ziehen, Zoomen, Tipp in die Übersicht), folgt er
+    /// der Abspielposition nur, solange sie darin zu sehen ist.
+    /// </summary>
+    public WaveformViewport Viewport
+    {
+        get => _viewport;
+        set
+        {
+            var viewport = WaveformViewport.Of(DurationSeconds, value.Start, value.Length);
+            _following = viewport.Contains(_positionSeconds);
+            ShowViewport(viewport);
+        }
+    }
+
     /// <summary>Tempo in Prozent, 50 bis 150.</summary>
     [ObservableProperty]
     public partial double TempoPercent { get; set; } = 100;
@@ -93,6 +120,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         HasError = false;
         IsPlaying = false;
         ShowPosition(TimeSpan.Zero, TimeSpan.Zero);
+        ResetWaveform();
 
         try
         {
@@ -142,6 +170,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         HasError = false;
         IsPlaying = false;
         ShowPosition(TimeSpan.Zero, TimeSpan.Zero);
+        ResetWaveform();
         if (sidecar is not null)
         {
             await sidecar.FlushAsync();
@@ -162,6 +191,8 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         var state = player.State;
         IsPlaying = state.IsPlaying;
         ShowPosition(state.Position, state.Duration);
+        Waveform = state.Waveform;
+        Follow();
     }
 
     [RelayCommand]
@@ -195,6 +226,8 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         {
             player.ToStart();
             ShowPosition(TimeSpan.Zero, TimeSpan.FromSeconds(DurationSeconds));
+            _following = true;
+            Follow();
         }
     }
 
@@ -204,6 +237,27 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         if (IsReady)
         {
             PositionSeconds = Math.Clamp(PositionSeconds + seconds, 0, DurationSeconds);
+            _following = true;
+            Follow();
+        }
+    }
+
+    /// <summary>Zoomt hinein, um die Abspielposition.</summary>
+    [RelayCommand]
+    public void ZoomIn() => ZoomAtPosition(ZoomStep);
+
+    /// <summary>Zoomt heraus, um die Abspielposition.</summary>
+    [RelayCommand]
+    public void ZoomOut() => ZoomAtPosition(1 / ZoomStep);
+
+    /// <summary>Zeigt das ganze Stück.</summary>
+    [RelayCommand]
+    public void ZoomAll()
+    {
+        if (IsReady)
+        {
+            _following = true;
+            ShowViewport(WaveformViewport.Whole(DurationSeconds));
         }
     }
 
@@ -248,6 +302,40 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
             SaveSettings(settings => settings.WithVolumeDb(value));
         }
     }
+
+    private void ZoomAtPosition(double factor)
+    {
+        if (IsReady)
+        {
+            _following = true;
+            ShowViewport(_viewport.ZoomAtPosition(factor, _positionSeconds));
+        }
+    }
+
+    /// <summary>Passt den Ausschnitt an die Länge an und blättert, wenn er der Position folgt und sie hinausgelaufen ist.</summary>
+    private void Follow()
+    {
+        var viewport = _viewport.WithDuration(DurationSeconds);
+        if (_following)
+        {
+            viewport = viewport.PageTo(_positionSeconds);
+        }
+        else if (viewport.Contains(_positionSeconds))
+        {
+            _following = true;
+        }
+
+        ShowViewport(viewport);
+    }
+
+    private void ResetWaveform()
+    {
+        Waveform = null;
+        _following = true;
+        ShowViewport(WaveformViewport.Whole(0));
+    }
+
+    private void ShowViewport(WaveformViewport viewport) => SetProperty(ref _viewport, viewport, nameof(Viewport));
 
     private void SaveSettings(Func<FileSettings, FileSettings> change)
     {
