@@ -48,12 +48,15 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | Taste | Aktion |
 |---|---|
 | `Leertaste` | Abspielen/Pause |
-| `Pos1` | zum Anfang |
+| `Pos1` | zum Anfang des Stücks |
+| `Umschalt+Pos1` | zum Loop-Anfang (A) |
 | `←` / `→` | 5 Sekunden zurück/vor |
 | `A` / `B` | Loop-Start/-Ende an der aktuellen Position setzen |
 | `L` | Loop an/aus |
 | `[` / `]` | Tempo −/+ 5 % (gilt über das Zeichen, auf der deutschen Tastatur also AltGr+8/9) |
 | `↑` / `↓` | Lautstärke +/− 1 dB |
+| `Strg++` / `Strg+−` | Wellenform hinein-/herauszoomen |
+| `Strg+0` | ganzes Stück in der Wellenform |
 
 **Übetimer**
 
@@ -148,15 +151,27 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 ### Funktionsumfang
 
 - **Dateiformate:** MP3, WAV, FLAC, OGG, M4A/AAC
-- **Visualisierung:** Wellenform des Stücks
+- **Visualisierung:** Wellenform des Stücks über die ganze Breite, mit Zoom (siehe [Wellenform und Zoom](#wellenform-und-zoom))
 - **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform. Eine gewählte Datei lädt angehalten am Anfang. Am Ende hält die Wiedergabe an; Abspielen fängt dann von vorn an.
-- **Loop:** ein einfacher A-B-Loop
+- **Loop:** ein einfacher A-B-Loop, nahtlos: Bei B geht es ohne Pause bei A weiter, damit der Groove beim Wiederholen weiterläuft. A und B lassen sich mit Knöpfen und Tasten an der gerade hörbaren Stelle setzen und in der Wellenform an Griffen ziehen. „Zum Anfang“ (`Pos1`) springt immer an den Anfang des Stücks, ein eigener Knopf „zum Loop-Anfang“ (`Umschalt+Pos1`) an A.
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
-- **Bedienung:** Die Zeitleiste geht über die ganze Breite. Darunter stehen „zum Anfang“ und Abspielen/Pause, im halben goldenen Schnitt (19,1 % : 80,9 %). Springen um 5 Sekunden geht mit den Pfeiltasten. Darunter stehen Tempo und Lautstärke untereinander, beschriftet, je mit einem Regler mit Knöpfen − und + (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und dem Wert daneben.
+- **Bedienung:** Die Wellenform geht über die ganze Breite, darunter Position und Länge. Darunter stehen „zum Anfang“ und Abspielen/Pause, im halben goldenen Schnitt (19,1 % : 80,9 %). Springen um 5 Sekunden geht mit den Pfeiltasten. Darunter stehen Tempo und Lautstärke untereinander, beschriftet, je mit einem Regler mit Knöpfen − und + (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und dem Wert daneben.
+- **Später, zuschaltbar:** A und B rasten beim Setzen und Ziehen an einem nahen Anschlag ein (Transienten). Das ist eine bequeme Option, die man in den Einstellungen einschaltet; sie ist nicht Standard, weil die Erkennung an dichten Stellen mit viel Schlagzeug, Bass und Begleitung oft danebenliegt.
 - **Touch und Lesbarkeit:** Alle Knöpfe sind mindestens 44 Einheiten groß, Werte und Zeiten groß genug, um sie aus etwas Abstand zu lesen.
 - **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur im Entwickler-Modus und nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
+
+### Wellenform und Zoom
+
+Damit A und B auf den Schlag genau sitzen, z. B. ein Chorus oder ein Turnaround im Jazz oder Pop, lässt sich die Wellenform weit hineinzoomen.
+
+- **Zoomen:** mit zwei Fingern (Pinch), mit Strg+Mausrad, mit den Knöpfen −, + und „ganzes Stück“ neben der Wellenform oder mit `Strg++`, `Strg+−` und `Strg+0`. Pinch und Mausrad zoomen um die Stelle unter Finger bzw. Mauszeiger, Knöpfe und Tasten um die Abspielposition.
+- **Bereich:** vom ganzen Stück bis etwa eine halbe Sekunde über die ganze Breite. Dann ist der Anschlag einer Bassdrum oder Snare als einzelne Spitze zu sehen.
+- **Übersicht:** Über der großen Wellenform liegt ein schmaler Streifen mit dem ganzen Stück, darin ist der sichtbare Ausschnitt markiert. Ein Tipp in den Streifen holt die Stelle in den Ausschnitt, Ziehen verschiebt den Ausschnitt.
+- **In der großen Wellenform:** Ein Tipp springt an die Stelle, Ziehen mit Finger oder Maus verschiebt den Ausschnitt, ebenso das Mausrad ohne Strg. Die Abspielposition ist ein senkrechter Strich.
+- **Beim Abspielen:** Läuft die Position rechts aus dem Ausschnitt, blättert er eine Seite weiter. Er wandert nicht laufend mit, weil eine ständig bewegte Wellenform aus Abstand unruhig zu lesen ist. Hat man den Ausschnitt selbst verschoben, blättert er erst wieder mit, wenn die Position ihn erreicht.
+- **Beim Laden:** Die Wellenform zeigt das ganze Stück. Der Zoom wird nicht gespeichert.
 
 ### Dateibrowser
 
