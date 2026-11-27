@@ -80,3 +80,6 @@ gccheck-out/
 
 # Ausgabe von prototypes/DecodeCheck
 decodecheck-out/
+
+# Ausgabe von prototypes/AacCheck
+aaccheck-out/
