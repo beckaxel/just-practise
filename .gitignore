@@ -86,3 +86,6 @@ aaccheck-out/
 
 # Ausgabe von prototypes/WatchCheck
 watchcheck-out/
+
+# Ausgabe von prototypes/TouchCheck
+touchcheck-out/
