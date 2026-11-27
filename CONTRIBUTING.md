@@ -26,7 +26,7 @@ dotnet run tools/setup.cs
 
 The script is a plain C# file and works the same on every system. It
 
-1. checks Git, CMake and a C++ compiler and shows the install command for your system if something is missing,
+1. checks Git, CMake and a C++ compiler (on Windows also MSYS2) and shows the install command for your system if something is missing,
 2. builds the native libraries under `native/` if they are missing or their sources are newer (e.g. after a `git pull`),
 3. builds the solution.
 
@@ -35,6 +35,7 @@ It never installs anything itself. Options:
 ```bash
 dotnet run tools/setup.cs -- --check    # only check, build nothing
 dotnet run tools/setup.cs -- --native   # rebuild the native libraries
+dotnet run tools/setup.cs -- --strict   # fail if a native library cannot be built (used by CI)
 ```
 
 ## 3. Build, test, run
@@ -64,32 +65,37 @@ Any editor works. Free options with good C# and Avalonia support are VS Code wit
 
 ## Native code
 
-Some audio parts (time-stretching) are written in C++ and called via P/Invoke. Each folder under `native/` with a `CMakeLists.txt` builds one shared library `jp<folder>` into `native/bin/<rid>/`, for example `native/bin/linux-x64/libjpstretch.so`. Dependencies are fetched by CMake and pinned to a commit.
+Some audio parts are written in C or C++ and called via P/Invoke. Each folder under `native/` with a `CMakeLists.txt` builds one shared library `jp<folder>` into `native/bin/<rid>/`, for example `native/bin/linux-x64/libjpstretch.so`. Dependencies are fetched by CMake and pinned to a commit or a checksum.
 
-The audio layer uses `jpstretch` for the player. Everything still builds without it; the player reports at runtime that the library is missing, and the tests that need it are skipped. Later CI will publish prebuilt libraries and the setup script will download them; a local build will still take precedence.
+- `native/stretch` (`jpstretch`): time-stretching with signalsmith-stretch (MIT).
+- `native/aac` (`jpaac`): a small wrapper around a slim FFmpeg build that only reads AAC and ALAC in M4A/MP4 and `.aac` files. FFmpeg is LGPL, so it is built as separate shared libraries (`avformat`, `avcodec`, `avutil`) next to `jpaac`, never linked statically. The first build downloads the FFmpeg source and takes a minute or two.
+
+Everything still builds without them; the app reports at runtime that a library is missing, and the tests that need it are skipped. Later CI will publish prebuilt libraries and the setup script will download them; a local build will still take precedence.
 
 To build native code you need, in addition:
 
 | System | Commands |
 |---|---|
-| Windows | `winget install --id Kitware.CMake -e` and the C++ build tools: `winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"` |
+| Windows | `winget install --id Kitware.CMake -e`, the C++ build tools: `winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"`, and for FFmpeg MSYS2: `winget install --id MSYS2.MSYS2 -e`, then `C:\msys64\usr\bin\bash.exe -lc "pacman -S --needed --noconfirm make diffutils"` |
 | macOS | `xcode-select --install` and `brew install cmake` |
 | Debian, Ubuntu | `sudo apt install cmake g++` |
 | Fedora | `sudo dnf install cmake gcc-c++` |
 | Arch | `sudo pacman -S cmake gcc` |
 
-CMake 3.24 or newer is required. To build by hand instead of with the script:
+CMake 3.24 or newer is required. On Windows the setup script finds Visual Studio itself and sets up its build environment, so a normal terminal is enough. FFmpeg's `configure` runs in the MSYS2 bash and compiles with MSVC. To build by hand instead of with the script (on Windows from the "Developer PowerShell for VS"):
 
 ```bash
 cmake -S native/stretch -B native/stretch/build
 cmake --build native/stretch/build --config Release
+cmake -S native/aac -B native/aac/build
+cmake --build native/aac/build --config Release
 ```
 
 If CMake on Windows reports "No CMAKE_CXX_COMPILER could be found", the C++ workload is missing: open the Visual Studio Installer and add "Desktop development with C++" to the Build Tools.
 
 ## Release packages
 
-Packages are built with [Velopack](https://velopack.io/). Its command line tool `vpk` is a local .NET tool pinned in `dotnet-tools.json`; `dotnet tool restore` installs it. The native library must be built first. Then:
+Packages are built with [Velopack](https://velopack.io/). Its command line tool `vpk` is a local .NET tool pinned in `dotnet-tools.json`; `dotnet tool restore` installs it. The native libraries must be built first. Then:
 
 ```bash
 dotnet run tools/pack.cs -- --version 0.1.0-rc.1
@@ -110,7 +116,7 @@ The project follows GitHub Flow: `main` is always releasable and only changes th
 
 ## CI and releases
 
-- `.github/workflows/ci.yml` builds the native library and the solution and runs all tests on Ubuntu 22.04 and Windows, for pushes to `main`, pull requests and by hand.
+- `.github/workflows/ci.yml` builds the native libraries and the solution and runs all tests on Ubuntu 22.04, Windows and macOS, each on x64 and arm64 (macOS on Apple silicon only), for pushes to `main`, pull requests and by hand. Releases are built for x64 only so far.
 - `.github/workflows/release.yml` runs for a version tag such as `v0.1.0-rc.1`. It tests and packs on both systems (downloading the previous release first so Velopack can build delta updates) and creates a **draft** GitHub release with all packages and a combined `SHA256SUMS`. Users and the update check see the version only after the draft is published by hand. A version with a suffix (`-rc.1`) becomes a pre-release.
 - `.github/workflows/pages.yml` publishes the website in `site/` to GitHub Pages for changes to `site/` on `main` and for each published release. `{{version}}` in the pages becomes the tag of the newest published release, so the download links need no edit.
 - `.github/dependabot.yml` checks the GitHub Actions used in the workflows once a month and opens pull requests for new versions.

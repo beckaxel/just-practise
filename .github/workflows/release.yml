@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          # Ubuntu 22.04: the native library and the AppImage then run on older glibc versions too.
+          # Ubuntu 22.04: the native libraries and the AppImage then run on older glibc versions too.
           - os: ubuntu-22.04
             rid: linux-x64
             channel: linux
@@ -30,8 +30,11 @@ jobs:
       - name: Install mksquashfs for the AppImage
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y squashfs-tools
+      - name: Install make and diffutils for MSYS2 (FFmpeg)
+        if: runner.os == 'Windows'
+        run: C:\msys64\usr\bin\bash.exe -lc "pacman -S --needed --noconfirm make diffutils"
       - name: Build native libraries and solution
-        run: dotnet run tools/setup.cs
+        run: dotnet run tools/setup.cs -- --strict
       - name: Test
         run: dotnet test
       - name: Restore vpk
