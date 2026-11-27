@@ -493,4 +493,6 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
 
 ## Offene Punkte
 
-Derzeit keine. Der nächste Schritt ist der Prototyp.
+Vorschläge für später, noch nicht entschieden:
+
+- **Audio-Thread unter Windows bei MMCSS anmelden:** SoundFlow reicht die WASAPI-Einstellung `Usage` von miniaudio durch (`Default`, `Games`, `ProAudio`). Bisher nutzt die App `Default`, der Audio-Thread läuft mit normaler Priorität. Mit `ProAudio` teilt Windows ihm bevorzugt Rechenzeit zu, auch unter Last, wie bei DAWs. Am Klang, an der Latenz und an den Audioverbesserungen ändert das nichts. Vor dem Umstellen unter Windows mit dem Zähler für verspätete Callbacks (Entwickler-Modus) messen, ob es unter Last etwas bringt (siehe Prüfpunkte 1 und 2), und im Quelltext von miniaudio nachsehen, wann es den Thread anmeldet.
