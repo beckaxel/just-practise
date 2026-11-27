@@ -162,8 +162,8 @@ just-practise/
 - Gelesen und geschrieben wird direkt mit `System.IO`. Es gibt keine Berechtigungsabfragen.
 - **Nie vom UI-Thread:** Die Klassen in Storage blockieren, weil Dateien in Cloud-Ordnern erst geladen werden müssen (siehe Prüfpunkt 2). Die App ruft sie im Hintergrund auf.
 - **Erst lesen, dann schreiben:** Eine Datendatei wird nur geschrieben, wenn sie beim letzten Lesen fehlte oder lesbar war. Eine Datei, die sich nicht lesen lässt (z. B. Cloud-Laufwerk nicht eingebunden), gilt wie eine beschädigte und wird nicht überschrieben.
-- Änderungen im Dateisystem erkennt die App über `FileSystemWatcher`. Bei Netzlaufwerken und Cloud-Ordnern ist das unzuverlässig, dort ergänzt ein Abfragen des Änderungszeitpunkts.
-- Unter Linux begrenzt inotify die Zahl der überwachten Ordner (`max_user_watches`). Bei großen Musiksammlungen werden nur geöffnete Ordner überwacht.
+- Änderungen im Dateisystem erkennt die App über `FileSystemWatcher`, ein rekursiver Watcher je Bibliotheksordner (Prüfpunkt 8). Ein Ereignis markiert nur den betroffenen Ordner; nach kurzer Ruhe (einige hundert ms) liest die App ihn neu ein. Bei einem Ordner-Ereignis liest sie auch den Ordner selbst samt Unterordnern neu.
+- Lässt sich ein Ordner nicht überwachen (z. B. Netzlaufwerk, oder unter Linux ist die Grenze von inotify erreicht), überwacht die App nur den geöffneten Ordner und fragt dessen Änderungszeitpunkt ab.
 
 ### Regeln für alle Dateien
 
@@ -448,6 +448,24 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Tags nicht lesen:** SoundFlow erkennt Dateien mit ID3v2.2-Tags (gut die Hälfte der Testsammlung) nicht als MP3 und decodiert sie dann fünfmal langsamer, linear auf 48 kHz umgerechnet. Mit `ReadOptions.ReadTags = false` stimmt es. Ohne Tags schätzt SoundFlow die Länge dieser Dateien vorab doppelt so lang. Die App verlässt sich daher nicht auf die Schätzung, sondern nimmt die Länge nach dem Decodieren.
    - **Offen:** Der Pool gibt Speicher nie zurück (inzwischen: Er behält nach einem Dateiwechsel so viele Blöcke, wie die aktuelle Datei braucht, und die Blöcke liegen im nativen Speicher, siehe Prüfpunkt 1); wann er schrumpft, klärt der Bau des Players. Der Hintergrund-GC von 48 ms unter Windows wird im Player mit dem Zähler für verspätete Callbacks beobachtet.
 8. **Dateiüberwachung:** `FileSystemWatcher` bei großen Musikordnern und in Cloud-Ordnern
+
+   **Ergebnis (Debian und Windows 11, November 2026): ein rekursiver `FileSystemWatcher` je Bibliotheksordner. Er meldet nur, welcher Ordner sich geändert hat; die App liest den Ordner nach kurzer Ruhe neu ein.** Geprüft mit `prototypes/WatchCheck` (Konsole): `scan` überwacht einen großen Ordner und misst einen Abfragelauf, `stress` erzeugt Änderungen in Bursts und prüft, was ankommt, `listen` gibt Ereignisse aus, um Cloud-Änderungen von Hand zu prüfen. Großer Ordner war der OneDrive-Ordner mit 8740 Ordnern und 78 400 Dateien; unter Debian synchronisiert ihn der Client `onedrive` (abraunegg) auf ext4, unter Windows der OneDrive-Client mit Dateien bei Bedarf.
+   - **Großer Ordner:**
+
+     | | Debian | Windows |
+     |---|---|---|
+     | Watcher rekursiv starten | 128 ms | 7 ms |
+     | Speicher je Watcher | etwa 4 MiB | kaum messbar |
+     | Abfragelauf über alle Einträge | 0,3 s | 6 s, danach 2,1 s |
+     | Abfragelauf nur Änderungszeit der Ordner | 0,1 s | 2 s |
+
+   - **inotify unter Linux:** ein Watch je Ordner (8741), erlaubt waren 249 859. Seit Linux 5.11 hängt die Grenze vom Arbeitsspeicher ab, ältere Kernel (z. B. Debian 11) erlauben nur 8192. Knapper ist die Zahl der Instanzen: Jeder `FileSystemWatcher` belegt eine eigene, erlaubt sind 128 je Benutzer, und andere Programme belegten schon 42. Deshalb ein Watcher je Bibliotheksordner, nie einer je geöffnetem Ordner. Die Regel „bei großen Sammlungen nur geöffnete Ordner überwachen“ ist damit nur noch der Ersatz, wenn der Watcher nicht startet. Das Erreichen der Grenze wurde nicht nachgestellt, weil es auch andere Programme auf dem Rechner gestört hätte.
+   - **Abfragen ist teuer:** Unter Windows dauert ein Lauf über die ganze Sammlung Sekunden. Abgefragt wird deshalb nur als Ersatz und nur der geöffnete Ordner.
+   - **Stresstest:** Anlegen, Umbenennen, Ändern und Löschen von bis zu 10 000 Dateien kamen auf beiden Systemen vollständig an, ohne Pufferüberlauf (unter Windows mit dem Standardpuffer von 8 KB). Auch nach dem Umbenennen oder Hineinschieben eines Ordners stimmen die Pfade späterer Ereignisse darin.
+   - **Neue Ordner unter Linux:** Was sofort in einem neuen Ordner entsteht, meldet .NET unter Linux teilweise nicht (5 von 420 und 12 von 60 Dateien), weil der Watch für den neuen Ordner erst danach steht. Ein von außen hineingeschobener Ordner wird auf beiden Systemen nur als Ordner gemeldet, ohne seinen Inhalt. Deshalb liest die App bei jedem Ordner-Ereignis den Ordner samt Inhalt neu ein. Unter Windows fehlte nichts.
+   - **Atomares Speichern** (temporäre Datei schreiben, über das Ziel umbenennen) meldet unter Windows zusätzlich ein `Deleted` für das Ziel. Ein einzelnes Ereignis sagt also nichts Endgültiges; erst das Neueinlesen nach der Ruhe zeigt den Stand.
+   - **OneDrive unter Windows:** Änderungen aus der Cloud kommen als gewöhnliche Ereignisse an. Umbenennen kommt als `Renamed`, Verschieben zwischen Ordnern als `Deleted` und `Created`, Ersetzen als Folge von gut zehn Ereignissen in wenigen Millisekunden mit einer temporären Datei `~RF….TMP`. Es kamen auch Umbenennungen an, die nur die Unicode-Form änderten (NFD → NFC, „Frühling“ mit getrenntem Umlaut), darunter eine `.jps`. Namen werden deshalb vor jedem Vergleich nach NFC normalisiert, wie es die Gruppierung schon tut.
+   - **Offen:** dieselbe Prüfung von Cloud-Änderungen mit dem Linux-Client; ob „Speicherplatz freigeben“ und „Immer auf diesem Gerät behalten“ unter Windows Ereignisse auslösen (die App überwacht keine Attribute); Netzlaufwerke (SMB).
 9. **Startzeit und Paketgröße:** mit und ohne Native AOT bzw. ReadyToRun
 
    **Ergebnis (Debian und Windows 11, November 2026): ReadyToRun, ohne Native AOT.** Gemessen mit `tools/startup.cs`: Es veröffentlicht die App self-contained mit und ohne ReadyToRun und startet beide Varianten abwechselnd je elfmal. Ist die Umgebungsvariable `JUST_PRACTISE_STARTUP_PROBE` gesetzt, schreibt die App die Zeit seit Prozessstart an mehreren Messpunkten in eine Datei und beendet sich nach dem ersten gezeichneten Bild (`Shell/StartupProbe.cs`). Sie öffnet dabei das Audiogerät, spielt aber nichts ab.
