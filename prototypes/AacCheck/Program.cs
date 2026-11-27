@@ -38,6 +38,17 @@ for (var i = 0; i < args.Length; i++)
 }
 
 string[] extensions = [".m4a", ".mp4", ".aac", ".m4b"];
+var missing = inputs.Where(input => !Directory.Exists(input) && !File.Exists(input)).ToList();
+if (missing.Count > 0)
+{
+    foreach (var input in missing)
+    {
+        Console.WriteLine($"Nicht gefunden: {Path.GetFullPath(input)}");
+    }
+
+    return 1;
+}
+
 var files = inputs.SelectMany<string, string>(input => Directory.Exists(input)
         ? Directory.EnumerateFiles(input, "*", SearchOption.AllDirectories)
             .Where(file => extensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
