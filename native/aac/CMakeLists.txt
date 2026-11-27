@@ -1,22 +1,39 @@
 cmake_minimum_required(VERSION 3.24)
 
-# Prüfpunkt 4: C-Wrapper um ein schlankes, selbst gebautes FFmpeg (nur M4A/MP4 mit AAC und ALAC), per P/Invoke.
+# C-Wrapper um ein schlankes, selbst gebautes FFmpeg (nur M4A/MP4 und .aac mit AAC und ALAC), per P/Invoke (Prüfpunkt 4).
+# Normalerweise baut tools/setup.cs ihn mit. Von Hand:
 #
-#   cmake -S prototypes/AacCheck/native -B prototypes/AacCheck/native/build
-#   cmake --build prototypes/AacCheck/native/build --config Release
+#   cmake -S native/aac -B native/aac/build
+#   cmake --build native/aac/build --config Release
 #
 # FFmpeg steht unter LGPL 2.1 oder neuer und wird deshalb nur als eigene, austauschbare Bibliothek gebaut
 # (--enable-shared, nie statisch, ohne --enable-gpl). Alles landet in native/bin/<rid>/.
 #
 # Linux und macOS: configure und make des Systems.
 # Windows: configure braucht eine Unix-Shell. Es läuft in der Bash von MSYS2 (winget install MSYS2.MSYS2, dann in
-# MSYS2: pacman -S make diffutils) und kompiliert mit MSVC. Dazu cmake aus der "x64 Native Tools Command Prompt"
-# bzw. der "Developer PowerShell" von Visual Studio aufrufen, damit cl.exe und link.exe im PATH stehen.
+# MSYS2: pacman -S make diffutils) und kompiliert mit MSVC. cl.exe und link.exe müssen im PATH stehen: tools/setup.cs
+# richtet das selbst ein; von Hand cmake aus der "Developer PowerShell" von Visual Studio aufrufen.
 
 project(jpaac VERSION 1.0.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+
+# .NET-Runtime-Identifier für den Ausgabeordner, wie in native/stretch.
+if(WIN32)
+    set(JP_OS win)
+elseif(APPLE)
+    set(JP_OS osx)
+else()
+    set(JP_OS linux)
+endif()
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" JP_CPU)
+if(JP_CPU MATCHES "^(arm64|aarch64)$" OR CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
+    set(JP_ARCH arm64)
+else()
+    set(JP_ARCH x64)
+endif()
+set(JP_RID "${JP_OS}-${JP_ARCH}" CACHE STRING ".NET-Runtime-Identifier des Ausgabeordners")
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
@@ -41,7 +58,7 @@ set(JP_FFMPEG_OPTIONS
     --disable-everything
     --disable-avdevice --disable-avfilter --disable-swscale --disable-swresample
     --enable-protocol=file
-    --enable-demuxer=mov
+    --enable-demuxer=mov --enable-demuxer=aac --enable-parser=aac
     --enable-decoder=aac --enable-decoder=alac
 )
 if(JP_FFMPEG_SMALL)
@@ -49,6 +66,10 @@ if(JP_FFMPEG_SMALL)
 endif()
 if(NOT JP_FFMPEG_X86ASM)
     list(APPEND JP_FFMPEG_OPTIONS --disable-x86asm)
+endif()
+if(APPLE)
+    # Die Bibliotheken finden einander und jpaac findet sie im eigenen Ordner.
+    list(APPEND JP_FFMPEG_OPTIONS --install-name-dir=@loader_path)
 endif()
 list(APPEND JP_FFMPEG_OPTIONS ${JP_FFMPEG_EXTRA_OPTIONS})
 
@@ -67,14 +88,21 @@ if(MSVC)
     endif()
     find_program(JP_CL cl.exe)
     if(NOT JP_CL)
-        message(FATAL_ERROR "cl.exe steht nicht im PATH. cmake aus der \"x64 Native Tools Command Prompt\" oder der "
+        message(FATAL_ERROR "cl.exe steht nicht im PATH. tools/setup.cs verwenden oder cmake aus der "
                             "\"Developer PowerShell\" von Visual Studio aufrufen.")
     endif()
     # -MT: statische C-Laufzeit wie bei jpaac. Die Import-Bibliotheken (.lib) legt FFmpeg unter Windows nach bin/.
+    # --arch ausdrücklich, weil die Bash von MSYS2 unter Windows auf ARM als x86_64 läuft. Unter ARM ohne Assembly:
+    # MSVC bräuchte dafür armasm64 und gas-preprocessor.
+    if(JP_ARCH STREQUAL "arm64")
+        set(JP_MSVC_OPTIONS --arch=aarch64 --disable-asm)
+    else()
+        set(JP_MSVC_OPTIONS --arch=x86_64)
+    endif()
     set(JP_FFMPEG_COMMAND
         ${CMAKE_COMMAND} -E env MSYS2_PATH_TYPE=inherit CHERE_INVOKING=1 MSYSTEM=MSYS
         "${JP_BASH}" -l "${CMAKE_CURRENT_SOURCE_DIR}/build-ffmpeg.sh" <SOURCE_DIR> ${JP_JOBS}
-        --toolchain=msvc --extra-cflags=-MT ${JP_FFMPEG_OPTIONS})
+        --toolchain=msvc ${JP_MSVC_OPTIONS} --extra-cflags=-MT ${JP_FFMPEG_OPTIONS})
     set(JP_FFMPEG_LIBRARIES
         ${JP_FFMPEG_PREFIX}/bin/avformat.lib ${JP_FFMPEG_PREFIX}/bin/avcodec.lib ${JP_FFMPEG_PREFIX}/bin/avutil.lib)
 else()
@@ -116,22 +144,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_options(jpaac PRIVATE -static-libgcc)
 endif()
 
-# .NET-Runtime-Identifier für den Ausgabeordner, wie in native/stretch.
-if(WIN32)
-    set(JP_OS win)
-elseif(APPLE)
-    set(JP_OS osx)
-else()
-    set(JP_OS linux)
-endif()
-string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" JP_CPU)
-if(JP_CPU MATCHES "^(arm64|aarch64)$" OR CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64")
-    set(JP_ARCH arm64)
-else()
-    set(JP_ARCH x64)
-endif()
-set(JP_RID "${JP_OS}-${JP_ARCH}" CACHE STRING ".NET-Runtime-Identifier des Ausgabeordners")
-set(JP_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../native/bin/${JP_RID}")
+set(JP_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../bin/${JP_RID}")
 set_target_properties(jpaac PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${JP_OUTPUT_DIR}"
     RUNTIME_OUTPUT_DIRECTORY "${JP_OUTPUT_DIR}"

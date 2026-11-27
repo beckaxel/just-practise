@@ -1,4 +1,5 @@
-# Builds the native library and the solution and runs all tests on Linux and Windows.
+# Builds the native libraries and the solution and runs all tests on Linux, Windows and macOS, x64 and arm64.
+# Releases are only built for x64 so far; the other runners check that the native code builds and loads there.
 name: CI
 
 on:
@@ -15,15 +16,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Ubuntu 22.04 like the release build, so the native library runs on older glibc versions too.
-        os: [ubuntu-22.04, windows-latest]
+        # Ubuntu 22.04 like the release build, so the native libraries run on older glibc versions too.
+        os: [ubuntu-22.04, ubuntu-22.04-arm, windows-latest, windows-11-arm, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
+      # FFmpeg (native/aac) runs configure in the MSYS2 bash on Windows.
+      - name: Install make and diffutils for MSYS2
+        if: runner.os == 'Windows'
+        run: C:\msys64\usr\bin\bash.exe -lc "pacman -S --needed --noconfirm make diffutils"
       - name: Build native libraries and solution
-        run: dotnet run tools/setup.cs
+        run: dotnet run tools/setup.cs -- --strict
       - name: Test
         run: dotnet test

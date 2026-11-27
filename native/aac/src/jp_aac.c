@@ -136,7 +136,7 @@ int jp_aac_open(const char *path, jp_aac **out) {
     if (path == NULL) {
         return JP_AAC_ERROR_OPEN;
     }
-    av_log_set_level(AV_LOG_ERROR);
+    av_log_set_level(AV_LOG_QUIET); /* Fehler meldet jp_aac über Rückgabewerte */
 
     jp_aac *aac = calloc(1, sizeof *aac);
     if (aac == NULL) {
