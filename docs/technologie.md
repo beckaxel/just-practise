@@ -86,7 +86,7 @@ Die Lizenzen sind vor dem Einsatz am jeweiligen Paket zu prüfen.
 |---|---|---|
 | Audio-Engine (Ausgabe, Eingabe, Mischen) | [SoundFlow](https://github.com/LSXPrime/SoundFlow) (Backend: miniaudio) | MIT |
 | Decodieren MP3, WAV, FLAC, OGG | über die Audio-Engine (miniaudio) | MIT-0 / Public Domain |
-| Decodieren M4A/AAC | FFmpeg, dynamisch geladen | LGPL |
+| Decodieren M4A/AAC | FFmpeg, schlank selbst gebaut (nur AAC und ALAC in M4A/MP4), mitgeliefert und dynamisch geladen (Prüfpunkt 4) | LGPL |
 | Time-Stretching | [signalsmith-stretch](https://github.com/Signalsmith-Audio/signalsmith-stretch) (C++, nur Header) über einen eigenen C-Wrapper und P/Invoke | MIT |
 | Time-Stretching, Rückfallebene | WSOLA aus SoundFlow, einfachere Qualität | MIT |
 | Wellenform | eigene Berechnung der Spitzenwerte, Darstellung mit Avalonia/Skia | – |
@@ -406,6 +406,26 @@ Der Prototyp entsteht unter Debian und wird danach unter Windows geprüft. Unter
    - **Wahl:** signalsmith in der Standard-Einstellung. `cheaper` ist die Reserve für schwache Rechner, der Klangunterschied ist minimal.
    - **Offen:** Bau in der CI für alle Plattformen, einschließlich macOS und arm64 (zusammen mit Prüfpunkt 10).
 4. **AAC:** Decodieren über dynamisch geladenes FFmpeg unter Linux, Windows und macOS, LGPL-konform. Unter Linux die System-Bibliotheken nutzen oder mitliefern? Wie groß wird das Paket?
+
+   **Ergebnis (Debian und Windows 11, November 2026): ein selbst gebautes, schlankes FFmpeg 9.1 wird auf allen Plattformen mitgeliefert, mit `--enable-small` und ohne x86-Assembly.** Geprüft mit `prototypes/AacCheck` (Konsole, ohne Tonausgabe) an fünf Handy-Videos (AAC-LC, 48 kHz, stereo, 45–78 s, 115–190 MB), zu denen dieselbe Aufnahme auch als MP3 vorlag.
+   - **Bau:** `prototypes/AacCheck/native` lädt den Release-Tarball (SHA-256 fest im CMake-Skript) und baut nur den Demuxer `mov` (M4A, MP4) und die Decoder `aac` (mit HE-AAC) und `alac` (Apple Lossless, kommt in M4A ebenfalls vor), dazu `avformat`, `avcodec` und `avutil` als eigene Bibliotheken. Programme, Netzwerk, Encoder, Filter und `swresample` fehlen; die Rate rechnet signalsmith ohnehin um. Ein kleiner C-Wrapper `jpaac` (öffnen, Format abfragen, float interleaved lesen) verbirgt die FFmpeg-Strukturen vor C#. Er decodiert schon beim Öffnen den ersten Frame, weil erst der sicher Rate und Kanäle zeigt (bei HE-AAC verdoppelt SBR die Rate gegenüber dem Kopf).
+   - **Nicht die System-Bibliotheken:** Jede Distribution hat eine andere Hauptversion mit anderer ABI (Debian 13 avcodec 61, Ubuntu 22.04 avcodec 58), und das AppImage soll ohne Zusatzpakete laufen. Die eigenen Bibliotheken brauchen unter Linux nur libc und libm (höchstens glibc 2.35). `jpaac` findet sie über `$ORIGIN`, unter Windows liegen sie neben dem Programm.
+   - **Windows:** configure braucht eine Unix-Shell. Es läuft in der Bash von MSYS2 und kompiliert mit MSVC (`--toolchain=msvc`), aufgerufen aus CMake in der Developer-Eingabeaufforderung von Visual Studio. Die C-Laufzeit ist wie bei `jpstretch` statisch eingebunden. Die Import-Bibliotheken (`.lib`) legt FFmpeg unter Windows nach `bin/`, nicht nach `lib/`.
+   - **LGPL:** FFmpeg wird nur als eigene, austauschbare Bibliothek gebaut (`--enable-shared`, ohne `--enable-gpl`), nie statisch. Beim Einbau in die App kommen Lizenztext, Build-Optionen und der Link auf den Quell-Tarball in `THIRD-PARTY-NOTICES.txt`.
+   - **Größe:**
+
+     | | Linux | Windows |
+     |---|---|---|
+     | `--enable-small`, ohne Assembly (gewählt) | 1,41 MiB | 2,02 MiB |
+     | ohne `--enable-small`, ohne Assembly | 2,11 MiB | 2,36 MiB |
+     | ohne `--enable-small`, mit Assembly (nasm) | 2,28 MiB | – |
+     | `--enable-small`, mit Assembly | 1,58 MiB | – |
+
+   - **Geschwindigkeit:** ohne Assembly und mit `--enable-small` rund 600–700-mal schneller als Echtzeit, unter Debian und Windows gleich; das liegt im Bereich der MP3s aus Prüfpunkt 7. Die Datei öffnet in 1–5 ms, die ersten 5 s liegen nach 9–17 ms vor. `--enable-small` ist nicht langsamer. Assembly bringt rund ein Drittel mehr (gut 850-mal), ist für die App aber unerheblich und hätte nasm als weiteres Werkzeug verlangt. Beim allerersten Lesen der großen Videos unter Windows (OneDrive und Virenschutz) sank die Rate auf 72–109-mal; die CPU-Zeit zeigte, dass das Warten aufs Lesen war.
+   - **Richtig decodiert:** Unter Debian und Windows kamen auf das Frame genau dieselben Ergebnisse heraus. Die Encoder-Verzögerung schneidet FFmpeg ab (rund 1000 Frames weniger als laut Datei). Die Lautstärke-Hüllkurve (RMS je 10 ms) stimmt mit der MP3 derselben Aufnahme überein (Korrelation 0,94–0,97 bei Trommel-Aufnahmen, gleiche Länge auf wenige Hundertstel, konstanter Versatz von 50 ms). Angehört als WAV klingt es wie das Video.
+   - **Werte über 1,0:** AAC liefert Spitzen bis +1 dB (9–16 Samples pro Datei), die Wiedergabe muss damit umgehen.
+   - **Fehler:** Eine MP3, eine fehlende und eine abgeschnittene Datei liefern einen Fehlercode, nichts stürzt ab. Pfade mit Umlauten und ♯ funktionieren (UTF-8). FFmpeg schreibt seine Meldungen (z. B. „moov atom not found“) auf die Konsole; in der App kommen sie ins Log.
+   - **Offen:** Bau in der CI (Linux, Windows über MSYS2) und Einbau in die App hinter `IAudioDecoder`, zusammen mit `tools/setup.cs` (prüft MSYS2 unter Windows); macOS und arm64 (gleicher Weg über configure, ungeprüft, siehe Prüfpunkt 10).
 5. **Mikrofon:** Wahl des Eingabegeräts, Latenz und stabile Tonhöhenerkennung
 
    **Ergebnis (Debian, November 2026): McLeod-Verfahren (MPM) in C#, Fenster 4096 Samples bei 48 kHz, 25 Messungen pro Sekunde.** Geprüft mit `prototypes/TunerCheck`: Es liest das Eingabegerät über SoundFlow (mono, 48 kHz, 10 ms Puffer) in einen Ringpuffer (`InputRing`), ein eigener Thread misst alle 40 ms das letzte Fenster (`PitchDetector`). `--selftest` prüft ohne Gerät mit erzeugten Tönen.
