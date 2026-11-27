@@ -5,7 +5,9 @@ internal sealed class TemporaryDirectory : IDisposable
 {
     public TemporaryDirectory()
     {
-        Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "jp-tests-" + Guid.NewGuid().ToString("N"));
+        // Kurz, weil SingleInstanceTests darin einen Unix-Socket anlegt: Unter macOS darf dessen Pfad höchstens
+        // 104 Zeichen lang sein, und schon der temporäre Ordner (/var/folders/…/T/) hat rund 50.
+        Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "jp-" + Guid.NewGuid().ToString("N")[..12]);
         Directory.CreateDirectory(Path);
     }
 
