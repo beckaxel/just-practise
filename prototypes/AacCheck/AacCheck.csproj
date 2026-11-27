@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 4: M4A/AAC über ein schlankes, mitgeliefertes FFmpeg. Steht bewusst nicht in der Solution. Gibt keinen Ton aus. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.AacCheck</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- nur für den Vergleich mit MP3 -->
+    <PackageReference Include="SoundFlow" />
+  </ItemGroup>
+
+  <!-- jpaac und die FFmpeg-Bibliotheken kommen aus native/bin/<rid>/
+       (cmake -S prototypes/AacCheck/native -B prototypes/AacCheck/native/build). -->
+  <PropertyGroup>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</NativeOs>
+    <NativeOs Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</NativeOs>
+    <NativeOs Condition="'$(NativeOs)' == ''">linux</NativeOs>
+    <NativeArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</NativeArch>
+    <NativeBinDir>$(MSBuildThisFileDirectory)../../native/bin/$(NativeOs)-$(NativeArch)/</NativeBinDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(NativeBinDir)*jpaac*;$(NativeBinDir)*avformat*;$(NativeBinDir)*avcodec*;$(NativeBinDir)*avutil*"
+          Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
+  <Target Name="CheckNativeAac" BeforeTargets="Build">
+    <Error Condition="!Exists('$(NativeBinDir)')" Text="Native Bibliothek fehlt in $(NativeBinDir). Erst bauen: cmake -S prototypes/AacCheck/native -B prototypes/AacCheck/native/build und cmake --build prototypes/AacCheck/native/build" />
+  </Target>
+
+</Project>
