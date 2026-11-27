@@ -70,13 +70,13 @@ if(MSVC)
         message(FATAL_ERROR "cl.exe steht nicht im PATH. cmake aus der \"x64 Native Tools Command Prompt\" oder der "
                             "\"Developer PowerShell\" von Visual Studio aufrufen.")
     endif()
-    # -MT: statische C-Laufzeit wie bei jpaac.
+    # -MT: statische C-Laufzeit wie bei jpaac. Die Import-Bibliotheken (.lib) legt FFmpeg unter Windows nach bin/.
     set(JP_FFMPEG_COMMAND
         ${CMAKE_COMMAND} -E env MSYS2_PATH_TYPE=inherit CHERE_INVOKING=1 MSYSTEM=MSYS
         "${JP_BASH}" -l "${CMAKE_CURRENT_SOURCE_DIR}/build-ffmpeg.sh" <SOURCE_DIR> ${JP_JOBS}
         --toolchain=msvc --extra-cflags=-MT ${JP_FFMPEG_OPTIONS})
     set(JP_FFMPEG_LIBRARIES
-        ${JP_FFMPEG_PREFIX}/lib/avformat.lib ${JP_FFMPEG_PREFIX}/lib/avcodec.lib ${JP_FFMPEG_PREFIX}/lib/avutil.lib)
+        ${JP_FFMPEG_PREFIX}/bin/avformat.lib ${JP_FFMPEG_PREFIX}/bin/avcodec.lib ${JP_FFMPEG_PREFIX}/bin/avutil.lib)
 else()
     set(JP_FFMPEG_COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/build-ffmpeg.sh" <SOURCE_DIR> ${JP_JOBS} ${JP_FFMPEG_OPTIONS})
     set(JP_FFMPEG_LIBRARIES
