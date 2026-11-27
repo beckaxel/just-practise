@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Prüfpunkt 8: Dateiüberwachung mit FileSystemWatcher in großen Musikordnern und Cloud-Ordnern.
+       Steht bewusst nicht in der Solution. Gibt keinen Ton aus. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>JustPractise.Prototypes.WatchCheck</RootNamespace>
+  </PropertyGroup>
+
+</Project>
