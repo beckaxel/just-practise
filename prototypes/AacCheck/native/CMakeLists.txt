@@ -98,7 +98,9 @@ ExternalProject_Add(ffmpeg
 
 add_library(jpaac SHARED src/jp_aac.c)
 add_dependencies(jpaac ffmpeg)
-target_include_directories(jpaac PUBLIC include PRIVATE ${JP_FFMPEG_PREFIX}/include)
+target_include_directories(jpaac PUBLIC include)
+# SYSTEM: Warnungen aus den FFmpeg-Headern nicht melden (MSVC /W4 bemängelt dort Konvertierungen).
+target_include_directories(jpaac SYSTEM PRIVATE ${JP_FFMPEG_PREFIX}/include)
 target_compile_definitions(jpaac PRIVATE JP_AAC_BUILD)
 target_link_libraries(jpaac PRIVATE ${JP_FFMPEG_LIBRARIES})
 if(MSVC)
