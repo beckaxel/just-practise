@@ -11,9 +11,10 @@
   </ItemGroup>
 
   <!--
-    Die native Bibliothek für das Time-Stretching kommt aus native/bin/<rid>/ (dotnet run tools/setup.cs)
-    und wird in die Ausgabe aller Projekte kopiert, die Audio verwenden. Fehlt sie, baut alles trotzdem;
-    StretchVoice.IsAvailable meldet es dann zur Laufzeit.
+    Die nativen Bibliotheken für das Time-Stretching (jpstretch) und für M4A/AAC (jpaac mit den FFmpeg-Bibliotheken
+    avformat, avcodec und avutil) kommen aus native/bin/<rid>/ (dotnet run tools/setup.cs) und werden in die Ausgabe
+    aller Projekte kopiert, die Audio verwenden. Fehlen sie, baut alles trotzdem; StretchVoice.IsAvailable und
+    AacDecoder.IsAvailable melden es dann zur Laufzeit.
   -->
   <PropertyGroup>
     <NativeOs Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</NativeOs>
@@ -23,6 +24,7 @@
     <NativeBinDir>$(MSBuildThisFileDirectory)../../native/bin/$(NativeOs)-$(NativeArch)/</NativeBinDir>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(NativeBinDir)*jpstretch*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(NativeBinDir)*jpstretch*;$(NativeBinDir)*jpaac*;$(NativeBinDir)*avformat*;$(NativeBinDir)*avcodec*;$(NativeBinDir)*avutil*"
+          Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 </Project>

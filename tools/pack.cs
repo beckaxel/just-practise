@@ -69,11 +69,25 @@ if (Run(root, "dotnet", publish) != 0)
     return 1;
 }
 
-var nativeLibrary = OperatingSystem.IsWindows() ? "jpstretch.dll" : OperatingSystem.IsMacOS() ? "libjpstretch.dylib" : "libjpstretch.so";
-if (!File.Exists(Path.Combine(publishDirectory, nativeLibrary)))
+string[] nativeLibraries = ["jpstretch", "jpaac"];
+foreach (var name in nativeLibraries)
 {
-    Console.WriteLine($"{nativeLibrary} is missing. Build it first with: dotnet run tools/setup.cs");
-    return 1;
+    var nativeLibrary = OperatingSystem.IsWindows() ? $"{name}.dll" : OperatingSystem.IsMacOS() ? $"lib{name}.dylib" : $"lib{name}.so";
+    if (!File.Exists(Path.Combine(publishDirectory, nativeLibrary)))
+    {
+        Console.WriteLine($"{nativeLibrary} is missing. Build it first with: dotnet run tools/setup.cs");
+        return 1;
+    }
+}
+
+// jpaac braucht die FFmpeg-Bibliotheken daneben (LGPL, austauschbar).
+foreach (var name in new[] { "avformat", "avcodec", "avutil" })
+{
+    if (!Directory.EnumerateFiles(publishDirectory).Any(file => Path.GetFileName(file).Contains(name, StringComparison.Ordinal)))
+    {
+        Console.WriteLine($"The FFmpeg library {name} is missing. Build it first with: dotnet run tools/setup.cs");
+        return 1;
+    }
 }
 
 // Fehlt die GC, die runtimeconfig.json nennt (System.GC.Name), startet die App gar nicht.

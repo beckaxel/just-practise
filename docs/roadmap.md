@@ -7,7 +7,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 - **Dateibrowser:** einen oder mehrere Musikordner wählen und frei durch die Unterordner navigieren. Die Stücke werden automatisch gruppiert. Die App liest einen Ordner beim Öffnen neu ein, dazu gibt es einen Knopf zum Aktualisieren.
 - **Sidecar-Dateien `.jps`:** Tempo und Lautstärke pro Audiodatei, nach den Regeln aus der [Datenhaltung](technologie.md#datenhaltung). Unbekannte Felder bleiben also erhalten, und die Datei entsteht erst bei der ersten Änderung.
 - **Player:**
-  - Dateiformate MP3, WAV, FLAC und OGG
+  - Dateiformate MP3, WAV, FLAC, OGG und M4A/AAC (AAC und ALAC über ein mitgeliefertes, schlankes FFmpeg, Prüfpunkt 4)
   - Abspielen und Pause
   - Fortschrittsbalken mit Zeitangabe, ein Klick springt an die Stelle
   - Knopf und Taste „zum Anfang“, am Ende hält die Wiedergabe an
@@ -31,7 +31,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 
 ## Später
 
-- Player: Wellenform, A-B-Loop, AAC/M4A (Prüfpunkt 4)
+- Player: Wellenform, A-B-Loop
 - Dateibrowser: Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner, Dateiüberwachung (Prüfpunkt 8)
 - Metronom: Tap-Tempo, Betonung pro Schlag, Unterteilungen, Klangsets, benannte Einstellungen
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen

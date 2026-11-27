@@ -13,6 +13,7 @@ public sealed class FolderReaderTests : IDisposable
         {
             "Balmoral.mp3", "Balmoral - Ces.pdf", "Balmoral - Ces.mscz", "Balmoral.jps",
             "Jingle Bells.MP3", "Jingle Bells - Metronom 100.ogg", "Telstar.flac", "Telstar.wav", "Blue Bossa100.m4a",
+            "Konzert.mp4",
         })
         {
             _directory.Create(name);
@@ -21,10 +22,11 @@ public sealed class FolderReaderTests : IDisposable
         var content = FolderReader.Read(_directory.Path);
 
         Assert.True(content.IsReachable);
-        Assert.Equal(["Balmoral", "Jingle Bells", "Telstar"], content.Pieces.Select(piece => piece.Title));
+        Assert.Equal(["Balmoral", "Blue Bossa", "Jingle Bells", "Telstar"], content.Pieces.Select(piece => piece.Title));
         Assert.Equal(["Balmoral.mp3"], content.Pieces[0].Files);
-        Assert.Equal(["Jingle Bells - Metronom 100.ogg", "Jingle Bells.MP3"], content.Pieces[1].Files);
-        Assert.Equal(["Telstar.flac", "Telstar.wav"], content.Pieces[2].Files);
+        Assert.Equal(["Blue Bossa100.m4a"], content.Pieces[1].Files);
+        Assert.Equal(["Jingle Bells - Metronom 100.ogg", "Jingle Bells.MP3"], content.Pieces[2].Files);
+        Assert.Equal(["Telstar.flac", "Telstar.wav"], content.Pieces[3].Files);
     }
 
     [Fact]

@@ -145,6 +145,7 @@
       "font": "Schrift",
       "audio": "Audio",
       "stretch": "Tempo ohne Änderung der Tonhöhe",
+      "aac": "M4A- und AAC-Dateien lesen",
       "updates": "Updates",
       "mvvm": "Aufbau der Oberfläche",
       "translations": "Übersetzungen",

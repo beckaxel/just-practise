@@ -33,6 +33,7 @@ public sealed partial class AboutViewModel(Translator translator)
         new("Inter", "about.purpose.font", "SIL OFL 1.1", new("https://github.com/rsms/inter")),
         new("SoundFlow / miniaudio", "about.purpose.audio", "MIT", new("https://github.com/LSXPrime/SoundFlow")),
         new("signalsmith-stretch", "about.purpose.stretch", "MIT", new("https://github.com/Signalsmith-Audio/signalsmith-stretch")),
+        new("FFmpeg", "about.purpose.aac", "LGPL 2.1+", new("https://ffmpeg.org")),
         new("Velopack", "about.purpose.updates", "MIT", new("https://velopack.io")),
         new("CommunityToolkit.Mvvm", "about.purpose.mvvm", "MIT", new("https://github.com/CommunityToolkit/dotnet")),
         new("MessageFormat", "about.purpose.translations", "MIT", new("https://github.com/jeffijoe/messageformat.net")),

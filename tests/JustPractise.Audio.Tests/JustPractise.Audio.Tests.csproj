@@ -10,6 +10,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Kleine M4A/AAC-Dateien für AacDecoderTests; wie sie entstanden sind, steht in Assets/README.md. -->
+    <None Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\JustPractise.Audio\JustPractise.Audio.csproj" />
   </ItemGroup>
 </Project>

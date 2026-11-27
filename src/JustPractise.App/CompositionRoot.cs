@@ -48,7 +48,8 @@ internal static class CompositionRoot
         {
             var device = sp.GetRequiredService<SoundFlowOutput>();
             var output = new FallbackOutput(device, new SilentOutput());
-            return new AudioSession(output, new FileDecoder(device.Engine), sp.GetRequiredService<TimeProvider>());
+            var decoder = new FormatDecoder(new FileDecoder(device.Engine), new AacDecoder());
+            return new AudioSession(output, decoder, sp.GetRequiredService<TimeProvider>());
         });
 
         // Das Eingabegerät des Stimmgeräts nutzt dieselbe Engine; offen ist es nur, solange das Stimmgerät an ist.

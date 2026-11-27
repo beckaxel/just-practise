@@ -33,13 +33,13 @@ using var output = new SoundFlowOutput();
 if (options.CheckOnly)
 {
     DecodedAudio? audio = null;
-    new FileDecoder(output.Engine).Decode(options.File, new BlockPool(), decoded => audio = decoded, CancellationToken.None);
+    new FormatDecoder(new FileDecoder(output.Engine), new AacDecoder()).Decode(options.File, new BlockPool(), decoded => audio = decoded, CancellationToken.None);
     Console.WriteLine($"{Path.GetFileName(options.File)}: {audio!.Channels} channels, {audio.SampleRate} Hz, {audio.Duration:m\\:ss\\.ff}");
     Console.WriteLine("Native library jpstretch: ok");
     return 0;
 }
 
-using var session = new AudioSession(output, new FileDecoder(output.Engine), TimeProvider.System);
+using var session = new AudioSession(output, new FormatDecoder(new FileDecoder(output.Engine), new AacDecoder()), TimeProvider.System);
 var player = new AudioPlayer(session);
 var metronome = new AudioMetronome(session);
 
