@@ -150,6 +150,12 @@ int jp_aac_open(const char *path, jp_aac **out) {
 
     const AVCodec *codec = NULL;
     aac->stream = av_find_best_stream(aac->format, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+    if (aac->stream < 0) {
+        /* Rohes AAC (ADTS) nennt Rate und Kanäle erst nach dem Lesen einiger Pakete; M4A hat sie im Kopf. */
+        if (avformat_find_stream_info(aac->format, NULL) >= 0) {
+            aac->stream = av_find_best_stream(aac->format, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+        }
+    }
     if (aac->stream < 0 || codec == NULL) {
         error = JP_AAC_ERROR_NO_AUDIO;
         goto fail;

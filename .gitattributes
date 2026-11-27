@@ -4,3 +4,5 @@
 
 *.png binary
 *.ico binary
+*.m4a binary
+*.aac binary

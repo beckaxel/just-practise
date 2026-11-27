@@ -63,6 +63,27 @@ public sealed partial class AboutViewModelTests
         }
     }
 
+    /// <summary>FFmpeg kommt nicht über NuGet, sondern aus native/aac; seine Version muss trotzdem in den Hinweisen stehen.</summary>
+    [Fact]
+    public void ListsTheFfmpegVersionThatNativeAacBuilds()
+    {
+        var notices = File.ReadAllText(Path.Combine(Root, "THIRD-PARTY-NOTICES.txt"));
+        var cmake = File.ReadAllText(Path.Combine(Root, "native", "aac", "CMakeLists.txt"));
+        var version = FfmpegVersion().Match(cmake).Groups[1].Value;
+        var hash = FfmpegHash().Match(cmake).Groups[1].Value;
+
+        Assert.NotEmpty(version);
+        Assert.Contains($"FFmpeg {version}", notices, StringComparison.Ordinal);
+        Assert.Contains($"ffmpeg-{version}.tar.xz", notices, StringComparison.Ordinal);
+        Assert.Contains(hash, notices, StringComparison.Ordinal);
+    }
+
+    [GeneratedRegex(@"set\(JP_FFMPEG_VERSION ([0-9.]+)\)")]
+    private static partial Regex FfmpegVersion();
+
+    [GeneratedRegex(@"set\(JP_FFMPEG_SHA256 ([0-9a-f]+)\)")]
+    private static partial Regex FfmpegHash();
+
     [GeneratedRegex("""<PackageVersion Include="([^"]+)" Version="([^"]+)" />""")]
     private static partial Regex PackageVersion();
 }
