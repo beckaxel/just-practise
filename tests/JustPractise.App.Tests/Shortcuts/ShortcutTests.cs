@@ -20,12 +20,6 @@ public sealed class ShortcutTests
     [InlineData(Key.Subtract, KeyModifiers.None, "-", ShortcutAction.MetronomeSlower)]
     [InlineData(Key.OemMinus, KeyModifiers.Shift, "_", ShortcutAction.MetronomeMuchSlower)]
     [InlineData(Key.OemComma, KeyModifiers.Control, ",", ShortcutAction.OpenSettings)]
-    [InlineData(Key.OemPlus, KeyModifiers.Control, "+", ShortcutAction.ZoomIn)]
-    [InlineData(Key.Add, KeyModifiers.Control, "+", ShortcutAction.ZoomIn)]
-    [InlineData(Key.OemMinus, KeyModifiers.Control, "-", ShortcutAction.ZoomOut)]
-    [InlineData(Key.Subtract, KeyModifiers.Control, "-", ShortcutAction.ZoomOut)]
-    [InlineData(Key.D0, KeyModifiers.Control, "0", ShortcutAction.ZoomAll)]
-    [InlineData(Key.NumPad0, KeyModifiers.Control, "0", ShortcutAction.ZoomAll)]
     public void FollowsTheDefaultBindings(Key key, KeyModifiers modifiers, string? symbol, ShortcutAction expected) =>
         Assert.Equal(expected, Shortcut.Match(key, modifiers, symbol));
 

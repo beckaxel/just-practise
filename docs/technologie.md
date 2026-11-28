@@ -193,7 +193,9 @@ Beispiel:
   "format": 1,
   "files": {
     "Autumn Leaves - Demo.mp3": {
-      "loop": { "startMs": 12350, "endMs": 47800, "enabled": true },
+      "sections": [{ "startMs": 0 }, { "startMs": 12350 }, { "startMs": 47800 }],
+      "selected": 1,
+      "loop": true,
       "tempo": 0.8,
       "volumeDb": -3.0
     },
@@ -210,7 +212,7 @@ Beispiel:
 ```
 
 - **`files`:** Einstellungen pro Audiodatei, über den Dateinamen ohne Pfad zugeordnet. Alle Dateien eines Stücks liegen im selben Ordner.
-- **Loop:** Start und Ende in ganzen Millisekunden. Das ist genau genug für von Hand gesetzte Marker und hängt nicht von der Samplerate ab. Beim Abspielen rechnet die App auf Samples um. `enabled` hält fest, ob der Loop an ist.
+- **Übeabschnitte:** `sections` listet die Abschnitte nach ihrem Anfang in ganzen Millisekunden; der erste beginnt immer bei 0, jeder weitere Anfang ist ein Übemarker. Millisekunden sind genau genug für von Hand gesetzte Marker und hängen nicht von der Samplerate ab, beim Abspielen rechnet die App auf Samples um. Ein Abschnitt ist ein Objekt, damit er später einen Namen (`name`) bekommen kann. `selected` ist der gewählte Abschnitt (ab 0) und fehlt, wenn das ganze Stück gewählt ist. `loop` hält fest, ob die Auswahl wiederholt wird.
 - **Tempo:** als Faktor, `0.8` entspricht 80 %
 - **Lautstärke:** Verstärkung in dB, 0 heißt unverändert
 - **`members`:** nur vorhanden, wenn die Gruppierung von Hand korrigiert wurde. Die Liste hat Vorrang vor der automatischen Erkennung. Eine Datei, die hier steht, ordnet die Erkennung keinem anderen Stück mehr zu.

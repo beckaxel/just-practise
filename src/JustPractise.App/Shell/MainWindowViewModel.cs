@@ -218,15 +218,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
             case ShortcutAction.TunerToggle:
                 Tuner.Toggle();
                 break;
-            case ShortcutAction.ZoomIn:
-                Player.ZoomIn();
-                break;
-            case ShortcutAction.ZoomOut:
-                Player.ZoomOut();
-                break;
-            case ShortcutAction.ZoomAll:
-                Player.ZoomAll();
-                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(action), action, null);
         }

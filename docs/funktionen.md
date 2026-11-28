@@ -48,15 +48,14 @@ Alle wichtigen Funktionen sind über Tastenkürzel erreichbar.
 | Taste | Aktion |
 |---|---|
 | `Leertaste` | Abspielen/Pause |
-| `Pos1` | zum Anfang des Stücks |
-| `Umschalt+Pos1` | zum Loop-Anfang (A) |
+| `Pos1` | zum Anfang der Auswahl (Übeabschnitt oder ganzes Stück) |
 | `←` / `→` | 5 Sekunden zurück/vor |
-| `A` / `B` | Loop-Start/-Ende an der aktuellen Position setzen |
+| `Einfg` | Übemarker an der aktuellen Stelle setzen |
+| `Entf` | gewählten Übemarker löschen |
+| `Bild↑` / `Bild↓` | vorherigen/nächsten Übeabschnitt wählen, „ganzes Stück“ steht vor dem ersten |
 | `L` | Loop an/aus |
 | `[` / `]` | Tempo −/+ 5 % (gilt über das Zeichen, auf der deutschen Tastatur also AltGr+8/9) |
 | `↑` / `↓` | Lautstärke +/− 1 dB |
-| `Strg++` / `Strg+−` | Wellenform hinein-/herauszoomen |
-| `Strg+0` | ganzes Stück in der Wellenform |
 
 **Übetimer**
 
@@ -151,27 +150,32 @@ Welche Teile davon in die erste Version kommen, steht in der [Roadmap zum Releas
 ### Funktionsumfang
 
 - **Dateiformate:** MP3, WAV, FLAC, OGG, M4A/AAC
-- **Visualisierung:** Wellenform des Stücks über die ganze Breite, mit Zoom (siehe [Wellenform und Zoom](#wellenform-und-zoom))
+- **Visualisierung:** Wellenform des ganzen Stücks über die ganze Breite, eingefärbt nach Übeabschnitten
 - **Wiedergabe:** Abspielen, Pause, Positionieren in der Wellenform. Eine gewählte Datei lädt angehalten am Anfang. Am Ende hält die Wiedergabe an; Abspielen fängt dann von vorn an.
-- **Loop:** ein einfacher A-B-Loop, nahtlos: Bei B geht es ohne Pause bei A weiter, damit der Groove beim Wiederholen weiterläuft. A und B lassen sich mit Knöpfen und Tasten an der gerade hörbaren Stelle setzen und in der Wellenform an Griffen ziehen. „Zum Anfang“ (`Pos1`) springt immer an den Anfang des Stücks, ein eigener Knopf „zum Loop-Anfang“ (`Umschalt+Pos1`) an A.
+- **Übeabschnitte:** Ein Stück lässt sich mit Übemarkern in kleinere Abschnitte teilen, auf die man den Übefokus legt (siehe [Übeabschnitte](#übeabschnitte)).
+- **Loop:** Ein Knopf wiederholt die Auswahl, also den gewählten Übeabschnitt oder das ganze Stück. Der Übergang ist nahtlos: Am Ende geht es ohne Pause am Anfang weiter, damit der Groove beim Wiederholen weiterläuft.
 - **Tempo:** 50 % bis 150 % in ganzen Prozent, ohne Änderung der Tonhöhe
 - **Lautstärke:** individuell pro Audiodatei und gespeichert, −20 bis +10 dB in Schritten von 0,5 dB. Unterschiedlich ausgesteuerte Aufnahmen muss man so nicht jedes Mal neu anpassen.
 - **Zurücksetzen:** Ein Klick auf den angezeigten Wert von Tempo oder Lautstärke setzt ihn auf 100 % bzw. 0 dB zurück.
-- **Bedienung:** Die Wellenform geht über die ganze Breite, darunter Position und Länge. Darunter stehen „zum Anfang“ und Abspielen/Pause, im halben goldenen Schnitt (19,1 % : 80,9 %). Springen um 5 Sekunden geht mit den Pfeiltasten. Darunter stehen Tempo und Lautstärke untereinander, beschriftet, je mit einem Regler mit Knöpfen − und + (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und dem Wert daneben.
-- **Später, zuschaltbar:** A und B rasten beim Setzen und Ziehen an einem nahen Anschlag ein (Transienten). Das ist eine bequeme Option, die man in den Einstellungen einschaltet; sie ist nicht Standard, weil die Erkennung an dichten Stellen mit viel Schlagzeug, Bass und Begleitung oft danebenliegt.
+- **Bedienung:** Die Wellenform geht über die ganze Breite, darunter die Abschnittsleiste, darunter Position und Länge. Darunter stehen „zum Anfang“ und Abspielen/Pause, im halben goldenen Schnitt (19,1 % : 80,9 %). Springen um 5 Sekunden geht mit den Pfeiltasten. Darunter stehen Tempo und Lautstärke untereinander, beschriftet, je mit einem Regler mit Knöpfen − und + (1 % bzw. 0,5 dB pro Tipp, gehalten wiederholt sich der Schritt) und dem Wert daneben.
+- **Später, zuschaltbar:** Übemarker rasten beim Setzen und Ziehen an einem nahen Anschlag ein (Transienten). Das ist eine bequeme Option, die man in den Einstellungen einschaltet; sie ist nicht Standard, weil die Erkennung an dichten Stellen mit viel Schlagzeug, Bass und Begleitung oft danebenliegt.
 - **Touch und Lesbarkeit:** Alle Knöpfe sind mindestens 44 Einheiten groß, Werte und Zeiten groß genug, um sie aus etwas Abstand zu lesen.
 - **Ohne Ausgabegerät:** Die App startet trotzdem und läuft ohne Ton; die Statusleiste weist darauf hin. Die Statusleiste zeigt sonst das Ausgabegerät und, nur im Entwickler-Modus und nur wenn es welche gab, die Zahl der verspäteten Audio-Callbacks.
 
-### Wellenform und Zoom
+### Übeabschnitte
 
-Damit A und B auf den Schlag genau sitzen, z. B. ein Chorus oder ein Turnaround im Jazz oder Pop, lässt sich die Wellenform weit hineinzoomen.
+Wer übt, nimmt sich selten das ganze Stück auf einmal vor, sondern einzelne Stellen: einen Chorus, einen Turnaround, eine schwierige Passage. Dafür teilt man das Stück mit Übemarkern in Übeabschnitte, wie mit Lesezeichen. Das ist bewusst keine Schnittansicht wie in einer DAW: Es geht nur darum, den Übefokus auf einen Abschnitt zu legen.
 
-- **Zoomen:** mit zwei Fingern (Pinch), mit Strg+Mausrad, mit den Knöpfen −, + und „ganzes Stück“ neben der Wellenform oder mit `Strg++`, `Strg+−` und `Strg+0`. Pinch und Mausrad zoomen um die Stelle unter Finger bzw. Mauszeiger, Knöpfe und Tasten um die Abspielposition.
-- **Bereich:** vom ganzen Stück bis etwa eine halbe Sekunde über die ganze Breite. Dann ist der Anschlag einer Bassdrum oder Snare als einzelne Spitze zu sehen.
-- **Übersicht:** Über der großen Wellenform liegt ein schmaler Streifen mit dem ganzen Stück, darin ist der sichtbare Ausschnitt markiert. Ein Tipp in den Streifen holt die Stelle in den Ausschnitt, Ziehen verschiebt den Ausschnitt.
-- **In der großen Wellenform:** Ein Tipp springt an die Stelle, Ziehen mit Finger oder Maus verschiebt den Ausschnitt, ebenso das Mausrad ohne Strg. Die Abspielposition ist ein senkrechter Strich.
-- **Beim Abspielen:** Läuft die Position rechts aus dem Ausschnitt, blättert er eine Seite weiter. Er wandert nicht laufend mit, weil eine ständig bewegte Wellenform aus Abstand unruhig zu lesen ist. Hat man den Ausschnitt selbst verschoben, blättert er erst wieder mit, wenn die Position ihn erreicht.
-- **Beim Laden:** Die Wellenform zeigt das ganze Stück. Der Zoom wird nicht gespeichert.
+- **Marker setzen:** Ein Knopf (`Einfg`) setzt einen Übemarker an der Stelle, die gerade zu hören ist, beim Abspielen ebenso wie angehalten. Ein Marker teilt das Stück in zwei Abschnitte (Anfang → Marker → Ende), jeder weitere Marker teilt den Abschnitt, in dem er liegt.
+- **Abschnittsleiste:** Unter der Wellenform liegt eine Leiste über die ganze Breite, mindestens so hoch wie ein Knopf. Sie zeigt die Abschnitte in verschiedenen Farben, reihum aus einer ruhigen Palette, die im hellen und im dunklen Schema gut zu unterscheiden ist. Die Griffe der Marker sitzen in dieser Leiste. So kommen sich die Gesten nicht in die Quere: Ein Tipp in die Wellenform springt an die Stelle, in der Leiste wählt und verschiebt man.
+- **Auswählen:** Ein Tipp auf einen Abschnitt in der Leiste wählt ihn aus. Links neben der Leiste wählt ein Knopf „Ganzes Stück“ wieder das ganze Stück, ebenso ein zweiter Tipp auf den schon gewählten Abschnitt. `Bild↑` und `Bild↓` gehen die Abschnitte durch, „ganzes Stück“ steht dabei vor dem ersten.
+- **Darstellung:** Die Wellenform zeigt immer das ganze Stück, eingefärbt wie die Abschnitte. Der gewählte Abschnitt ist voll zu sehen, die anderen sind gedimmt. So sieht man immer, wo im Stück man gerade übt.
+- **Steuerung bezieht sich auf die Auswahl:** Ist ein Abschnitt gewählt, beginnt Abspielen an seinem Anfang, wenn die Position außerhalb liegt. An seinem Ende hält die Wiedergabe an, mit Loop geht es nahtlos an seinem Anfang weiter. „Zum Anfang“ (`Pos1`) springt an den Anfang der Auswahl, die Pfeiltasten springen nur innerhalb der Auswahl.
+- **Zeiten:** Position und Länge beziehen sich immer auf das ganze Stück, auch wenn ein Abschnitt gewählt ist.
+- **Marker verschieben:** Man zieht den Griff mit Maus oder Finger. Dabei öffnet sich über der Wellenform automatisch eine Lupe mit der Umgebung des Markers (etwa ±1,5 s), in der Anschläge einzeln zu sehen sind. Solange sie offen ist, wirkt die Bewegung fein: Ein Pixel entspricht wenigen Millisekunden statt fast einer Zehntelsekunde. Beim Loslassen schließt sich die Lupe.
+- **Marker löschen:** Ein Tipp auf einen Griff wählt den Marker, dann erscheint der Knopf „Marker löschen“ (`Entf`). Die beiden Abschnitte daneben werden zu einem.
+- **Gespeichert:** Marker, gewählter Abschnitt und Loop stehen pro Audiodatei in der Sidecar-Datei. Öffnet man die Datei wieder, ist alles wie beim letzten Mal.
+- **Später: Namen für Abschnitte,** z. B. „Intro“ oder „Chorus“, damit man sie besser unterscheidet. Beim Löschen eines Markers fragt die App dann, ob der verschmolzene Abschnitt den Namen von links, von rechts oder einen neuen bekommt.
 
 ### Dateibrowser
 
@@ -236,7 +240,7 @@ Pro Stück gibt es eine Sidecar-Datei. Sie liegt neben den Dateien des Stücks. 
 - **Name:** der erkannte Titel des Stücks, z. B. `Autumn Leaves.jps`
 - **Dateiendung:** `.jps`, der Inhalt ist JSON
 - **Inhalt:**
-  - Einstellungen pro Audiodatei des Stücks: A-B-Loop, Tempo, Lautstärke
+  - Einstellungen pro Audiodatei des Stücks: Übeabschnitte, gewählter Abschnitt, Loop, Tempo, Lautstärke
   - falls von Hand korrigiert: die Liste der Dateien, die zum Stück gehören
   - künftig: Notizen zu den Noten
 - **Anlage:** erst bei der ersten Änderung, nicht schon beim Öffnen. Ordner mit Stücken, die man nur angehört hat, bleiben sauber.
