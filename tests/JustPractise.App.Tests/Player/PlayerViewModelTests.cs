@@ -2,6 +2,7 @@ using JustPractise.App.FileBrowser;
 using JustPractise.App.Player;
 using JustPractise.Audio;
 using JustPractise.Core.Pieces;
+using JustPractise.Core.Waveform;
 using JustPractise.Storage;
 
 namespace JustPractise.App.Tests.Player;
@@ -220,6 +221,21 @@ public sealed class PlayerViewModelTests : IAsyncDisposable
         Assert.Equal(10, _viewModel.VolumeDb);
         _viewModel.ChangeTempo(5);
         Assert.Equal(55, _viewModel.TempoPercent);
+    }
+
+    [Fact]
+    public async Task ShowsTheWaveformOnceItIsReady()
+    {
+        await _viewModel.OpenAsync(File());
+        Assert.Null(_viewModel.Waveform);
+
+        var waveform = new WaveformPeaksBuilder(1, 48000, 48000).Build();
+        _player.State = _player.State with { Waveform = waveform };
+        _viewModel.Tick();
+        Assert.Same(waveform, _viewModel.Waveform);
+
+        await _viewModel.CloseAsync();
+        Assert.Null(_viewModel.Waveform);
     }
 
     [Fact]

@@ -1,3 +1,5 @@
+using JustPractise.Core.Waveform;
+
 namespace JustPractise.Audio;
 
 /// <summary>Der Stand des Players für die Oberfläche.</summary>
@@ -6,7 +8,8 @@ namespace JustPractise.Audio;
 /// <param name="Position">die gerade hörbare Stelle</param>
 /// <param name="Duration">die Länge, soweit schon decodiert</param>
 /// <param name="IsComplete">ganz decodiert, <paramref name="Duration"/> ist endgültig</param>
-public readonly record struct PlayerState(string? Path, bool IsPlaying, TimeSpan Position, TimeSpan Duration, bool IsComplete)
+/// <param name="Waveform">die Spitzen der Wellenform, <c>null</c>, bis die Datei ganz decodiert und durchgerechnet ist</param>
+public readonly record struct PlayerState(string? Path, bool IsPlaying, TimeSpan Position, TimeSpan Duration, bool IsComplete, WaveformPeaks? Waveform = null)
 {
     public bool IsLoaded => Path is not null;
 

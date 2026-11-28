@@ -38,7 +38,7 @@ Ziel ist, schnell eine erste Version zu veröffentlichen und sie danach schrittw
 
 ## Später
 
-- Player: Wellenform, A-B-Loop
+- Player: Wellenform, Übeabschnitte mit Übemarkern (Lupe beim Verschieben), Loop für die Auswahl; danach Namen für Abschnitte und zuschaltbar: Marker an Anschlägen einrasten
 - Dateibrowser: Dateiüberwachung (geklärt in Prüfpunkt 8, Umsetzung siehe [Datenhaltung](technologie.md#dateizugriff)), Gruppierung von Hand korrigieren, Suche, Markierung nicht erreichbarer Ordner
 - Metronom: Tap-Tempo, Betonung pro Schlag, Unterteilungen, Klangsets, benannte Einstellungen
 - Tastenkürzel änderbar, eigener Speicherort sowie Export und Import der Einstellungen

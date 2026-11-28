@@ -4,13 +4,14 @@ using CommunityToolkit.Mvvm.Input;
 using JustPractise.App.FileBrowser;
 using JustPractise.Audio;
 using JustPractise.Core.Pieces;
+using JustPractise.Core.Waveform;
 using JustPractise.Storage;
 
 namespace JustPractise.App.Player;
 
 /// <summary>
 /// Der Player: lädt die im Browser gewählte Datei, spielt sie ab und merkt sich Tempo und Lautstärke pro Datei in der
-/// Sidecar-Datei des Stücks.
+/// Sidecar-Datei des Stücks. Dazu die Wellenform des ganzen Stücks.
 /// </summary>
 /// <remarks>
 /// Aufrufe kommen vom UI-Thread. Den Stand des Audio-Threads holt <see cref="Tick"/>, das die Oberfläche regelmäßig
@@ -74,6 +75,10 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         }
     }
 
+    /// <summary>Die Spitzen der Wellenform, <c>null</c>, solange sie noch berechnet werden.</summary>
+    [ObservableProperty]
+    public partial WaveformPeaks? Waveform { get; private set; }
+
     /// <summary>Tempo in Prozent, 50 bis 150.</summary>
     [ObservableProperty]
     public partial double TempoPercent { get; set; } = 100;
@@ -93,6 +98,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         HasError = false;
         IsPlaying = false;
         ShowPosition(TimeSpan.Zero, TimeSpan.Zero);
+        Waveform = null;
 
         try
         {
@@ -142,6 +148,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         HasError = false;
         IsPlaying = false;
         ShowPosition(TimeSpan.Zero, TimeSpan.Zero);
+        Waveform = null;
         if (sidecar is not null)
         {
             await sidecar.FlushAsync();
@@ -162,6 +169,7 @@ public sealed partial class PlayerViewModel(IPlayer player) : ObservableObject
         var state = player.State;
         IsPlaying = state.IsPlaying;
         ShowPosition(state.Position, state.Duration);
+        Waveform = state.Waveform;
     }
 
     [RelayCommand]

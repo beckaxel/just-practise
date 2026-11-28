@@ -1,3 +1,5 @@
+using JustPractise.Core.Waveform;
+
 namespace JustPractise.Audio.Player;
 
 /// <summary>
@@ -37,6 +39,9 @@ public sealed class LoadedTrack : IDisposable
 
     /// <summary>Das Decodieren im Hintergrund. Freigegeben wird erst, wenn es fertig oder abgebrochen ist.</summary>
     public Task Decoding { get; init; } = Task.CompletedTask;
+
+    /// <summary>Die Spitzen der Wellenform; fertig, sobald die Datei decodiert und durchgerechnet ist.</summary>
+    public Task<WaveformPeaks?> Waveform { get; init; } = Task.FromResult<WaveformPeaks?>(null);
 
     internal float[] Input { get; }
 

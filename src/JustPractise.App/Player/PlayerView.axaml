@@ -30,6 +30,12 @@
       <Setter Property="Width" Value="32" />
       <Setter Property="Height" Value="32" />
     </Style>
+    <Style Selector="p|WaveformControl">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+      <Setter Property="WaveBrush" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+      <Setter Property="PlayedBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+      <Setter Property="PositionBrush" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+    </Style>
     <Style Selector="TextBlock.label">
       <Setter Property="FontSize" Value="17" />
       <Setter Property="Opacity" Value="0.75" />
@@ -49,9 +55,9 @@
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.loading}" IsVisible="{Binding IsLoading}" />
       <TextBlock Classes="hint" Margin="0" Text="{l:Tr player.error}" IsVisible="{Binding HasError}" />
 
-      <!-- Zeitleiste über die ganze Breite: ein Tipp springt an die Stelle -->
-      <StackPanel IsEnabled="{Binding IsReady}">
-        <Slider Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds}" />
+      <!-- Wellenform des ganzen Stücks über die ganze Breite: Tippen oder Ziehen springt an die Stelle -->
+      <StackPanel IsEnabled="{Binding IsReady}" Spacing="6">
+        <p:WaveformControl Height="150" Peaks="{Binding Waveform}" Duration="{Binding DurationSeconds}" Position="{Binding PositionSeconds}" />
         <Grid ColumnDefinitions="*,*">
           <TextBlock Grid.Column="0" Text="{Binding PositionText}" FontSize="20" Opacity="0.8" />
           <TextBlock Grid.Column="1" Text="{Binding DurationText}" FontSize="20" Opacity="0.8" HorizontalAlignment="Right" />
