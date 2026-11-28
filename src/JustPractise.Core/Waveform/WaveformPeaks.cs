@@ -7,7 +7,8 @@ namespace JustPractise.Core.Waveform;
 /// <remarks>
 /// Alle Stufen liegen in einem einzigen Array mit 16-Bit-Werten (Regeln für die Speicherbereinigung: wenige große
 /// Arrays). 15 Minuten bei 48 kHz brauchen rund 3,6 MB. Die feinste Stufe reicht bis etwa eine halbe Sekunde über die
-/// ganze Breite. Nach dem Anlegen unveränderlich und daher von jedem Thread lesbar.
+/// ganze Breite, für die Lupe beim Verschieben eines Übemarkers. Nach dem Anlegen unveränderlich und daher von jedem
+/// Thread lesbar.
 /// </remarks>
 public sealed class WaveformPeaks
 {

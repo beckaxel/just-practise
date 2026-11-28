@@ -24,10 +24,7 @@
     "slower": "Langsamer",
     "faster": "Schneller",
     "quieter": "Leiser",
-    "louder": "Lauter",
-    "zoomIn": "Hineinzoomen",
-    "zoomOut": "Herauszoomen",
-    "zoomAll": "Ganzes Stück zeigen"
+    "louder": "Lauter"
   },
   "metronome": {
     "title": "Metronom",

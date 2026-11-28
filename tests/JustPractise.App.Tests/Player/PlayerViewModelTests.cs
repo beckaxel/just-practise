@@ -224,84 +224,18 @@ public sealed class PlayerViewModelTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task ShowsTheWholePieceAndTheWaveformOnceItIsReady()
+    public async Task ShowsTheWaveformOnceItIsReady()
     {
         await _viewModel.OpenAsync(File());
         Assert.Null(_viewModel.Waveform);
-        Assert.Equal(WaveformViewport.Whole(180), _viewModel.Viewport);
 
         var waveform = new WaveformPeaksBuilder(1, 48000, 48000).Build();
         _player.State = _player.State with { Waveform = waveform };
         _viewModel.Tick();
-
         Assert.Same(waveform, _viewModel.Waveform);
-    }
 
-    [Fact]
-    public async Task ZoomsAroundThePositionAndBackToTheWholePiece()
-    {
-        await _viewModel.OpenAsync(File());
-        _player.State = _player.State with { Position = TimeSpan.FromSeconds(90) };
-        _viewModel.Tick();
-
-        _viewModel.ZoomIn();
-        Assert.Equal(WaveformViewport.Of(180, 45, 90), _viewModel.Viewport);
-        _viewModel.ZoomIn();
-        Assert.Equal(WaveformViewport.Of(180, 67.5, 45), _viewModel.Viewport);
-        _viewModel.ZoomOut();
-        Assert.Equal(WaveformViewport.Of(180, 45, 90), _viewModel.Viewport);
-        _viewModel.ZoomAll();
-        Assert.True(_viewModel.Viewport.IsWhole);
-    }
-
-    [Fact]
-    public async Task TurnsThePageWhilePlaying()
-    {
-        await _viewModel.OpenAsync(File());
-        _viewModel.ZoomIn();
-        _viewModel.ZoomIn(); // 0 bis 45 s
-        _viewModel.PlayPause();
-
-        _player.State = _player.State with { Position = TimeSpan.FromSeconds(46) };
-        _viewModel.Tick();
-
-        Assert.Equal(WaveformViewport.Of(180, 45, 45), _viewModel.Viewport);
-    }
-
-    [Fact]
-    public async Task FollowsAgainOnlyWhenThePositionReachesAViewportMovedAway()
-    {
-        await _viewModel.OpenAsync(File());
-        _viewModel.ZoomIn();
-        _viewModel.ZoomIn();
-        _viewModel.PlayPause();
-
-        _viewModel.Viewport = WaveformViewport.Of(180, 60, 45); // selbst weggeschoben
-        _player.State = _player.State with { Position = TimeSpan.FromSeconds(50) };
-        _viewModel.Tick();
-        Assert.Equal(60, _viewModel.Viewport.Start);
-
-        _player.State = _player.State with { Position = TimeSpan.FromSeconds(61) };
-        _viewModel.Tick();
-        _player.State = _player.State with { Position = TimeSpan.FromSeconds(106) };
-        _viewModel.Tick();
-        Assert.Equal(105, _viewModel.Viewport.Start);
-    }
-
-    [Fact]
-    public async Task JumpingWithTheKeysBringsThePositionBackIntoView()
-    {
-        await _viewModel.OpenAsync(File());
-        _viewModel.ZoomIn();
-        _viewModel.ZoomIn();
-        _viewModel.Viewport = WaveformViewport.Of(180, 100, 45);
-
-        _viewModel.SeekBy(PlayerViewModel.SeekSeconds);
-
-        Assert.True(_viewModel.Viewport.Contains(5));
-        _viewModel.Viewport = WaveformViewport.Of(180, 100, 45);
-        _viewModel.ToStart();
-        Assert.Equal(0, _viewModel.Viewport.Start);
+        await _viewModel.CloseAsync();
+        Assert.Null(_viewModel.Waveform);
     }
 
     [Fact]

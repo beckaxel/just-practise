@@ -35,8 +35,6 @@
           <!-- Stimmgerät: sauber grün, daneben ruhiges Bernstein -->
           <SolidColorBrush x:Key="TunerInTuneBrush" Color="#4CB86A" />
           <SolidColorBrush x:Key="TunerOffBrush" Color="#F0CC8A" />
-          <!-- Wellenform: der sichtbare Ausschnitt in der Übersicht -->
-          <SolidColorBrush x:Key="WaveformWindowBrush" Color="#400078D4" />
         </ResourceDictionary>
         <ResourceDictionary x:Key="Dark">
           <SolidColorBrush x:Key="LibraryFolderBrush" Color="#FFFFFF" />
@@ -50,7 +48,6 @@
           <SolidColorBrush x:Key="TimerTextBrush" Color="#FFFFFF" />
           <SolidColorBrush x:Key="TunerInTuneBrush" Color="#2E9E4F" />
           <SolidColorBrush x:Key="TunerOffBrush" Color="#9A6B1F" />
-          <SolidColorBrush x:Key="WaveformWindowBrush" Color="#5560A5FA" />
         </ResourceDictionary>
       </ResourceDictionary.ThemeDictionaries>
     </ResourceDictionary>
